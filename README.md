@@ -1,4 +1,4 @@
- ![logo](https://imgur.com/a/7S3x3Ok)   
+ ![logo](https://imgur.com/Tib3TxJ)   
 # Sirius Systems
 Brilliance in every Byte
  - - -
