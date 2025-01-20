@@ -9,4 +9,4 @@ Stork Dork is a user focused web-application that will allow bird hobbyists both
 
 - [Christian Raymon](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/christian/Christian%20Raymon%20Resume.pdf) -- [Chrission](https://github.com/Chrission), [Chrission-2](https://github.com/Chrission-2)
 - [Hunter Winger](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/hunter/Hunter%20Winger%20Resume.pdf) -- [HunterWinger](https://github.com/HunterWinger)
-- [Ujunwa Nwokoma](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/ujunwa/Ujunwa%20Nwokoma%20Resume.pdf) -- [xouju](https://github.com/xouju)
+- [Ujunwa Nwokoma](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/ujunwa/Ujunwa%20Nwokoma%20Resume%20(Redo).pdf) -- [xouju](https://github.com/xouju)
