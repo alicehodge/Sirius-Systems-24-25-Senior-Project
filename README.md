@@ -12,7 +12,7 @@ Stork Dork is a user focused web-application that will allow bird hobbyists both
 
 ## Milestone 1
 
-- [Letterhead]()
+- [Letterhead](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Sirius%20Systems%20Letterhead.pdf)
 - [Business Card]()
 - Resumes
   - [Ujunwa Nwokoma](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/ujunwa/Ujunwa%20Nwokoma%20Resume%20(Redo%20).pdf)
