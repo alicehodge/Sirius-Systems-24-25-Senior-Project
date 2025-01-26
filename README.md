@@ -29,4 +29,4 @@ Stork Dork is a user focused web-application that will allow bird hobbyists both
 
 - [Mindmap](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Brainstorm%20Map.png)
 - [Inception template (needs, features, vision statement)](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Sirius%20Systems%20Web%20Application%20--%20Stork%20Dork.md)
-- [Initial architecture diagram](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Stork Dork Initial Architechture Diagram.svg)
+- [Initial architecture diagram](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Stork%20Dork%20Initial%20Architechture%20Diagram.svg)
