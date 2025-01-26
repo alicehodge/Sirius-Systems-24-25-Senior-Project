@@ -1,5 +1,7 @@
- ![](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Sirius_Systems_Logo.png?raw=true) 
+![](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Sirius_Systems_Logo.png?raw=true)
+
 # Sirius Systems
+
 Brilliance in every Byte
 
 ## Stork Dork
@@ -17,7 +19,7 @@ Stork Dork is a user focused web-application that will allow bird hobbyists both
 - [Letterhead](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Sirius%20Systems%20Letterhead.pdf)
 - [Business Card](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Business%20Card.pdf)
 - Resumes
-  - [Ujunwa Nwokoma](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/ujunwa/Ujunwa%20Nwokoma%20Resume%20(Redo%20).pdf)
+  - [Ujunwa Nwokoma](<https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/ujunwa/Ujunwa%20Nwokoma%20Resume%20(Redo%20).pdf>)
   - [Christian Raymon](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/christian/Christian%20Raymon%20Resume.pdf)
   - [Hunter Winger](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/hunter/Hunter%20Winger%20Resume.pdf)
 - [Team Schedule](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/team-schedule.md)
@@ -27,4 +29,4 @@ Stork Dork is a user focused web-application that will allow bird hobbyists both
 
 - [Mindmap](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Brainstorm%20Map.png)
 - [Inception template (needs, features, vision statement)](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Sirius%20Systems%20Web%20Application%20--%20Stork%20Dork.md)
-- [Initial architecture diagram](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/bitmap.svg)
+- [Initial architecture diagram](https://github.com/Chrission/Sirius-Systems-24-25-Senior-Project/blob/dev/team/sirius%20systems/Stork%20Dork%20Initial%20Architechture%20Diagram.svg)
