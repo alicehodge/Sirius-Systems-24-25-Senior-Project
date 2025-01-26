@@ -56,4 +56,8 @@ We proposed this topic because birding is a popular and **growing** hobby and th
 
 ## Vision Statement
 
-Stork Dork is a user focused web-application that will allow bird hobbyists both beginner and experienced, to find bird and region information, log and track birding milestones, and interact with each other. Our purpose is to provide birders an easy to use app, where they can share their finds and learn more about the birds they spot. We’re proposing this topic because while birding is a niche community, it's full of passionate birders and is constantly growing. While there are existing competitors such as Merlin and eBird, Dork Stork will have a larger focus on user milestones and social interaction. Users can earn badges based on their finds, and display them on their profile, providing a sense of accomplishment.
+Stork Dork is a user-centric web application designed to empower bird enthusiasts of all experience levels. Our platform simplifies the birding experience by offering tools to discover detailed bird and region information, log and track birding milestones, and connect with a growing community of like-minded birders.
+
+Our mission is to make birding more engaging and rewarding by focusing on personal achievements and social interaction. With features like milestone badges and interactive profiles, Stork Dork fosters a sense of accomplishment and community among its users.
+
+While existing apps like Merlin and eBird provide bird identification and tracking, Stork Dork stands out by emphasizing user milestones and collaboration. By blending education, gamification, and community engagement, we aim to inspire both novice and seasoned birders to explore the natural world and share their passion for birding.
