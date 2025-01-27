@@ -12,7 +12,7 @@ Our mission is to make birding more engaging and rewarding by focusing on person
 
 While existing apps like Merlin and eBird provide bird identification and tracking, Stork Dork stands out by emphasizing user milestones and collaboration. By blending education, gamification, and community engagement, we aim to inspire both novice and seasoned birders to explore the natural world and share their passion for birding.
 
-## Table of Conents
+## Table of Contents
 
 ### Contributors
 
