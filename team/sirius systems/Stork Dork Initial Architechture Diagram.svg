@@ -650,10 +650,10 @@
        y="0"><tspan
          x="118.38965"
          y="1043.1498"
-         id="tspan28">Weather </tspan><tspan
+         id="tspan28">Mapping </tspan><tspan
          x="99.639648"
          y="1073.1498"
-         id="tspan29">Service API </tspan><tspan
+         id="tspan29">API</tspan><tspan
          x="140.19238"
          y="1103.1498"
          id="tspan30">Calls</tspan></text>
@@ -684,7 +684,7 @@
        style="font-size:18.6667px;text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect16);fill:#000000;stroke:none"><tspan
          x="51.292188"
          y="837.66301"
-         id="tspan35">- Weather Data</tspan></text>
+         id="tspan35">- Mapping/Location Data</tspan></text>
     <rect
        style="fill:#decd87;stroke:#000000;stroke-width:0.282885;stroke-dasharray:none"
        id="rect17"
