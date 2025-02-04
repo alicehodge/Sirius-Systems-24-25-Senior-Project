@@ -23,7 +23,7 @@ While existing apps like Merlin and eBird provide bird identification and tracki
 - [Letterhead](/team/sirius%20systems/Sirius%20Systems%20Letterhead.pdf)
 - [Business Card](team/sirius%20systems/Business%20Card.pdf)
 - Resumes
-  - [Ujunwa Nwokoma](<team/ujunwa/Ujunwa%20Nwokoma%20Resume%20(Redo%20).pdf>)
+  - [Ujunwa Nwokoma](team/ujunwa/Ujunwa%20Nwokoma%20Resume%20(Redo%20).pdf)
   - [Christian Raymon](team/christian/Christian%20Raymon%20Resume.pdf)
   - [Hunter Winger](team/hunter/Hunter%20Winger%20Resume.pdf)
 - [Team Schedule](team/sirius%20systems/team-schedule.md)
@@ -38,8 +38,17 @@ While existing apps like Merlin and eBird provide bird identification and tracki
 ### Milestone 3
 
 - [Personas](team/sirius%20systems/Stork%20Dork%20Personas.md)
-- [Timeline](team/sirius%20systems/timeline.md)
+- [Timeline](team/sirius%20systems/timeline.png)
 - [Requiremnts elicitation](team/sirius%20systems/Requirements%20Elicitation%20for%20Stork%20Dork.md)
 - [Early data modeling](team/sirius%20systems/datadiagram.png)
 - [UI model](team/sirius%20systems/UI_Modeling_Sketch.png)
 - [Use case model](team/sirius%20systems/Use_Case_Diagram.png)
+
+### Milestone 4
+
+- [Jira Backlog](https://sirius-systems-2024.atlassian.net/jira/software/projects/SD/boards/1/backlog)
+- [Database modeling diagram](team/sirius%20systems/db/stork_dork_db_diagram.svg)
+- [Scripts](team/sirius%20systems/db/scripts/)
+  - [Up script](team/sirius%20systems/db/scripts/up.sql)
+  - [Down script](team/sirius%20systems/db/scripts/down.sql)
+  - [Seed script](team/sirius%20systems/db/scripts/seed.sql)
