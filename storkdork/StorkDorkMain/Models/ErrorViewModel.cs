@@ -1,9 +1,8 @@
-
-
-namespace StorkDorkMain.Models;
+namespace StorkDork.Models;
 
 public class ErrorViewModel
 {
     public string? RequestId { get; set; }
+
     public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 }
