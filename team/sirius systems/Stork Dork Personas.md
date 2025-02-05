@@ -1,5 +1,4 @@
 # Stork Dork Personas
-***
 ## Beginner Bird Hobbyist/Interested in Birding: Emily Carter
 ### Overview  
 **Name**: Emily Carter  
