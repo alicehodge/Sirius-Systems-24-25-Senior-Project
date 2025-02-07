@@ -1,16 +1,20 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using StorkDork.Models;
+using StorkDorkMain.Models;
+using Microsoft.EntityFrameworkCore;
+using StorkDorkMain.Data;
 
 namespace StorkDork.Controllers;
 
 public class HomeController : Controller
 {
+    private readonly StorkDorkContext _context;
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, StorkDorkContext context)
     {
         _logger = logger;
+        _context = context;
     }
 
     public IActionResult Index()
@@ -23,9 +27,10 @@ public class HomeController : Controller
         return View();
     }
 
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+        return View(new ErrorViewModel { RequestId = requestId });
     }
+
 }
