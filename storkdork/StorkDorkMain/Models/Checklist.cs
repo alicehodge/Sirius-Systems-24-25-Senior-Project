@@ -9,9 +9,9 @@ public partial class Checklist
 
     public string? ChecklistName { get; set; }
 
-    public int? SdUserId { get; set; }
+    public int? SduserId { get; set; }
 
     public virtual ICollection<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
 
-    public virtual SdUser? SdUser { get; set; }
+    public virtual Sduser? Sduser { get; set; }
 }

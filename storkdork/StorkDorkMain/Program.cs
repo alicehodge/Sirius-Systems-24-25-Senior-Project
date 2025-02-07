@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
+using Microsoft.EntityFrameworkCore;
+using StorkDorkMain.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +9,12 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
+builder.Services.AddDbContext<StorkDorkContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StorkDorkDB")));
+
+
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

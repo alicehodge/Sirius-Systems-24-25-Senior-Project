@@ -22,7 +22,7 @@ public partial class StorkDorkContext : DbContext
 
     public virtual DbSet<ChecklistItem> ChecklistItems { get; set; }
 
-    public virtual DbSet<SdUser> SdUsers { get; set; }
+    public virtual DbSet<Sduser> Sdusers { get; set; }
 
     public virtual DbSet<Sighting> Sightings { get; set; }
 
@@ -38,15 +38,9 @@ public partial class StorkDorkContext : DbContext
             entity.ToTable("Bird");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.ScientificName).HasMaxLength(100);
             entity.Property(e => e.CommonName).HasMaxLength(100);
-            entity.Property(e => e.SpeciesCode).HasMaxLength(10);
-            entity.Property(e => e.Category).HasMaxLength(10);
-            entity.Property(e => e.Order).HasMaxLength(25);
-            entity.Property(e => e.FamilyCommonName).HasMaxLength(50);
-            entity.Property(e => e.FamilyScientificName).HasMaxLength(50);
-            entity.Property(e => e.ReportAs).HasMaxLength(10);
-            entity.Property(e => e.Range).HasMaxLength(1000);
+            entity.Property(e => e.ScientificName).HasMaxLength(100);
+            entity.Property(e => e.SpeciesCode).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Checklist>(entity =>
@@ -57,10 +51,10 @@ public partial class StorkDorkContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.ChecklistName).HasMaxLength(100);
-            entity.Property(e => e.SdUserId).HasColumnName("SDUserID");
+            entity.Property(e => e.SduserId).HasColumnName("SDUserID");
 
-            entity.HasOne(d => d.SdUser).WithMany(p => p.Checklists)
-                .HasForeignKey(d => d.SdUserId)
+            entity.HasOne(d => d.Sduser).WithMany(p => p.Checklists)
+                .HasForeignKey(d => d.SduserId)
                 .HasConstraintName("FK_Checklist_SDUser");
         });
 
@@ -83,7 +77,7 @@ public partial class StorkDorkContext : DbContext
                 .HasConstraintName("FK_ChecklistItem_Checklist");
         });
 
-        modelBuilder.Entity<SdUser>(entity =>
+        modelBuilder.Entity<Sduser>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__SDUser__3214EC277D9B2DC9");
 
@@ -106,14 +100,14 @@ public partial class StorkDorkContext : DbContext
             entity.Property(e => e.Latitude).HasColumnType("decimal(8, 6)");
             entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.Notes).HasMaxLength(3000);
-            entity.Property(e => e.SdUserId).HasColumnName("SDUserID");
+            entity.Property(e => e.SduserId).HasColumnName("SDUserID");
 
             entity.HasOne(d => d.Bird).WithMany(p => p.Sightings)
                 .HasForeignKey(d => d.BirdId)
                 .HasConstraintName("FK_Sighting_Bird");
 
-            entity.HasOne(d => d.SdUser).WithMany(p => p.Sightings)
-                .HasForeignKey(d => d.SdUserId)
+            entity.HasOne(d => d.Sduser).WithMany(p => p.Sightings)
+                .HasForeignKey(d => d.SduserId)
                 .HasConstraintName("FK_Sighting_SDUser");
         });
 

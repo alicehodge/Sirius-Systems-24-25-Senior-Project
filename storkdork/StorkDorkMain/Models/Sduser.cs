@@ -3,15 +3,11 @@ using System.Collections.Generic;
 
 namespace StorkDorkMain.Models;
 
-public partial class SdUser
+public partial class Sduser
 {
     public int Id { get; set; }
 
     public string? AspNetIdentityId { get; set; }
-
-    public string? FirstName { get; set; }
-
-    public string? LastName { get; set; }
 
     public virtual ICollection<Checklist> Checklists { get; set; } = new List<Checklist>();
 
