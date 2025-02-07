@@ -1,14 +1,8 @@
-CREATE TABLE [Bird](
-	[ID] int PRIMARY KEY IDENTITY(1,1),
-	[ScientificName] [nvarchar](100),
-	[CommonName] [nvarchar](100),
-	[SpeciesCode] [nvarchar](10),
-	[Category] [nvarchar](10),
-	[Order] [nvarchar](25) NULL,
-	[FamilyCommonName] [nvarchar](50) NULL,
-	[FamilyScientificName] [nvarchar](50) NULL,
-	[ReportAs] [nvarchar](10) NULL,
-	[Range] [nvarchar](1000) NULL
+CREATE TABLE [Bird] (
+  [ID] int PRIMARY KEY IDENTITY(1, 1),
+  [CommonName] nvarchar(100),
+  [ScientificName] nvarchar(100),
+  [SpeciesCode] nvarchar(50)
 );
 
 CREATE TABLE [SDUser] (
