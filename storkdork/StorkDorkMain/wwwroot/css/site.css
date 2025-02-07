@@ -21,4 +21,6 @@ body {
   margin-bottom: 60px;
 }
 
-#map { height: 40lh; }
+#map { 
+  height: 600px; 
+}
