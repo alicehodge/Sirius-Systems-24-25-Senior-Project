@@ -1,8 +1,8 @@
 CREATE TABLE [Bird] (
   [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [CommonName] string,
-  [ScientificName] string,
-  [SpeciesCode] string
+  [CommonName] nvarchar(100),
+  [ScientificName] nvarchar(100),
+  [SpeciesCode] nvarchar(50)
 );
 
 CREATE TABLE [SDUser] (
@@ -15,9 +15,9 @@ CREATE TABLE [Sighting] (
   [SDUserID] int,
   [BirdID] int,
   [Date] datetime2,
-  [Latitude] Decimal(8,6),
-  [Longitude] Decimal(9,6),
-  [Notes] string
+  [Latitude] decimal(8,6),
+  [Longitude] decimal(9,6),
+  [Notes] nvarchar(3000)
 );
 
 CREATE TABLE [Checklist] (
@@ -30,7 +30,7 @@ CREATE TABLE [ChecklistItem] (
   [ID] int PRIMARY KEY IDENTITY(1, 1),
   [ChecklistID] int,
   [BirdID] int,
-  [Sighted] bool
+  [Sighted] bit
 );
 
 ALTER TABLE [Sighting] ADD CONSTRAINT [FK_Sighting_SDUser] 
