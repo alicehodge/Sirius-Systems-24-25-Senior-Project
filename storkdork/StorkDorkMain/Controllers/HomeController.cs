@@ -31,7 +31,6 @@ public class HomeController : Controller
     {
         return View();
     }
-    
     public IActionResult Error()
     {
         var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
