@@ -33,7 +33,7 @@ public class HomeController : Controller
         } catch(Exception ex) {
             _logger.LogError($"Database connection failed: {ex.Message}");
         }
-        
+
         return View();
     }
 
@@ -42,12 +42,6 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Map()
-    {
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
         var requestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
