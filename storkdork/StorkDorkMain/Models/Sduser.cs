@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace StorkDorkMain.Models;
 
-public partial class Sduser
+public partial class SdUser
 {
     public int Id { get; set; }
 

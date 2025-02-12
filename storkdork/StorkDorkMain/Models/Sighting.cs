@@ -7,7 +7,7 @@ public partial class Sighting
 {
     public int Id { get; set; }
 
-    public int? SduserId { get; set; }
+    public int? SdUserId { get; set; }
 
     public int? BirdId { get; set; }
 
@@ -21,5 +21,5 @@ public partial class Sighting
 
     public virtual Bird? Bird { get; set; }
 
-    public virtual Sduser? Sduser { get; set; }
+    public virtual SdUser? SdUser { get; set; }
 }
