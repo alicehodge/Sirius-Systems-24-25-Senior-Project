@@ -20,14 +20,5 @@ namespace StorkDorkMain.DAL.Concrete
                 EF.Functions.Like(b.ScientificName, $"%{name}%")
             ).ToListAsync();
         }
-
-        public async Task<IEnumerable<Bird>> GetBirdsByTaxonomy(string searchTerm)
-        {
-            return await _birds.Where(b => 
-                EF.Functions.Like(b.Order, $"%{searchTerm}%") || 
-                EF.Functions.Like(b.FamilyCommonName, $"%{searchTerm}%") || 
-                EF.Functions.Like(b.FamilyScientificName, $"%{searchTerm}%")
-            ).ToListAsync();
-        }
     }
 }
