@@ -10,36 +10,6 @@
     <h4>Bird Sighting</h4>
     <hr />
     <dl class="row">
-        <!-- SduserId -->
-        <dt class="col-sm-2">
-            User ID
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.SdUserId.HasValue)
-            {
-                @Model.SdUserId
-            }
-            else
-            {
-                <span>No User Recorded.</span>
-            }
-        </dd>
-
-        <!-- Sduser Information (Optional) -->
-        <dt class="col-sm-2">
-            User
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.SdUser != null)
-            {
-                @Model.SdUser.Id <!-- Replace "Name" with the actual property you want to display -->
-            }
-            else
-            {
-                <span>No User Information Available.</span>
-            }
-        </dd>
-
         <!-- Bird Species -->
         <dt class="col-sm-2">
             Bird Species
@@ -84,7 +54,7 @@
             }
             else
             {
-                <span>No Date Recorded.</span>
+                <span>No date recorded.</span>
             }
         </dd>
 
@@ -102,7 +72,42 @@
             }
             else
             {
-                <span>No Notes Recorded</span>
+                <span>No notes recorded.</span>
+            }
+        </dd>
+
+        <!-- Weather Conditions -->
+        <dt class="col-sm-2">
+            Weather Conditions
+        </dt>
+        <dd class="col-sm-10">
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                // Extract weather conditions from the Notes field
+                var weatherConditions = "";
+                var weatherParts = Model.Notes.Split(new[] { "|||" }, StringSplitOptions.RemoveEmptyEntries);
+                if (weatherParts.Length > 1)
+                {
+                    weatherConditions = weatherParts[1].Replace("Weather Conditions:", "").Trim();
+                }
+
+                if (!string.IsNullOrEmpty(weatherConditions))
+                {
+                    <ul>
+                        @foreach (var condition in weatherConditions.Split(','))
+                        {
+                            <li>@condition.Trim()</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <span>No weather conditions recorded.</span>
+                }
+            }
+            else
+            {
+                <span>No weather conditions recorded.</span>
             }
         </dd>
     </dl>

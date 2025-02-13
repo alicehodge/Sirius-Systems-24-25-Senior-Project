@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using StorkDorkMain.Models;
 
-namespace StorkDorkMain.Models;
+namespace StorkDork.Models;
 
 public partial class StorkDorkDbContext : DbContext
 {
@@ -22,7 +22,7 @@ public partial class StorkDorkDbContext : DbContext
 
     public virtual DbSet<ChecklistItem> ChecklistItems { get; set; }
 
-    public virtual DbSet<SdUser> SdUsers { get; set; }
+    public virtual DbSet<Sduser> Sdusers { get; set; }
 
     public virtual DbSet<Sighting> Sightings { get; set; }
 
@@ -38,7 +38,7 @@ public partial class StorkDorkDbContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Checklis__3214EC2791C5CD06");
 
-            entity.HasOne(d => d.SdUser).WithMany(p => p.Checklists).HasConstraintName("FK_Checklist_SDUser");
+            entity.HasOne(d => d.Sduser).WithMany(p => p.Checklists).HasConstraintName("FK_Checklist_SDUser");
         });
 
         modelBuilder.Entity<ChecklistItem>(entity =>
@@ -50,7 +50,7 @@ public partial class StorkDorkDbContext : DbContext
             entity.HasOne(d => d.Checklist).WithMany(p => p.ChecklistItems).HasConstraintName("FK_ChecklistItem_Checklist");
         });
 
-        modelBuilder.Entity<SdUser>(entity =>
+        modelBuilder.Entity<Sduser>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__SDUser__3214EC27D4DAB424");
         });
@@ -61,7 +61,7 @@ public partial class StorkDorkDbContext : DbContext
 
             entity.HasOne(d => d.Bird).WithMany(p => p.Sightings).HasConstraintName("FK_Sighting_Bird");
 
-            entity.HasOne(d => d.SdUser).WithMany(p => p.Sightings).HasConstraintName("FK_Sighting_SDUser");
+            entity.HasOne(d => d.Sduser).WithMany(p => p.Sightings).HasConstraintName("FK_Sighting_SDUser");
         });
 
         OnModelCreatingPartial(modelBuilder);

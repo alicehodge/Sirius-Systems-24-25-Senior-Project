@@ -8,109 +8,50 @@
 
 <h3>Are you sure you want to delete this?</h3>
 <div>
-    <h4>Bird Sighting</h4>
+    <h4>Sighting</h4>
     <hr />
     <dl class="row">
-        <!-- SduserId -->
-        <dt class="col-sm-2">
-            User ID
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Date)
         </dt>
-        <dd class="col-sm-10">
-            @if (Model.SdUserId.HasValue)
-            {
-                @Model.SdUserId
-            }
-            else
-            {
-                <span>No User Recorded.</span>
-            }
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Date)
         </dd>
-
-        <!-- Sduser Information (Optional) -->
-        <dt class="col-sm-2">
-            User
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Latitude)
         </dt>
-        <dd class="col-sm-10">
-            @if (Model.SdUser != null)
-            {
-                @Model.SdUser.Id <!-- Replace "Id" with the actual property you want to display -->
-            }
-            else
-            {
-                <span>No User Information Available.</span>
-            }
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Latitude)
         </dd>
-
-        <!-- Bird Species -->
-        <dt class="col-sm-2">
-            Bird Species
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Longitude)
         </dt>
-        <dd class="col-sm-10">
-            @if (Model.BirdId.HasValue && Model.Bird != null)
-            {
-                @Model.Bird.CommonName
-            }
-            else
-            {
-                <span>N/A</span>
-            }
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Longitude)
         </dd>
-
-        <!-- Location -->
-        <dt class="col-sm-2">
-            Location
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Notes)
         </dt>
-        <dd class="col-sm-10">
-            @{
-                string latitude = Model.Latitude?.ToString("0.0000") ?? "NULL";
-                string longitude = Model.Longitude?.ToString("0.0000") ?? "NULL";
-                string locationKey = $"{latitude},{longitude}";
-
-                string locationName = (latitude != "NULL" && longitude != "NULL" && ViewBag.PnwLocations.ContainsKey(locationKey))
-                    ? ViewBag.PnwLocations[locationKey]
-                    : "Unknown Location";
-            }
-            <strong>@locationName</strong> <br>
-            <small>Coordinates: @locationKey</small>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Notes)
         </dd>
-
-        <!-- Date -->
-        <dt class="col-sm-2">
-            Date
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Bird)
         </dt>
-        <dd class="col-sm-10">
-            @if (Model.Date.HasValue)
-            {
-                @Model.Date.Value.ToShortDateString()
-            }
-            else
-            {
-                <span>No Date Recorded.</span>
-            }
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Bird.Id)
         </dd>
-
-        <!-- Notes -->
-        <dt class="col-sm-2">
-            Notes
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Sduser)
         </dt>
-        <dd class="col-sm-10">
-            @if (!string.IsNullOrEmpty(Model.Notes))
-            {
-                // Split the Notes field into user notes and weather conditions
-                var notesParts = Model.Notes.Split(new[] { "|||" }, StringSplitOptions.RemoveEmptyEntries);
-                var userNotes = notesParts.Length > 0 ? notesParts[0].Trim() : "";
-                @userNotes
-            }
-            else
-            {
-                <span>No Notes Recorded</span>
-            }
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Sduser.Id)
         </dd>
     </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
 </div>
-
-<form asp-action="Delete">
-    <input type="hidden" asp-for="Id" />
-    <input type="submit" value="Delete" class="btn btn-danger" /> |
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</form>
