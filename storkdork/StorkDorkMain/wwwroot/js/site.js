@@ -13,14 +13,48 @@ const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 
 
-//javascript for SD-15 Bird Log
-//create.cshtml
-// sightingFormValidation.js
+
+
+
+// sightingForm.js
 
 
 
 
-///////////////////////////////////////////////
 
-//javascript for SD-15
-//edit.cshtml
+document.addEventListener('DOMContentLoaded', function () {
+    var latInput = document.getElementById('LatitudeInput');
+    var longInput = document.getElementById('LongitudeInput');
+    var locationDropdown = document.getElementById('PnwLocation');
+
+    // Get the selected location from the ViewBag
+    var selectedLatLong = '@ViewBag.SelectedLatLong';
+
+    console.log(`Selected Location: ${selectedLatLong}`); // Debugging
+
+    // Pre-select the correct location based on the selectedLatLong value
+    for (var i = 0; i < locationDropdown.options.length; i++) {
+        var option = locationDropdown.options[i];
+        if (option.value === selectedLatLong) {
+            locationDropdown.selectedIndex = i;
+            console.log(`Selected Option: ${option.text}`);
+            break;
+        }
+    }
+
+    // Update hidden fields when a new location is selected
+    locationDropdown.addEventListener('change', function () {
+        var selectedOption = this.options[this.selectedIndex];
+        var latLong = selectedOption.value.split(',');
+
+        if (latLong.length === 2) {
+            latInput.value = latLong[0];
+            longInput.value = latLong[1];
+        } else {
+            latInput.value = "";
+            longInput.value = "";
+        }
+
+        console.log(`Updated Latitude: ${latInput.value}, Longitude: ${longInput.value}`); // Debugging
+    });
+});

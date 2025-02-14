@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StorkDorkMain.Data;
 using StorkDorkMain.Models;
 
@@ -51,6 +52,7 @@ namespace StorkDork.Controllers
                 { "44.3611,-111.4550", "Harriman State Park, ID" }
             };
 
+           
             
             return View(sightings);
            
@@ -102,8 +104,11 @@ namespace StorkDork.Controllers
         // GET: BirdLog/Create
         public IActionResult Create()
         {
+            //To populate ViewBag and ViewData
             ViewData["BirdId"] = new SelectList(_context.Birds, "Id", "CommonName");
             ViewData["SduserId"] = new SelectList(_context.Sdusers, "Id", "Id");
+
+            
 
             
             ViewBag.PnwLocations = new List<SelectListItem>
@@ -144,42 +149,39 @@ namespace StorkDork.Controllers
         {
             var selectedLocation = Request.Form["PnwLocation"];
 
-            if (sighting.BirdId == null || sighting.BirdId == 0)
+            // Check if SduserId is empty
+            if (sighting.SduserId == 0)
             {
-                if (sighting.BirdId == 0) // 0 means you have selected "N/A"
-                {
-                    sighting.BirdId = null;
-                }
-                else
-                {
-                    ModelState.AddModelError("BirdId", "Please select a bird or enter 'N/A' if unknown");
-                }
+                ModelState.AddModelError("SduserId", "Please select a user.");
             }
-
-
-
+            
+            // To check if BirdId is empty or "N/A"
+            if (sighting.BirdId == 0)
+            {
+                sighting.BirdId = null;
+            }
+        
 
             if (selectedLocation == "0")
-            // If Latitude and Longitude are 0, set them to null
             {
                 sighting.Latitude = null;
                 sighting.Longitude = null;
             }
-
             else if (string.IsNullOrEmpty(selectedLocation))
             {
                 ModelState.AddModelError("PnwLocation", "Please select a location or select N/A");
             }
 
-            if ((sighting.BirdId == null || sighting.BirdId == 0) && string.IsNullOrEmpty(selectedLocation))
+            // Check if both Bird and Location are left blank (not even N/A)
+            if ((sighting.BirdId == null && string.IsNullOrEmpty(selectedLocation)))
             {
-                ModelState.AddModelError("","Both cannot be null");
-            }
+                ModelState.AddModelError("BirdId", "Please select a bird or choose N/A.");
+                ModelState.AddModelError("PnwLocation", "Please select a location or choose N/A.");
+            }   
 
 
             if (ModelState.IsValid)
             {
-
                 _context.Add(sighting);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -229,8 +231,12 @@ namespace StorkDork.Controllers
             {
                 return NotFound();
             }
+            ViewBag.SelectedLatLong = sighting.Latitude.HasValue && sighting.Longitude.HasValue
+                ? $"{sighting.Latitude},{sighting.Longitude}"
+                : null;
+           
                
-        
+            
             ViewData["BirdId"] = new SelectList(_context.Birds, "Id", "CommonName", sighting.BirdId);
             ViewData["SduserId"] = new SelectList(_context.Sdusers, "Id", "Id", sighting.SduserId);
 
@@ -257,7 +263,9 @@ namespace StorkDork.Controllers
 
             };
 
-            ViewBag.SelectedLatLong = $"{sighting.Latitude},{sighting.Longitude}";
+           
+        
+            
             Console.WriteLine($"Selected Location: {ViewBag.SelectedLatLong}");
 
             return View(sighting);
@@ -369,8 +377,38 @@ namespace StorkDork.Controllers
                 return NotFound();
             }
 
+            ViewBag.PnwLocations =  GetPnwLocations();
+
+            
+
             return View(sighting);
         }
+            private Dictionary<string, string> GetPnwLocations()
+            {
+                return new Dictionary<string, string>
+                {
+                    { "48.4244,-122.3358", "Skagit Valley, WA" },
+                    { "46.8797,-121.7269", "Mount Rainier National Park, WA" },
+                    { "47.6573,-122.4057", "Discovery Park, Seattle, WA" },
+                    { "47.0726,-122.7175", "Nisqually National Wildlife Refuge, WA" },
+                    { "47.8601,-123.9343", "Olympic National Park (Hoh Rainforest), WA" },
+                    { "45.7156,-122.7745", "Sauvie Island, OR" },
+                    { "42.9778,-118.9097", "Malheur National Wildlife Refuge, OR" },
+                    { "42.8684,-122.1685", "Crater Lake National Park, OR" },
+                    { "45.9190,-123.9740", "Ecola State Park, OR" },
+                    { "42.1561,-121.7381", "Klamath Basin, OR" },
+                    { "49.0456,-123.0586", "Boundary Bay, BC" },
+                    { "49.3043,-123.1443", "Stanley Park, Vancouver, BC" },
+                    { "49.1167,-123.1500", "Reifel Migratory Bird Sanctuary, BC" },
+                    { "48.7500,-125.5000", "Pacific Rim National Park, BC" },
+                    { "49.5000,-119.5833", "Okanagan Valley, BC" },
+                    { "47.5000,-116.8000", "Lake Coeur d’Alene, ID" },
+                    { "43.3000,-112.0000", "Camas National Wildlife Refuge, ID" },
+                    { "44.3611,-111.4550", "Harriman State Park, ID" }
+                };
+            }
+            
+        
 
         // POST: BirdLog/Delete/5
         [HttpPost, ActionName("Delete")]
