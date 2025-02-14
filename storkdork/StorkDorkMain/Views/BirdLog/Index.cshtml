@@ -4,6 +4,8 @@
     ViewData["Title"] = "Index";
 }
 
+<!--Home page for logging birds-->
+
 <h1>Bird Sightings</h1>
 
 <p>
@@ -24,8 +26,26 @@
     <tbody>
     @foreach (var item in Model) {
         <tr>
-            <td>@Html.DisplayFor(modelItem => item.SduserId)</td>
-            <td>@Html.DisplayFor(modelItem => item.Date)</td>
+            <td>
+                @if (item.SduserId.HasValue)
+                {
+                    @item.SduserId
+                }
+                else
+                {
+                    <span class="text-danger">No User Selected</span>
+                }
+            </td>
+            <td>
+                @if (item.Date.HasValue)
+                {
+                    @item.Date.Value.ToShortDateString()
+                }
+                else
+                {
+                    <span>No date has been entered.</span>
+                }
+            </td>
             <td>
                 @if (item.Bird == null)
                 {
@@ -44,7 +64,7 @@
 
                     string locationName = (latitude != "NULL" && longitude != "NULL" && ViewBag.PnwLocations.ContainsKey(locationKey))
                         ? ViewBag.PnwLocations[locationKey]
-                        : "Location Not Available";
+                        : "Unknown Location";         
                 }
                 <strong>@locationName</strong> <br>
                 <small>Debug: @locationKey</small>
@@ -69,8 +89,3 @@
     }
     </tbody>
 </table>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script src="~/js/sorting.js"></script>
-}
