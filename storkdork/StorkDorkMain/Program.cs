@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.DAL.Concrete;
 using StorkDorkMain.Data;
+using Microsoft.AspNetCore.Identity;
+using StorkDork.Areas.Identity.Data;
 
 internal class Program
 {
@@ -12,18 +14,38 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Configuration.AddUserSecrets<Program>();
+        }
+
         // Add services to the container.
         builder.Services.AddControllersWithViews();
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
+        // StorkDork database setup
         var conStrBuilder = new SqlConnectionStringBuilder(
-                builder.Configuration.GetConnectionString("StorkDorkDB"));
+            builder.Configuration.GetConnectionString("StorkDorkDB"));
         var connectionString = conStrBuilder.ConnectionString;
 
         builder.Services.AddDbContext<StorkDorkContext>(options => options
             .UseLazyLoadingProxies()
             .UseSqlServer(connectionString));
+
+        // Identity database setup
+        var conStrBuilderTwo = new SqlConnectionStringBuilder(
+            builder.Configuration.GetConnectionString("IdentityDB"));
+        var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
+
+        builder.Services.AddDbContext<StorkDorkIdentityDbContext>(options => options
+            .UseLazyLoadingProxies()
+            .UseSqlServer(connectionStringIdentity)
+        );
+
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+        .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
+        .AddDefaultTokenProviders();
 
         builder.Services.AddScoped<DbContext, StorkDorkContext>();
         builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
