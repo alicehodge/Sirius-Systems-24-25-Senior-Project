@@ -68,7 +68,6 @@ namespace StorkDork.Areas.Identity.Pages.Account
             [EmailAddress]
             public string Email { get; set; }
 
-
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -129,7 +128,7 @@ namespace StorkDork.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, $"Invalid login attempt.{Input.Password}");
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return Page();
                 }
             }
