@@ -80,6 +80,32 @@ namespace StorkDork.Areas.Identity.Pages.Account
             public string Email { get; set; }
 
             /// <summary>
+            /// Addition to include First Name in Input
+            /// </summary>
+            [Required]
+            [StringLength(100)]
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
+
+            /// <summary>
+            /// Addition to include Last Name in Input
+            /// </summary>
+            [Required]
+            [StringLength(100)]
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
+
+            /// <summary>
+            /// Addition to include Username in Input
+            /// </summary>
+            [Required]
+            [StringLength(100)]
+            [Display(Name = "Username")]
+            public string Username { get; set; }
+
+
+
+            /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
