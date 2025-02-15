@@ -26,7 +26,7 @@ namespace StorkDork.Controllers
             
             var sightings = await _context.Sightings
                 .Include(s => s.Bird)  // Ensure Bird data is loaded
-                .Include(s => s.Sduser) //Include Sduser data for each sighting
+                .Include(s => s.SdUser) //Include Sduser data for each sighting
                 .ToListAsync();
 
             // A predefined list of common PNW bird sighting locations with longitude and latitde coordinates
@@ -68,7 +68,7 @@ namespace StorkDork.Controllers
 
             var sighting = await _context.Sightings
                 .Include(s => s.Bird)
-                .Include(s => s.Sduser)
+                .Include(s => s.SdUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (sighting == null)
             {
@@ -106,7 +106,7 @@ namespace StorkDork.Controllers
         {
             //To populate ViewBag and ViewData
             ViewData["BirdId"] = new SelectList(_context.Birds, "Id", "CommonName");
-            ViewData["SduserId"] = new SelectList(_context.Sdusers, "Id", "Id");
+            ViewData["SdUserId"] = new SelectList(_context.SdUsers, "Id", "Id");
 
             
 
@@ -150,7 +150,7 @@ namespace StorkDork.Controllers
             var selectedLocation = Request.Form["PnwLocation"];
 
             // Check if SduserId is empty
-            if (sighting.SduserId == 0)
+            if (sighting.SdUserId == 0)
             {
                 ModelState.AddModelError("SduserId", "Please select a user.");
             }
@@ -188,7 +188,7 @@ namespace StorkDork.Controllers
             }
             
             ViewData["BirdId"] = new SelectList(_context.Birds, "Id", "CommonName", sighting.BirdId);
-            ViewData["SduserId"] = new SelectList(_context.Sdusers, "Id", "Id", sighting.SduserId);
+            ViewData["SduserId"] = new SelectList(_context.SdUsers, "Id", "Id", sighting.SdUserId);
 
                   
             ViewBag.PnwLocations = new List<SelectListItem>
@@ -238,7 +238,7 @@ namespace StorkDork.Controllers
                
             
             ViewData["BirdId"] = new SelectList(_context.Birds, "Id", "CommonName", sighting.BirdId);
-            ViewData["SduserId"] = new SelectList(_context.Sdusers, "Id", "Id", sighting.SduserId);
+            ViewData["SduserId"] = new SelectList(_context.SdUsers, "Id", "Id", sighting.SdUserId);
 
             ViewBag.PnwLocations = new List<SelectListItem>
             {
@@ -331,7 +331,7 @@ namespace StorkDork.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["BirdId"] = new SelectList(_context.Birds, "Id", "CommonName", sighting.BirdId);
-            ViewData["SduserId"] = new SelectList(_context.Sdusers, "Id", "Id", sighting.SduserId);
+            ViewData["SduserId"] = new SelectList(_context.SdUsers, "Id", "Id", sighting.SdUserId);
 
                   
             ViewBag.PnwLocations = new List<SelectListItem>
@@ -370,7 +370,7 @@ namespace StorkDork.Controllers
 
             var sighting = await _context.Sightings
                 .Include(s => s.Bird)
-                .Include(s => s.Sduser)
+                .Include(s => s.SdUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (sighting == null)
             {

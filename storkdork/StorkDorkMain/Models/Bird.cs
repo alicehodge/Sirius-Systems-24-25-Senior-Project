@@ -9,9 +9,22 @@ public partial class Bird
 
     public string? CommonName { get; set; } 
 
-    public string? ScientificName { get; set; }
+    public string ScientificName { get; set; }
 
-    public string? SpeciesCode { get; set; }
+
+    public string SpeciesCode { get; set; }
+
+    public string Category { get; set; }
+
+    public string? Order { get; set; }
+
+    public string? FamilyCommonName { get; set; }
+
+    public string? FamilyScientificName { get; set; }
+
+    public string? ReportAs { get; set; }
+
+    public string? Range { get; set; }
 
     public virtual ICollection<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
 
