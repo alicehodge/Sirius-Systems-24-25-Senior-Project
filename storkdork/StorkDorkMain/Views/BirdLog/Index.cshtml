@@ -15,7 +15,7 @@
 <table class="table">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.SduserId)</th>
+            <th>@Html.DisplayNameFor(model => model.SdUserId)</th>
             <th>@Html.DisplayNameFor(model => model.Date)</th>
             <th>@Html.DisplayNameFor(model => model.Bird)</th>
             <th>PNW Location</th>
@@ -27,9 +27,9 @@
     @foreach (var item in Model) {
         <tr>
             <td>
-                @if (item.SduserId.HasValue)
+                @if (item.SdUserId.HasValue)
                 {
-                    @item.SduserId
+                    @item.SdUserId
                 }
                 else
                 {
