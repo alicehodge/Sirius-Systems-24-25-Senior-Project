@@ -9,6 +9,7 @@ using StorkDorkMain.DAL.Concrete;
 using StorkDorkMain.Data;
 using Microsoft.AspNetCore.Identity;
 using StorkDork.Areas.Identity.Data;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 internal class Program
 {
@@ -23,6 +24,9 @@ internal class Program
 
         // Add services to the container.
         builder.Services.AddControllersWithViews();
+
+        // Needed for identity ui to route properly
+        builder.Services.AddRazorPages();
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
@@ -54,6 +58,8 @@ internal class Program
         builder.Services.AddScoped<IBirdRepository, BirdRepository>();
 
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddSingleton<IEmailSender, NoOpEmailSender>();
 
         var app = builder.Build();
 
@@ -92,6 +98,23 @@ internal class Program
             pattern: "Search/{action=Index}/{id?}",
             defaults: new { controller = "Search" });
 
+        app.MapControllerRoute(
+            name: "BirdLog",
+            pattern: "BirdLog/{action=Index}/{id?}",
+            defaults: new { controller = "BirdLog" });
+
+        // Needed for identity ui routing to work
+        app.MapRazorPages();
+
         app.Run();
+    }
+}
+
+// Dummy email to satisfy identity requiring email sending. WILL DELETE LATER 
+public class NoOpEmailSender : IEmailSender
+{
+    public Task SendEmailAsync(string email, string subject, string htmlMessage)
+    {
+        return Task.CompletedTask; // Does nothing, but satisfies the requirement
     }
 }
