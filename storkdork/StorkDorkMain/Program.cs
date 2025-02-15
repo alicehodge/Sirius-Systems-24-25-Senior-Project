@@ -1,3 +1,5 @@
+
+
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using Microsoft.Data.SqlClient;
@@ -89,6 +91,11 @@ internal class Program
             name: "search",
             pattern: "Search/{action=Index}/{id?}",
             defaults: new { controller = "Search" });
+
+        app.MapControllerRoute(
+            name: "BirdLog",
+            pattern: "BirdLog/{action=Index}/{id?}",
+            defaults: new { controller = "BirdLog" });
 
         app.Run();
     }
