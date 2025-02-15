@@ -13,6 +13,7 @@ const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
+
 // fatch sightings from server
 fetch('/Leaflet/GetSightings')
 	.then(response => response.json())
@@ -25,3 +26,4 @@ fetch('/Leaflet/GetSightings')
 		});
 	})
 	.catch(error => console.log('Error fetching bird sightings data: ', error));
+
