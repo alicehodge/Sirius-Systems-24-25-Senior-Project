@@ -4,6 +4,7 @@ using StorkDorkMain.Models;
 using Microsoft.EntityFrameworkCore;
 using StorkDorkMain.Data;
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StorkDork.Controllers;
 
@@ -27,10 +28,14 @@ public class HomeController : Controller
             if (testConnection != null)
             {
                 _logger.LogInformation("Database Connected!");
-            } else {
+            }
+            else
+            {
                 _logger.LogWarning("Database connection successful, but no bird data founs.");
             }
-        } catch(Exception ex) {
+        }
+        catch (Exception ex)
+        {
             _logger.LogError($"Database connection failed: {ex.Message}");
         }
 

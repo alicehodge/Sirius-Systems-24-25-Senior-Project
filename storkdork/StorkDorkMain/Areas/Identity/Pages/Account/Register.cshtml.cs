@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using StorkDorkMain.Models;
+using StorkDorkMain.Data;
 
 namespace StorkDork.Areas.Identity.Pages.Account
 {
@@ -29,13 +31,15 @@ namespace StorkDork.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly StorkDorkContext _context;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            StorkDorkContext context)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -43,6 +47,7 @@ namespace StorkDork.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _context = context;
         }
 
         /// <summary>
@@ -78,30 +83,6 @@ namespace StorkDork.Areas.Identity.Pages.Account
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
-
-            /// <summary>
-            /// Addition to include First Name in Input
-            /// </summary>
-            [Required]
-            [StringLength(100)]
-            [Display(Name = "First Name")]
-            public string FirstName { get; set; }
-
-            /// <summary>
-            /// Addition to include Last Name in Input
-            /// </summary>
-            [Required]
-            [StringLength(100)]
-            [Display(Name = "Last Name")]
-            public string LastName { get; set; }
-
-            /// <summary>
-            /// Addition to include Username in Input
-            /// </summary>
-            [Required]
-            [StringLength(100)]
-            [Display(Name = "Username")]
-            public string Username { get; set; }
 
 
 
@@ -147,6 +128,14 @@ namespace StorkDork.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
+
+                    var sdUser = new SdUser
+                    {
+                        AspNetIdentityId = user.Id // Associate with the Identity user
+                    };
+
+                    _context.SdUsers.Add(sdUser);
+                    await _context.SaveChangesAsync();
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
