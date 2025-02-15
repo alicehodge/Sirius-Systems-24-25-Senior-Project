@@ -1,3 +1,5 @@
+
+
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using Microsoft.Data.SqlClient;
@@ -8,27 +10,7 @@ using StorkDorkMain.Data;
 using Microsoft.AspNetCore.Identity;
 using StorkDork.Areas.Identity.Data;
 
-
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
-
-builder.Services.AddDbContext<StorkDorkContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("StorkDorkDB")));
-
-
-var app = builder.Build();
-
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment());
-
 internal class Program
-
 {
     private static void Main(string[] args)
     {
@@ -44,17 +26,10 @@ internal class Program
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-    
-
         // StorkDork database setup
         var conStrBuilder = new SqlConnectionStringBuilder(
             builder.Configuration.GetConnectionString("StorkDorkDB"));
         var connectionString = conStrBuilder.ConnectionString;
-
 
         builder.Services.AddDbContext<StorkDorkContext>(options => options
             .UseLazyLoadingProxies()
