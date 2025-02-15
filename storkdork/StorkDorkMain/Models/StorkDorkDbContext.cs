@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using StorkDorkMain.Models;
 
-namespace StorkDork.Models;
+namespace StorkDorkMain.Models;
 
 public partial class StorkDorkDbContext : DbContext
 {
@@ -22,7 +22,7 @@ public partial class StorkDorkDbContext : DbContext
 
     public virtual DbSet<ChecklistItem> ChecklistItems { get; set; }
 
-    public virtual DbSet<SdUser> Sdusers { get; set; }
+    public virtual DbSet<SdUser> SdUsers { get; set; }
 
     public virtual DbSet<Sighting> Sightings { get; set; }
 
