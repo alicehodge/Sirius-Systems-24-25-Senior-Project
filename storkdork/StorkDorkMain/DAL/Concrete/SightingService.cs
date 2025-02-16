@@ -22,6 +22,8 @@ public class SightingService : ISightingService
             {
                 CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
+                Longitude = s.Longitude,
+                Latitude = s.Latitude,
                 Description = s.Notes,
                 Date = s.Date
             })
