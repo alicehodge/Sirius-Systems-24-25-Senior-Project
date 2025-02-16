@@ -6,6 +6,5 @@ namespace StorkDorkMain.Models
         public int CurrentPage { get; set; }
         public int TotalPages { get; set; }
         public string SearchTerm { get; set; }
-        public string SearchType { get; set; } = "name";
     }
 }
