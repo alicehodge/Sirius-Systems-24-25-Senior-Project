@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.Models;
 
-namespace StorkDork.Controllers
+namespace StorkDorkMain.Controllers
 {
     public class SearchController : Controller
     {
@@ -19,7 +19,8 @@ namespace StorkDork.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SearchBirds(string searchTerm, int page = 1)
+        [Route("search/birds")]
+        public async Task<IActionResult> SearchBirds(string searchTerm, string searchType = "name", int page = 1)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
@@ -27,7 +28,10 @@ namespace StorkDork.Controllers
             }
 
             const int pageSize = 10;
-            var birds = await _birdRepo.GetBirdsByName(searchTerm);
+            var birds = searchType == "taxonomy" 
+                ? await _birdRepo.GetBirdsByTaxonomy(searchTerm)
+                : await _birdRepo.GetBirdsByName(searchTerm);
+
             var paginatedBirds = birds.Skip((page - 1) * pageSize)
                                     .Take(pageSize)
                                     .ToList();
@@ -37,26 +41,34 @@ namespace StorkDork.Controllers
                 Birds = paginatedBirds,
                 CurrentPage = page,
                 TotalPages = (int)Math.Ceiling(birds.Count() / (double)pageSize),
-                SearchTerm = searchTerm
+                SearchTerm = searchTerm,
+                SearchType = searchType
             };
 
             return View("Index", viewModel);
         }
 
         [HttpGet]
-        public async Task<IActionResult> SearchPreview(string searchTerm)
+        [Route("search/preview")]
+        public async Task<IActionResult> SearchPreview(string searchTerm, string searchType = "name")
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
                 return Json(new List<BirdPreview>());
             }
 
-            var birds = await _birdRepo.GetBirdsByName(searchTerm);
+            var birds = searchType == "taxonomy" 
+                ? await _birdRepo.GetBirdsByTaxonomy(searchTerm)
+                : await _birdRepo.GetBirdsByName(searchTerm);
+
             var results = birds.Select(b => new BirdPreview 
             { 
                 CommonName = b.CommonName,
                 ScientificName = b.ScientificName,
-                Id = b.Id
+                Id = b.Id,
+                Order = b.Order,
+                FamilyCommonName = b.FamilyCommonName,
+                FamilyScientificName = b.FamilyScientificName
             }).Take(5);
             
             return Json(results);
