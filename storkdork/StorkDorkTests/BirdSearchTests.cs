@@ -29,33 +29,6 @@ namespace StorkDorkTests
             };
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            Dispose(true);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _controller?.Dispose();
-                }
-                _mockBirdRepo = null;
-                _controller = null;
-                _testBirds = null;
-                _disposed = true;
-            }
-        }
-
         [Test]
         public async Task SearchBirds_EmptySearchTerm_ReturnsIndexView()
         {
@@ -157,6 +130,34 @@ namespace StorkDorkTests
             Assert.That(viewResult.Model, Is.TypeOf<SearchResultsViewModel>());
             var model = (SearchResultsViewModel)viewResult.Model;
             Assert.That(model.CurrentPage, Is.EqualTo(page));
+        }
+
+                public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+
+        [TearDown]
+        public void TearDown()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _controller?.Dispose();
+                }
+                _mockBirdRepo = null;
+                _controller = null;
+                _testBirds = null;
+                _disposed = true;
+            }
         }
     }
 }

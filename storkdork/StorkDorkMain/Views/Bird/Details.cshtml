@@ -1,0 +1,43 @@
+@model StorkDorkMain.Models.BirdDetailsViewModel
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <img src="@Model.ImageUrl" alt="@Model.CommonName" class="img-fluid rounded" />
+            }
+        </div>
+        <div class="col-md-8">
+            <h1>@Model.CommonName</h1>
+            <h3><em>@Model.ScientificName</em></h3>
+            
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h4>Taxonomy</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Order</dt>
+                        <dd class="col-sm-9">@Model.Order</dd>
+                        
+                        <dt class="col-sm-3">Family</dt>
+                        <dd class="col-sm-9">@Model.FamilyCommonName (@Model.FamilyScientificName)</dd>
+                    </dl>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.Range))
+            {
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h4>Range</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>@Model.Range</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
