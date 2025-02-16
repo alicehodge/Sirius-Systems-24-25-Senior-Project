@@ -1,8 +1,8 @@
 -- Run bird_seed.sql first to populate the Bird table
 
-INSERT INTO [SDUser] ([AspNetIdentityID]) VALUES
-('test-user-1-identity-id'),
-('test-user-2-identity-id');
+INSERT INTO [SDUser] ([AspNetIdentityID], [FirstName], [LastName]) VALUES
+('test-user-1-identity-id', 'Anthony', 'Soprano'),
+('test-user-2-identity-id', 'Christopher', 'Moltisanti')
 
 INSERT INTO [Sighting] ([SDUserID], [BirdID], [Date], [Latitude], [Longitude], [Notes]) VALUES
 (1, 1, '2024-02-01 08:30:00', 51.5074, -0.1278, 'Spotted near the park in the morning'),
