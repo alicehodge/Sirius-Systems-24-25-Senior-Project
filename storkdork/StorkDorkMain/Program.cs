@@ -106,6 +106,11 @@ internal class Program
             pattern: "BirdLog/{action=Index}/{id?}",
             defaults: new { controller = "BirdLog" });
 
+        app.MapControllerRoute(
+            name: "Bird",
+            pattern: "Bird/{action=Index}/{id?}",
+            defaults: new { controller = "Bird" });
+
         // Needed for identity ui routing to work
         app.MapRazorPages();
 
