@@ -58,6 +58,7 @@ internal class Program
         builder.Services.AddScoped<DbContext, StorkDorkContext>();
         builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         builder.Services.AddScoped<IBirdRepository, BirdRepository>();
+        builder.Services.AddScoped<ISightingService, SightingService>();
 
         builder.Services.AddSwaggerGen();
 

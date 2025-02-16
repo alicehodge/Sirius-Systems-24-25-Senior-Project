@@ -6,8 +6,6 @@ public class SightMarker
 {
     public string? CommonName {get;set;}
     public string? SciName {get;set;}
-    public decimal? Longitude {get;set;}
-    public decimal? Latitude {get;set;}
     public string? Description {get;set;}
     public DateTime? Date {get;set;}
 }
