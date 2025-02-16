@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using StorkDorkMain.Models;
+using StorkDork.Models;
 using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.DAL.Concrete;
 using StorkDorkMain.Models;
