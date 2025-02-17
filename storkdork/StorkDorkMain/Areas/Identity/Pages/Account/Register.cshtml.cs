@@ -84,7 +84,6 @@ namespace StorkDork.Areas.Identity.Pages.Account
             [Display(Name = "Email")]
             public string Email { get; set; }
 
-
             /// <summary>
             ///  Added support for our stork dork side First Name
             /// </summary>
