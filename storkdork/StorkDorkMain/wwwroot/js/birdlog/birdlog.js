@@ -182,3 +182,89 @@ function scrollToFirstError() {
 document.addEventListener('DOMContentLoaded', function () {
     initializeEditBirdLogForm();
 });
+
+
+
+///////////////////////////
+
+//SD-27
+//javascript for birdlog index.cshtml
+//for filter and sorting
+document.addEventListener("DOMContentLoaded", function () {
+    const overlay = document.getElementById("filterOverlay");
+    const openFilterFormButton = document.getElementById("openFilterForm");
+    const closeFilterFormButton = document.getElementById("closeFilterForm");
+
+    // Open the overlay when "Filter My Logs" is clicked
+    openFilterFormButton.addEventListener("click", function () {
+        overlay.classList.remove("d-none"); // Show the overlay
+    });
+
+    // Close the overlay when "Close" is clicked
+    closeFilterFormButton.addEventListener("click", function () {
+        overlay.classList.add("d-none"); // Hide the overlay
+    });
+
+    // Handle form submission (Filter My Logs)
+    document.addEventListener("DOMContentLoaded", function () {
+        const overlay = document.getElementById("filterOverlay");
+        const openFilterFormButton = document.getElementById("openFilterForm");
+        const closeFilterFormButton = document.getElementById("closeFilterForm");
+    
+        // Open the overlay when "Filter My Logs" is clicked
+        openFilterFormButton.addEventListener("click", function () {
+            overlay.classList.remove("d-none"); // Show the overlay
+        });
+    
+        // Close the overlay when "Close" is clicked
+        closeFilterFormButton.addEventListener("click", function () {
+            overlay.classList.add("d-none"); // Hide the overlay
+        });
+    
+        // Handle form submission (Filter My Logs)
+        document.getElementById("filterForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Stop the form from submitting
+    
+            // Get selected bird from the dropdown
+            const birdId = document.getElementById("birdDropdown").value;
+    
+            // Redirect with selected bird as a query parameter
+            window.location.href = `/BirdLog/Index?birdId=${birdId}`;
+        });
+    
+        // Apply sorting when the "Apply Sorting" button is clicked
+        document.getElementById("applySort").addEventListener("click", function () {
+            const selectedSort = document.getElementById("sortDropdown").value;
+            const filterBird = document.getElementById("filterBird").value;
+    
+            // Redirect with selected sort order and filterBird as query parameters
+            window.location.href = `/BirdLog/Index?sortOrder=${selectedSort}&filterBird=${filterBird}`;
+        });
+    
+        // Apply filtering when the "Apply Filter" button is clicked
+        document.getElementById("applyFilter").addEventListener("click", function () {
+            const filterBird = document.getElementById("filterBird").value;
+    
+            // Redirect with filterBird as a query parameter
+            window.location.href = `/BirdLog/Index?filterBird=${filterBird}`;
+        });
+    });
+    
+
+    // Apply sorting when the "Apply Sorting" button is clicked
+    document.getElementById("applySort").addEventListener("click", function () {
+        const selectedSort = document.getElementById("sortDropdown").value;
+        const filterBird = document.getElementById("filterBird").value;
+
+        // Redirect with selected sort order and filterBird as query parameters
+        window.location.href = `/BirdLog/Index?sortOrder=${selectedSort}&filterBird=${filterBird}`;
+    });
+
+    // Apply filtering when the "Apply Filter" button is clicked
+    document.getElementById("applyFilter").addEventListener("click", function () {
+        const filterBird = document.getElementById("filterBird").value;
+
+        // Redirect with filterBird as a query parameter
+        window.location.href = `/BirdLog/Index?filterBird=${filterBird}`;
+    });
+});
