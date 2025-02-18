@@ -3,7 +3,7 @@ using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.Data;
 using System.Linq;
 
-namespace StorkDork.Controllers;
+namespace StorkDorkMain.Controllers;
 
 public class LeafletController : Controller
 {
