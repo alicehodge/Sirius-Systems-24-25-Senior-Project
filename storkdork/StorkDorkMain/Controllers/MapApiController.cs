@@ -20,15 +20,34 @@ public class MapApiController : ControllerBase
     [Route("GetSightings")]
     public async Task<IActionResult> GetSightings()
     {
-        var sightings = await _sightingService.GetSightingsAsync();
-        return Ok(sightings);
+        try
+        {
+            var sightings = await _sightingService.GetSightingsAsync();
+            return Ok(sightings);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal Server Error: {ex.Message}");
+        }
     }
 
     [HttpGet]
     [Route("GetSightings/{userId}")]
     public async Task<IActionResult> GetSightingsByUserId(int userId)
     {
-        var sightings = await _sightingService.GetSightingsByUserIdAsync(userId);
-        return Ok(sightings);
+        if (userId <= 0)
+        {
+            return BadRequest("Invalid user ID.");
+        }
+        
+        try
+        {
+            var sightings = await _sightingService.GetSightingsByUserIdAsync(userId);
+            return Ok(sightings);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal Server Error: {ex.Message}");
+        }
     }
 }
