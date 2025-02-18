@@ -79,5 +79,85 @@ namespace StorkDorkTests
             Assert.That(okResult.Value, Is.InstanceOf<List<SightMarker>>());
             Assert.That(((List<SightMarker>)okResult.Value).Count, Is.EqualTo(0));
         }
+
+        [Test]
+        public async Task GetSightingsByUserId_ReturnsOk_WithUserSightings()
+        {
+            // Arrange
+            int userId = 1;
+            var mockSightings = new List<SightMarker>
+            {
+                new SightMarker 
+                { 
+                    CommonName = "Common Raven", 
+                    SciName = "Corvus corax",
+                    Longitude = -123.2378m, 
+                    Latitude = 44.8490m, 
+                    Description = "Hopping near the library",
+                    Date = DateTime.UtcNow
+                }
+            };
+
+            _mockSightingService
+                .Setup(s => s.GetSightingsByUserIdAsync(userId))
+                .ReturnsAsync(mockSightings);
+
+            // Act
+            var result = await _controller.GetSightingsByUserId(userId);
+
+            // Assert
+            Assert.That(result, Is.InstanceOf<OkObjectResult>());
+            var okResult = result as OkObjectResult;
+            Assert.That(okResult.Value, Is.EqualTo(mockSightings));
+        }
+
+        [Test]
+        public async Task GetSightingsByUserId_ReturnsOk_WithEmptyList()
+        {
+            // Arrange
+            int userId = 99; // Assume this user has no sightings
+            _mockSightingService
+                .Setup(s => s.GetSightingsByUserIdAsync(userId))
+                .ReturnsAsync(new List<SightMarker>());
+
+            // Act
+            var result = await _controller.GetSightingsByUserId(userId);
+
+            // Assert
+            Assert.That(result, Is.InstanceOf<OkObjectResult>());
+            var okResult = result as OkObjectResult;
+            Assert.That(okResult.Value, Is.InstanceOf<List<SightMarker>>());
+            Assert.That(((List<SightMarker>)okResult.Value).Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public async Task GetSightingsByUserId_WithInvalidUserId_ReturnsBadRequest()
+        {
+            // Arrange
+            int invalidUserId = -1; // Invalid ID
+
+            // Act
+            var result = await _controller.GetSightingsByUserId(invalidUserId);
+
+            // Assert
+            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        }
+
+        [Test]
+        public async Task GetSightings_WhenServiceThrowsException_ReturnsInternalServerError()
+        {
+            // Arrange
+            _mockSightingService
+                .Setup(s => s.GetSightingsAsync())
+                .ThrowsAsync(new Exception("Database connection failed"));
+
+            // Act
+            var result = await _controller.GetSightings();
+
+            // Assert
+            Assert.That(result, Is.InstanceOf<ObjectResult>());
+            var objectResult = result as ObjectResult;
+            Assert.That(objectResult.StatusCode, Is.EqualTo(500));
+        }
     }
 }
