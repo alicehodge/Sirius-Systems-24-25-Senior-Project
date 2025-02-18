@@ -9,6 +9,10 @@ public partial class SdUser
 
     public string? AspNetIdentityId { get; set; }
 
+    public string? FirstName { get; set; }
+
+    public string? LastName { get; set; }
+
     public virtual ICollection<Checklist> Checklists { get; set; } = new List<Checklist>();
 
     public virtual ICollection<Sighting> Sightings { get; set; } = new List<Sighting>();

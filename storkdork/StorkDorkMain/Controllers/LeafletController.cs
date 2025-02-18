@@ -1,34 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
+using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.Data;
 using System.Linq;
 
-namespace StorkDork.Controllers;
+namespace StorkDorkMain.Controllers;
 
 public class LeafletController : Controller
 {
-    private readonly StorkDorkContext _context;
+    private readonly ISightingService _sightingservice;
 
-    public LeafletController(StorkDorkContext context)
+    public LeafletController(ISightingService sightingService)
     {
-        _context = context;
-    }
-
-    // Endpoint for fetching sightings for the map
-    public IActionResult GetSightings()
-    {
-        var sightings = _context.Sightings
-                .Where(s => s.Latitude != null && s.Longitude != null)
-                .Select(s => new 
-                {
-                    s.Id,
-                    s.Bird.CommonName,
-                    s.Date,
-                    s.Latitude,
-                    s.Longitude,
-                    s.Notes
-                }).ToList();
-
-            return Json(sightings);
+        _sightingservice = sightingService;
     }
 
     public IActionResult Map()

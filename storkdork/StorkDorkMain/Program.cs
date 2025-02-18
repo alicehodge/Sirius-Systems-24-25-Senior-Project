@@ -10,6 +10,7 @@ using StorkDorkMain.Data;
 using Microsoft.AspNetCore.Identity;
 using StorkDork.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using StorkDorkMain.Models;
 
 internal class Program
 {
@@ -30,7 +31,7 @@ internal class Program
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
-        // StorkDork database setup
+        //StorkDork database setup
         var conStrBuilder = new SqlConnectionStringBuilder(
             builder.Configuration.GetConnectionString("StorkDorkDB"));
         var connectionString = conStrBuilder.ConnectionString;
@@ -39,7 +40,7 @@ internal class Program
             .UseLazyLoadingProxies()
             .UseSqlServer(connectionString));
 
-        // Identity database setup
+        //Identity database setup
         var conStrBuilderTwo = new SqlConnectionStringBuilder(
             builder.Configuration.GetConnectionString("IdentityDB"));
         var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
@@ -49,13 +50,15 @@ internal class Program
             .UseSqlServer(connectionStringIdentity)
         );
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
         .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
         .AddDefaultTokenProviders();
 
         builder.Services.AddScoped<DbContext, StorkDorkContext>();
         builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         builder.Services.AddScoped<IBirdRepository, BirdRepository>();
+        builder.Services.AddScoped<ISightingService, SightingService>();
 
         builder.Services.AddSwaggerGen();
 
@@ -82,6 +85,7 @@ internal class Program
 
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllerRoute(
@@ -102,6 +106,11 @@ internal class Program
             name: "BirdLog",
             pattern: "BirdLog/{action=Index}/{id?}",
             defaults: new { controller = "BirdLog" });
+
+        app.MapControllerRoute(
+            name: "Bird",
+            pattern: "Bird/{action=Index}/{id?}",
+            defaults: new { controller = "Bird" });
 
         // Needed for identity ui routing to work
         app.MapRazorPages();

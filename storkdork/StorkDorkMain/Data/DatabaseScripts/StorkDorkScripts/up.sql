@@ -13,7 +13,9 @@ CREATE TABLE [Bird](
 
 CREATE TABLE [SDUser] (
   [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [AspNetIdentityID] nvarchar(450)
+  [AspNetIdentityID] nvarchar(450),
+  [FirstName] nvarchar(50),
+  [LastName] nvarchar(50)
 );
 
 CREATE TABLE [Sighting] (
