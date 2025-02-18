@@ -6,7 +6,7 @@ using StorkDorkMain.Data;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Authorization;
 
-namespace StorkDork.Controllers;
+namespace StorkDorkMain.Controllers;
 
 public class HomeController : Controller
 {

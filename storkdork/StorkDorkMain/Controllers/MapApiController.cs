@@ -3,15 +3,15 @@ using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.Models.DTO;
 using System.Linq;
 
-namespace StorkDork.Controllers;
+namespace StorkDorkMain.Controllers;
 
 [Route("api/map")]
 [ApiController]
-public class MappingApiController : ControllerBase
+public class MapApiController : ControllerBase
 {
     private readonly ISightingService _sightingService;
 
-    public MappingApiController(ISightingService sightingService)
+    public MapApiController(ISightingService sightingService)
     {
         _sightingService = sightingService;
     }
