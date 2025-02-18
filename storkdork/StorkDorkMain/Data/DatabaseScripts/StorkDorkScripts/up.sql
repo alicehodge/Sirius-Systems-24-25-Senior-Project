@@ -1,13 +1,21 @@
-CREATE TABLE [Bird] (
-  [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [CommonName] string,
-  [ScientificName] string,
-  [SpeciesCode] string
+CREATE TABLE [Bird](
+	[ID] int PRIMARY KEY IDENTITY(1,1),
+	[ScientificName] [nvarchar](100),
+	[CommonName] [nvarchar](100),
+	[SpeciesCode] [nvarchar](10),
+	[Category] [nvarchar](10),
+	[Order] [nvarchar](25) NULL,
+	[FamilyCommonName] [nvarchar](50) NULL,
+	[FamilyScientificName] [nvarchar](50) NULL,
+	[ReportAs] [nvarchar](10) NULL,
+	[Range] [nvarchar](1000) NULL
 );
 
 CREATE TABLE [SDUser] (
   [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [AspNetIdentityID] nvarchar(450)
+  [AspNetIdentityID] nvarchar(450),
+  [FirstName] nvarchar(50),
+  [LastName] nvarchar(50)
 );
 
 CREATE TABLE [Sighting] (
@@ -15,9 +23,9 @@ CREATE TABLE [Sighting] (
   [SDUserID] int,
   [BirdID] int,
   [Date] datetime2,
-  [Latitude] Decimal(8,6),
-  [Longitude] Decimal(9,6),
-  [Notes] string
+  [Latitude] decimal(8,6),
+  [Longitude] decimal(9,6),
+  [Notes] nvarchar(3000)
 );
 
 CREATE TABLE [Checklist] (
@@ -30,7 +38,7 @@ CREATE TABLE [ChecklistItem] (
   [ID] int PRIMARY KEY IDENTITY(1, 1),
   [ChecklistID] int,
   [BirdID] int,
-  [Sighted] bool
+  [Sighted] bit
 );
 
 ALTER TABLE [Sighting] ADD CONSTRAINT [FK_Sighting_SDUser] 

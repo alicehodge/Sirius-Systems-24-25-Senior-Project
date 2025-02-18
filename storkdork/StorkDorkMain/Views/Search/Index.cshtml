@@ -1,0 +1,307 @@
+@model StorkDorkMain.Models.SearchResultsViewModel
+
+<div class="search-container container-fluid mb-4">
+    <div class="row">
+        <div class="col">
+            <h1>Search Birds</h1>
+            
+            <!-- Search Type Tabs -->
+            <ul class="nav nav-tabs mb-3" id="searchTypeTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="name-tab" data-bs-toggle="tab" data-bs-target="#name-search" 
+                            type="button" role="tab" aria-controls="name-search" aria-selected="true">
+                        Search by Name
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="taxonomy-tab" data-bs-toggle="tab" data-bs-target="#taxonomy-search" 
+                            type="button" role="tab" aria-controls="taxonomy-search" aria-selected="false">
+                        Search by Taxonomy
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="searchTabContent">
+                <!-- Name Search Tab -->
+                <div class="tab-pane fade show active" id="name-search" role="tabpanel" aria-labelledby="name-tab">
+                    <p>Search for birds by their common name or scientific name.</p>
+                    <div class="input-group">
+                        <input type="text" 
+                            id="nameSearchInput" 
+                            class="form-control" 
+                            placeholder="Enter bird name..."
+                            autocomplete="off">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button" onclick="submitSearch('name')">Search</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Taxonomy Search Tab -->
+                <div class="tab-pane fade" id="taxonomy-search" role="tabpanel" aria-labelledby="taxonomy-tab">
+                    <p>Search for birds by order, family name, or family scientific name.</p>
+                    <div class="input-group">
+                        <input type="text" 
+                            id="taxonomySearchInput" 
+                            class="form-control" 
+                            placeholder="Enter taxonomic term..."
+                            autocomplete="off">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="button" onclick="submitSearch('taxonomy')">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview container -->
+    <div class="row">
+        <div class="col">
+            <div id="searchPreview" class="search-preview d-none">
+                <!-- Preview results will appear here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model?.Birds != null && Model.Birds.Any())
+{
+    <div class="search-results mt-4">
+        <h3>Search Results for "@Model.SearchTerm"</h3>
+        
+        <div class="list-group">
+            @foreach (var bird in Model.Birds)
+            {
+                <a href="@Url.Action("Details", "Bird", new { id = bird.Id })" 
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">@bird.CommonName</h5>
+                            <p class="mb-1 text-muted"><em>@bird.ScientificName</em></p>
+                        </div>
+                        <span class="badge badge-primary badge-pill">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
+                    </div>
+                </a>
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Search results pages" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    @{
+                        const int maxPagesBeforeEllipsis = 2;
+                        const int maxPagesAfterEllipsis = 2;
+                        
+                        // Previous button
+                        if (Model.CurrentPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@(Model.CurrentPage - 1)">
+                                    Previous
+                                </a>
+                            </li>
+                        }
+
+                        // First page
+                        <li class="page-item @(1 == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=1">
+                                1
+                            </a>
+                        </li>
+
+                        // Start ellipsis
+                        if (Model.CurrentPage - maxPagesBeforeEllipsis > 2)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+
+                        // Pages around current page
+                        for (int i = Math.Max(2, Model.CurrentPage - maxPagesBeforeEllipsis); 
+                             i <= Math.Min(Model.TotalPages - 1, Model.CurrentPage + maxPagesAfterEllipsis); i++)
+                        {
+                            if (i > 1 && i < Model.TotalPages)
+                            {
+                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@i">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+                        }
+
+                        // End ellipsis
+                        if (Model.CurrentPage + maxPagesAfterEllipsis < Model.TotalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+
+                        // Last page
+                        if (Model.TotalPages > 1)
+                        {
+                            <li class="page-item @(Model.TotalPages == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@(Model.TotalPages)">
+                                    @Model.TotalPages
+                                </a>
+                            </li>
+                        }
+
+                        // Next button
+                        if (Model.CurrentPage < Model.TotalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@(Model.CurrentPage + 1)">
+                                    Next
+                                </a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </nav>
+        }
+    </div>
+}
+
+<style>
+    .search-container {
+        position: relative;
+    }
+    .search-preview {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+    .preview-item {
+        padding: 8px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+    }
+    .preview-item:hover {
+        background-color: #f8f9fa;
+    }
+    .scientific-name {
+        font-style: italic;
+        color: #666;
+        font-size: 0.9em;
+    }
+
+    .search-results {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .list-group-item {
+        transition: background-color 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .pagination {
+        margin-bottom: 2rem;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        let searchTimeout;
+        const DEBOUNCE_DELAY = 300;
+        let currentSearchType = 'name';
+
+        // Update current search type when tabs change
+        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function (e) {
+                currentSearchType = e.target.id.split('-')[0];
+                hidePreview();
+                // Clear the other input when switching tabs
+                document.getElementById(currentSearchType === 'name' ? 'taxonomySearchInput' : 'nameSearchInput').value = '';
+            });
+        });
+
+        // Add input listeners to both search inputs
+        ['nameSearchInput', 'taxonomySearchInput'].forEach(inputId => {
+            const input = document.getElementById(inputId);
+            input.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                const searchTerm = e.target.value.trim();
+                
+                if (searchTerm.length < 2) {
+                    hidePreview();
+                    return;
+                }
+                
+                searchTimeout = setTimeout(() => {
+                    performPreviewSearch(searchTerm, inputId === 'nameSearchInput' ? 'name' : 'taxonomy');
+                }, DEBOUNCE_DELAY);
+            });
+
+            input.addEventListener('keypress', function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    submitSearch(inputId === 'nameSearchInput' ? 'name' : 'taxonomy');
+                }
+            });
+        });
+
+        function submitSearch(searchType) {
+            const inputId = searchType === 'name' ? 'nameSearchInput' : 'taxonomySearchInput';
+            const searchTerm = document.getElementById(inputId).value.trim();
+            if (searchTerm) {
+                window.location.href = `/search/birds?searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`;
+            }
+        }
+
+        function performPreviewSearch(searchTerm, searchType) {
+            fetch(`/search/preview?searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`)
+                .then(response => response.json())
+                .then(data => {
+                    const preview = document.getElementById('searchPreview');
+                    
+                    if (data.length === 0) {
+                        hidePreview();
+                        return;
+                    }
+                    
+                    preview.innerHTML = data.map(bird => `
+                        <div class="preview-item" onclick="selectBird(${bird.id})">
+                            <div>${bird.commonName}</div>
+                            <div class="scientific-name">${bird.scientificName}</div>
+                            <div class="taxonomy-info text-muted small">
+                                ${bird.order} | ${bird.familyCommonName}
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    preview.classList.remove('d-none');
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        // Update selectBird to navigate to the details page
+        function selectBird(birdId) {
+            window.location.href = `/Bird/Details/${birdId}`;
+        }
+
+        function hidePreview() {
+            document.getElementById('searchPreview').classList.add('d-none');
+        };
+
+        // Hide preview when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-container')) {
+                hidePreview();
+            }
+        });
+    </script>
+}
