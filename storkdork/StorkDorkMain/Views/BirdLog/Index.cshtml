@@ -1,91 +1,116 @@
 @model IEnumerable<StorkDorkMain.Models.Sighting>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Bird Sightings";
 }
 
-<!--Home page for logging birds-->
-
 <h1>Bird Sightings</h1>
+
+@if (ViewBag.SelectedBirdName != null)
+{
+    <div class="alert alert-info">
+        <strong>@ViewBag.SelectedBirdName</strong> has been logged <strong>@ViewBag.SelectedBirdCount</strong> times.
+    </div>
+}
 
 <p>
     <a asp-action="Create" class="btn btn-primary">Log New Sighting</a>
 </p>
 
+<!-- Filter My Logs Button -->
+<button id="openFilterForm" class="btn btn-secondary mb-3">Filter My Logs</button>
+
+<!-- Overlay Form -->
+<div id="filterOverlay" class="overlay d-none">
+    <div class="overlay-content">
+        <h5>Filter Bird Logs</h5>
+        <form id="filterForm">
+            <!-- Bird Filter (Dropdown) -->
+            <div class="mb-3">
+                <label for="birdDropdown">Filter by Bird:</label>
+                <select id="birdDropdown" name="birdId" class="form-select">
+                    <option value="">All Birds</option>
+                    @foreach (var bird in ViewBag.Birds)
+                    {
+                        <option value="@bird.Id">@bird.CommonName</option>
+                    }
+                </select>
+            </div>
+
+            <!-- Filter Button -->
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <!-- Close Button -->
+            <button type="button" id="closeFilterForm" class="btn btn-secondary">Close</button>
+        </form>
+    </div>
+</div>
+
+<!-- Sorting Dropdown -->
+<div class="mb-3">
+    <label for="sortDropdown">Sort By:</label>
+    <select id="sortDropdown" class="form-select">
+        <option value="date-desc" selected="@(ViewBag.SortOrder == "date-desc")">Newest First</option>
+        <option value="date-asc" selected="@(ViewBag.SortOrder == "date-asc")">Oldest First</option>
+        <option value="date-null" selected="@(ViewBag.SortOrder == "date-null")">Unsorted Dates</option>
+        <option value="bird" selected="@(ViewBag.SortOrder == "bird")">Sort by Bird (A-Z)</option>
+        <option value="bird-desc" selected="@(ViewBag.SortOrder == "bird-desc")">Sort by Bird (Z-A)</option>
+        <option value="bird-null" selected="@(ViewBag.SortOrder == "bird-null")">Birds Without Names First</option>
+        <option value="location" selected="@(ViewBag.SortOrder == "location")">Sort by Location (A-Z)</option>
+        <option value="location-desc" selected="@(ViewBag.SortOrder == "location-desc")">Sort by Location (Z-A)</option>
+        <option value="location-null" selected="@(ViewBag.SortOrder == "location-null")">Locations Without Names First</option>
+    </select>
+    <button id="applySort" class="btn btn-primary mt-2">Apply Sorting</button>
+</div>
+
+<!-- Filter Input and Button -->
+<div class="mb-3">
+    <label for="filterBird">Filter by Bird:</label>
+    <input type="text" id="filterBird" class="form-control" placeholder="Enter bird name" value="@ViewBag.FilterBird">
+    <button id="applyFilter" class="btn btn-primary mt-2">Apply Filter</button>
+</div>
+
+<!-- Table of Sightings -->
 <table class="table">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.SdUserId)</th>
-            <th>@Html.DisplayNameFor(model => model.Date)</th>
-            <th>@Html.DisplayNameFor(model => model.Bird)</th>
+            <th>User ID</th>
+            <th>Date</th>
+            <th>Bird</th>
             <th>PNW Location</th>
             <th>User Notes</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model) {
-        <tr>
-            <td>
-                @if (item.SdUserId.HasValue)
-                {
-                    @item.SdUserId
-                }
-                else
-                {
-                    <span class="text-danger">No User Selected</span>
-                }
-            </td>
-            <td>
-                @if (item.Date.HasValue)
-                {
-                    @item.Date.Value.ToShortDateString()
-                }
-                else
-                {
-                    <span>No date has been entered.</span>
-                }
-            </td>
-            <td>
-                @if (item.Bird == null)
-                {
-                    <text>Bird Species Unavailable</text>
-                }
-                else
-                {
-                   @Html.DisplayFor(modelItem => item.Bird.CommonName) 
-                }
-            </td>
-            <td>
-                @{
-                    string latitude = item.Latitude?.ToString("0.0000") ?? "NULL";
-                    string longitude = item.Longitude?.ToString("0.0000") ?? "NULL";
-                    string locationKey = $"{latitude},{longitude}";
-
-                    string locationName = (latitude != "NULL" && longitude != "NULL" && ViewBag.PnwLocations.ContainsKey(locationKey))
-                        ? ViewBag.PnwLocations[locationKey]
-                        : "Unknown Location";         
-                }
-                <strong>@locationName</strong> <br>
-                <small>Debug: @locationKey</small>
-            </td>
-            <td>
-                @if (string.IsNullOrEmpty(item.Notes))
-                {
-                    <text>There were no notes recorded.</text>
-                }
-                else
-                {
-                    @item.Notes
-                }
-            </td>
-            
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
-                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
-            </td>
-        </tr>
-    }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@(item.SdUserId.HasValue ? item.SdUserId.ToString() : "No User Selected")</td>
+                <td>@(item.Date.HasValue ? item.Date.Value.ToShortDateString() : "No date entered")</td>
+                <td>@(item.Bird?.CommonName ?? "Bird Species Unavailable")</td>
+                <td>
+                    @{
+                        string latitude = item.Latitude?.ToString("0.0000") ?? "NULL";
+                        string longitude = item.Longitude?.ToString("0.0000") ?? "NULL";
+                        string locationKey = $"{latitude},{longitude}";
+                        string locationName = (latitude != "NULL" && longitude != "NULL" && ViewBag.PnwLocations.ContainsKey(locationKey))
+                            ? ViewBag.PnwLocations[locationKey]
+                            : "Unknown Location";
+                    }
+                    <strong>@locationName</strong> <br>
+                    <small>Debug: @locationKey</small>
+                </td>
+                <td>@(string.IsNullOrEmpty(item.Notes) ? "No notes recorded" : item.Notes)</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+    <script src="~/js/birdlog/birdlog.js" defer></script>
+}
