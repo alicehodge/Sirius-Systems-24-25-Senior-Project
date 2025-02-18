@@ -1,8 +1,9 @@
 -- Run bird_seed.sql first to populate the Bird table
 
 INSERT INTO [SDUser] ([AspNetIdentityID], [FirstName], [LastName]) VALUES
-('test-user-1-identity-id', 'Anthony', 'Soprano'),
-('test-user-2-identity-id', 'Christopher', 'Moltisanti')
+('test-user-1-identity-id', 'Marjorie', 'Caldwell'),
+('test-user-2-identity-id', 'Patricia', 'Rivers'),
+('test-user-3-identity-id', 'Emily', 'Carter')
 
 INSERT INTO [Sighting] ([SDUserID], [BirdID], [Date], [Latitude], [Longitude], [Notes]) VALUES
 (1, (SELECT ID FROM Bird WHERE CommonName = 'American Herring Gull'), '2024-12-01 08:30:00', 44.8481, -123.2324, 'Spotted near the university park in the morning'),
