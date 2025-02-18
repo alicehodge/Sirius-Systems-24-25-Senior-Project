@@ -29,4 +29,21 @@ public class SightingService : ISightingService
             })
             .ToListAsync();
     }
+
+    public async Task<List<SightMarker>> GetSightingsByUserIdAsync(int userId)
+    {
+        return await _context.Sightings
+            .Where(s => s.SdUserId == userId)
+            .Include(s => s.Bird)
+            .Select(s => new SightMarker
+            {
+                CommonName = s.Bird.CommonName ?? "Unkown Name",
+                SciName = s.Bird.ScientificName,
+                Longitude = s.Longitude,
+                Latitude = s.Latitude,
+                Description = s.Notes,
+                Date = s.Date
+            })
+            .ToListAsync();
+    }
 }

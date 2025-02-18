@@ -23,4 +23,12 @@ public class MapApiController : ControllerBase
         var sightings = await _sightingService.GetSightingsAsync();
         return Ok(sightings);
     }
+
+    [HttpGet]
+    [Route("GetSightings/{userId}")]
+    public async Task<IActionResult> GetSightingsByUserId(int userId)
+    {
+        var sightings = await _sightingService.GetSightingsByUserIdAsync(userId);
+        return Ok(sightings);
+    }
 }
