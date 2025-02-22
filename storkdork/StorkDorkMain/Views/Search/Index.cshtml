@@ -8,14 +8,26 @@
             <!-- Search Type Tabs -->
             <ul class="nav nav-tabs mb-3" id="searchTypeTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="name-tab" data-bs-toggle="tab" data-bs-target="#name-search" 
-                            type="button" role="tab" aria-controls="name-search" aria-selected="true">
+                    <button class="nav-link @(Model?.SearchType != "taxonomy" ? "active" : "")" 
+                            id="name-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#name-search" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="name-search" 
+                            aria-selected="@(Model?.SearchType != "taxonomy" ? "true" : "false")">
                         Search by Name
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="taxonomy-tab" data-bs-toggle="tab" data-bs-target="#taxonomy-search" 
-                            type="button" role="tab" aria-controls="taxonomy-search" aria-selected="false">
+                    <button class="nav-link @(Model?.SearchType == "taxonomy" ? "active" : "")" 
+                            id="taxonomy-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#taxonomy-search" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="taxonomy-search" 
+                            aria-selected="@(Model?.SearchType == "taxonomy" ? "true" : "false")">
                         Search by Taxonomy
                     </button>
                 </li>
@@ -24,7 +36,10 @@
             <!-- Tab Content -->
             <div class="tab-content" id="searchTabContent">
                 <!-- Name Search Tab -->
-                <div class="tab-pane fade show active" id="name-search" role="tabpanel" aria-labelledby="name-tab">
+                <div class="tab-pane fade @(Model?.SearchType != "taxonomy" ? "show active" : "")" 
+                     id="name-search" 
+                     role="tabpanel" 
+                     aria-labelledby="name-tab">
                     <p>Search for birds by their common name or scientific name.</p>
                     <div class="input-group">
                         <input type="text" 
@@ -43,7 +58,10 @@
                 </div>
 
                 <!-- Taxonomy Search Tab -->
-                <div class="tab-pane fade" id="taxonomy-search" role="tabpanel" aria-labelledby="taxonomy-tab">
+                <div class="tab-pane fade @(Model?.SearchType == "taxonomy" ? "show active" : "")" 
+                     id="taxonomy-search" 
+                     role="tabpanel" 
+                     aria-labelledby="taxonomy-tab">
                     <p>Search for birds by order, family name, or family scientific name.</p>
                     <div class="input-group">
                         <input type="text" 
@@ -90,6 +108,9 @@
                             <div>
                                 <h5 class="mb-1">@bird.CommonName</h5>
                                 <p class="mb-1 text-muted"><em>@bird.ScientificName</em></p>
+                                <p class="mb-0 text-muted small">
+                                    @bird.Order | @bird.FamilyCommonName
+                                </p>
                             </div>
                             <span class="badge badge-primary badge-pill">
                                 <i class="fas fa-chevron-right"></i>
@@ -247,117 +268,151 @@
 
 @section Scripts {
     <script>
-        let searchTimeout;
         const DEBOUNCE_DELAY = 300;
-        let currentSearchType = 'name';
+        const SEARCH_TYPES = {
+            NAME: 'name',
+            TAXONOMY: 'taxonomy'
+        };
+        
+        const elements = {
+            preview: document.getElementById('searchPreview'),
+            searchContainer: document.querySelector('.search-container'),
+            searchResults: document.querySelector('.search-results'),
+            inputs: {
+                name: document.getElementById('nameSearchInput'),
+                taxonomy: document.getElementById('taxonomySearchInput')
+            }
+        };
 
-        // Update current search type when tabs change
-        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-            tab.addEventListener('shown.bs.tab', function (e) {
-                currentSearchType = e.target.id.split('-')[0];
-                hidePreview();
-                // Clear the other input when switching tabs
-                document.getElementById(currentSearchType === 'name' ? 'taxonomySearchInput' : 'nameSearchInput').value = '';
-            });
-        });
+        class SearchHandler {
+            constructor() {
+                this.searchTimeout = null;
+                this.currentSearchType = SEARCH_TYPES.NAME;
+                this.initializeEventListeners();
+            }
 
-        // Add input listeners to both search inputs
-        ['nameSearchInput', 'taxonomySearchInput'].forEach(inputId => {
-            const input = document.getElementById(inputId);
-            input.addEventListener('input', function(e) {
-                clearTimeout(searchTimeout);
-                const searchTerm = e.target.value.trim();
+            initializeEventListeners() {
+                // Tab change listeners
+                document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                    tab.addEventListener('shown.bs.tab', (e) => this.handleTabChange(e));
+                });
+
+                // Search input listeners
+                Object.entries(elements.inputs).forEach(([type, input]) => {
+                    if (input) {
+                        input.addEventListener('input', (e) => this.handleInput(e, type));
+                        input.addEventListener('keypress', (e) => this.handleKeyPress(e, type));
+                    }
+                });
+
+                // Outside click listener
+                document.addEventListener('click', (e) => {
+                    if (!elements.searchContainer.contains(e.target)) {
+                        this.hidePreview();
+                    }
+                });
+            }
+
+            handleTabChange(event) {
+                this.currentSearchType = event.target.id.split('-')[0];
+                this.hidePreview();
+                const otherType = this.currentSearchType === SEARCH_TYPES.NAME ? 
+                    SEARCH_TYPES.TAXONOMY : SEARCH_TYPES.NAME;
+                elements.inputs[otherType].value = '';
+            }
+
+            handleInput(event, type) {
+                clearTimeout(this.searchTimeout);
+                const searchTerm = event.target.value.trim();
                 
                 if (searchTerm.length < 2) {
-                    hidePreview();
+                    this.hidePreview();
                     return;
                 }
                 
-                searchTimeout = setTimeout(() => {
-                    performPreviewSearch(searchTerm, inputId === 'nameSearchInput' ? 'name' : 'taxonomy');
+                this.searchTimeout = setTimeout(() => {
+                    this.performPreviewSearch(searchTerm, type);
                 }, DEBOUNCE_DELAY);
-            });
+            }
 
-            input.addEventListener('keypress', function(event) {
+            handleKeyPress(event, type) {
                 if (event.key === "Enter") {
                     event.preventDefault();
-                    submitSearch(inputId === 'nameSearchInput' ? 'name' : 'taxonomy');
+                    this.submitSearch(type);
                 }
-            });
-        });
-
-        function submitSearch(searchType) {
-            const inputId = searchType === 'name' ? 'nameSearchInput' : 'taxonomySearchInput';
-            const searchTerm = document.getElementById(inputId).value.trim();
-            if (searchTerm) {
-                window.location.href = `/search/birds?searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`;
-            } else {
-                // Show validation message
-                const validationDiv = document.getElementById(`${searchType}-validation`);
-                validationDiv.classList.remove('d-none');
-                document.getElementById(inputId).focus();
             }
-        }
 
-        function performPreviewSearch(searchTerm, searchType) {
-            fetch(`/search/preview?searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`)
-                .then(response => response.json())
-                .then(data => {
-                    const preview = document.getElementById('searchPreview');
+            async performPreviewSearch(searchTerm, searchType) {
+                try {
+                    const response = await fetch(`/search/preview?searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`);
+                    const data = await response.json();
                     
-                    if (data.length === 0) {
-                        hidePreview();
+                    if (!data.length) {
+                        this.hidePreview();
                         return;
                     }
                     
-                    preview.innerHTML = data.map(bird => `
-                        <div class="preview-item" onclick="selectBird(${bird.id})">
-                            <div>${bird.commonName}</div>
-                            <div class="scientific-name">${bird.scientificName}</div>
-                            <div class="taxonomy-info text-muted small">
-                                ${bird.order} | ${bird.familyCommonName}
-                            </div>
+                    elements.preview.innerHTML = this.generatePreviewHTML(data);
+                    elements.preview.classList.remove('d-none');
+                } catch (error) {
+                    console.error('Search preview error:', error);
+                }
+            }
+
+            generatePreviewHTML(birds) {
+                return birds.map(bird => `
+                    <div class="preview-item" onclick="searchHandler.selectBird(${bird.id})">
+                        <div>${bird.commonName}</div>
+                        <div class="scientific-name">${bird.scientificName}</div>
+                        <div class="taxonomy-info text-muted small">
+                            ${bird.order} | ${bird.familyCommonName}
                         </div>
-                    `).join('');
-                    
-                    preview.classList.remove('d-none');
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        // Update selectBird to navigate to the details page
-        function selectBird(birdId) {
-            window.location.href = `/Bird/Details/${birdId}`;
-        }
-
-        function hidePreview() {
-            document.getElementById('searchPreview').classList.add('d-none');
-        };
-
-        // Hide preview when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.search-container')) {
-                hidePreview();
+                    </div>
+                `).join('');
             }
-        });
 
-        function clearSearch(searchType) {
-            const inputId = searchType === 'name' ? 'nameSearchInput' : 'taxonomySearchInput';
-            document.getElementById(inputId).value = '';
-            document.getElementById(inputId).focus();
-            hidePreview();
+            submitSearch(searchType) {
+                const input = elements.inputs[searchType];
+                const searchTerm = input.value.trim();
+                
+                if (!searchTerm) {
+                    this.showValidation(searchType);
+                    return;
+                }
+                
+                window.location.href = `/search/birds?searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`;
+            }
 
-            const searchResults = document.querySelector('.search-results');
-            if (searchResults) {
-                searchResults.style.display = 'none';
+            showValidation(searchType) {
+                const validationDiv = document.getElementById(`${searchType}-validation`);
+                validationDiv?.classList.remove('d-none');
+                elements.inputs[searchType].focus();
+            }
+
+            clearValidation(searchType) {
+                const validationDiv = document.getElementById(`${searchType}-validation`);
+                validationDiv?.classList.add('d-none');
+            }
+
+            hidePreview() {
+                elements.preview.classList.add('d-none');
+            }
+
+            clearSearch(searchType) {
+                elements.inputs[searchType].value = '';
+                elements.inputs[searchType].focus();
+                this.hidePreview();
+                if (elements.searchResults) {
+                    elements.searchResults.style.display = 'none';
+                }
+            }
+
+            selectBird(birdId) {
+                window.location.href = `/Bird/Details/${birdId}`;
             }
         }
 
-        function clearValidation(searchType) {
-            const validationDiv = document.getElementById(`${searchType}-validation`);
-            if (validationDiv) {
-                validationDiv.classList.add('d-none');
-            }
-        }
+        // Initialize search handler
+        const searchHandler = new SearchHandler();
     </script>
 }
