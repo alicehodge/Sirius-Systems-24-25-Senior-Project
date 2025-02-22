@@ -31,10 +31,14 @@
                             id="nameSearchInput" 
                             class="form-control" 
                             placeholder="Enter bird name..."
-                            autocomplete="off">
+                            autocomplete="off"
+                            oninput="clearValidation('name')">
                         <div class="input-group-append">
                             <button class="btn btn-primary" type="button" onclick="submitSearch('name')">Search</button>
                         </div>
+                    </div>
+                    <div id="name-validation" class="alert alert-warning mt-2 d-none">
+                        Please enter a search term.
                     </div>
                 </div>
 
@@ -46,10 +50,14 @@
                             id="taxonomySearchInput" 
                             class="form-control" 
                             placeholder="Enter taxonomic term..."
-                            autocomplete="off">
+                            autocomplete="off"
+                            oninput="clearValidation('taxonomy')">
                         <div class="input-group-append">
                             <button class="btn btn-primary" type="button" onclick="submitSearch('taxonomy')">Search</button>
                         </div>
+                    </div>
+                    <div id="taxonomy-validation" class="alert alert-warning mt-2 d-none">
+                        Please enter a search term.
                     </div>
                 </div>
             </div>
@@ -283,6 +291,11 @@
             const searchTerm = document.getElementById(inputId).value.trim();
             if (searchTerm) {
                 window.location.href = `/search/birds?searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`;
+            } else {
+                // Show validation message
+                const validationDiv = document.getElementById(`${searchType}-validation`);
+                validationDiv.classList.remove('d-none');
+                document.getElementById(inputId).focus();
             }
         }
 
@@ -337,6 +350,13 @@
             const searchResults = document.querySelector('.search-results');
             if (searchResults) {
                 searchResults.style.display = 'none';
+            }
+        }
+
+        function clearValidation(searchType) {
+            const validationDiv = document.getElementById(`${searchType}-validation`);
+            if (validationDiv) {
+                validationDiv.classList.add('d-none');
             }
         }
     </script>
