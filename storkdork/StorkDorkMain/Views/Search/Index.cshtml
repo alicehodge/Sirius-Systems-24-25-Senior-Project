@@ -31,10 +31,14 @@
                             id="nameSearchInput" 
                             class="form-control" 
                             placeholder="Enter bird name..."
-                            autocomplete="off">
+                            autocomplete="off"
+                            oninput="clearValidation('name')">
                         <div class="input-group-append">
                             <button class="btn btn-primary" type="button" onclick="submitSearch('name')">Search</button>
                         </div>
+                    </div>
+                    <div id="name-validation" class="alert alert-warning mt-2 d-none">
+                        Please enter a search term.
                     </div>
                 </div>
 
@@ -46,10 +50,14 @@
                             id="taxonomySearchInput" 
                             class="form-control" 
                             placeholder="Enter taxonomic term..."
-                            autocomplete="off">
+                            autocomplete="off"
+                            oninput="clearValidation('taxonomy')">
                         <div class="input-group-append">
                             <button class="btn btn-primary" type="button" onclick="submitSearch('taxonomy')">Search</button>
                         </div>
+                    </div>
+                    <div id="taxonomy-validation" class="alert alert-warning mt-2 d-none">
+                        Please enter a search term.
                     </div>
                 </div>
             </div>
@@ -66,102 +74,126 @@
     </div>
 </div>
 
-@if (Model?.Birds != null && Model.Birds.Any())
+@if (Model?.Birds != null)
 {
     <div class="search-results mt-4">
         <h3>Search Results for "@Model.SearchTerm"</h3>
         
-        <div class="list-group">
-            @foreach (var bird in Model.Birds)
-            {
-                <a href="@Url.Action("Details", "Bird", new { id = bird.Id })" 
-                   class="list-group-item list-group-item-action">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-1">@bird.CommonName</h5>
-                            <p class="mb-1 text-muted"><em>@bird.ScientificName</em></p>
-                        </div>
-                        <span class="badge badge-primary badge-pill">
-                            <i class="fas fa-chevron-right"></i>
-                        </span>
-                    </div>
-                </a>
-            }
-        </div>
-
-        @if (Model.TotalPages > 1)
+        @if (Model.Birds.Any())
         {
-            <nav aria-label="Search results pages" class="mt-4">
-                <ul class="pagination justify-content-center">
-                    @{
-                        const int maxPagesBeforeEllipsis = 2;
-                        const int maxPagesAfterEllipsis = 2;
-                        
-                        // Previous button
-                        if (Model.CurrentPage > 1)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@(Model.CurrentPage - 1)">
-                                    Previous
+            <div class="list-group">
+                @foreach (var bird in Model.Birds)
+                {
+                    <a href="@Url.Action("Details", "Bird", new { id = bird.Id })" 
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">@bird.CommonName</h5>
+                                <p class="mb-1 text-muted"><em>@bird.ScientificName</em></p>
+                            </div>
+                            <span class="badge badge-primary badge-pill">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </div>
+                    </a>
+                }
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="Search results pages" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        @{
+                            const int maxPagesBeforeEllipsis = 2;
+                            const int maxPagesAfterEllipsis = 2;
+                            
+                            // Previous button
+                            if (Model.CurrentPage > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@(Model.CurrentPage - 1)">
+                                        Previous
+                                    </a>
+                                </li>
+                            }
+
+                            // First page
+                            <li class="page-item @(1 == Model.CurrentPage ? "active" : "")">
+                                <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=1">
+                                    1
                                 </a>
                             </li>
-                        }
 
-                        // First page
-                        <li class="page-item @(1 == Model.CurrentPage ? "active" : "")">
-                            <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=1">
-                                1
-                            </a>
-                        </li>
-
-                        // Start ellipsis
-                        if (Model.CurrentPage - maxPagesBeforeEllipsis > 2)
-                        {
-                            <li class="page-item disabled"><span class="page-link">...</span></li>
-                        }
-
-                        // Pages around current page
-                        for (int i = Math.Max(2, Model.CurrentPage - maxPagesBeforeEllipsis); 
-                             i <= Math.Min(Model.TotalPages - 1, Model.CurrentPage + maxPagesAfterEllipsis); i++)
-                        {
-                            if (i > 1 && i < Model.TotalPages)
+                            // Start ellipsis
+                            if (Model.CurrentPage - maxPagesBeforeEllipsis > 2)
                             {
-                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                                    <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@i">
-                                        @i
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+
+                            // Pages around current page
+                            for (int i = Math.Max(2, Model.CurrentPage - maxPagesBeforeEllipsis); 
+                                 i <= Math.Min(Model.TotalPages - 1, Model.CurrentPage + maxPagesAfterEllipsis); i++)
+                            {
+                                if (i > 1 && i < Model.TotalPages)
+                                {
+                                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                        <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@i">
+                                            @i
+                                        </a>
+                                    </li>
+                                }
+                            }
+
+                            // End ellipsis
+                            if (Model.CurrentPage + maxPagesAfterEllipsis < Model.TotalPages - 1)
+                            {
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            }
+
+                            // Last page
+                            if (Model.TotalPages > 1)
+                            {
+                                <li class="page-item @(Model.TotalPages == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@(Model.TotalPages)">
+                                        @Model.TotalPages
+                                    </a>
+                                </li>
+                            }
+
+                            // Next button
+                            if (Model.CurrentPage < Model.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@(Model.CurrentPage + 1)">
+                                        Next
                                     </a>
                                 </li>
                             }
                         }
-
-                        // End ellipsis
-                        if (Model.CurrentPage + maxPagesAfterEllipsis < Model.TotalPages - 1)
-                        {
-                            <li class="page-item disabled"><span class="page-link">...</span></li>
-                        }
-
-                        // Last page
-                        if (Model.TotalPages > 1)
-                        {
-                            <li class="page-item @(Model.TotalPages == Model.CurrentPage ? "active" : "")">
-                                <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@(Model.TotalPages)">
-                                    @Model.TotalPages
-                                </a>
-                            </li>
-                        }
-
-                        // Next button
-                        if (Model.CurrentPage < Model.TotalPages)
-                        {
-                            <li class="page-item">
-                                <a class="page-link" href="/search/birds?searchTerm=@(Uri.EscapeDataString(Model.SearchTerm))&searchType=@(Model.SearchType)&page=@(Model.CurrentPage + 1)">
-                                    Next
-                                </a>
-                            </li>
-                        }
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info text-center">
+                <h4 class="alert-heading">No birds found</h4>
+                <p>
+                    @if (Model.SearchType == "taxonomy")
+                    {
+                        <span>No birds found matching the taxonomic term "@Model.SearchTerm".</span>
                     }
-                </ul>
-            </nav>
+                    else
+                    {
+                        <span>No birds found matching the name "@Model.SearchTerm".</span>
+                    }
+                </p>
+                <hr>
+                <p class="mb-0">
+                    Try adjusting your search terms or 
+                    <a href="#" onclick="clearSearch('@Model.SearchType'); return false;">start a new search</a>.
+                </p>
+            </div>
         }
     </div>
 }
@@ -259,6 +291,11 @@
             const searchTerm = document.getElementById(inputId).value.trim();
             if (searchTerm) {
                 window.location.href = `/search/birds?searchTerm=${encodeURIComponent(searchTerm)}&searchType=${searchType}`;
+            } else {
+                // Show validation message
+                const validationDiv = document.getElementById(`${searchType}-validation`);
+                validationDiv.classList.remove('d-none');
+                document.getElementById(inputId).focus();
             }
         }
 
@@ -303,5 +340,24 @@
                 hidePreview();
             }
         });
+
+        function clearSearch(searchType) {
+            const inputId = searchType === 'name' ? 'nameSearchInput' : 'taxonomySearchInput';
+            document.getElementById(inputId).value = '';
+            document.getElementById(inputId).focus();
+            hidePreview();
+
+            const searchResults = document.querySelector('.search-results');
+            if (searchResults) {
+                searchResults.style.display = 'none';
+            }
+        }
+
+        function clearValidation(searchType) {
+            const validationDiv = document.getElementById(`${searchType}-validation`);
+            if (validationDiv) {
+                validationDiv.classList.add('d-none');
+            }
+        }
     </script>
 }
