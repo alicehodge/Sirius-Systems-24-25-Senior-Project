@@ -52,6 +52,7 @@ public class UserController : ControllerBase
     }
 
     // Gets the sdUser for use in javascript
+    [HttpGet("current-user")]
     public async Task<SdUser?> GetUserId()
     {
         var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
