@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using StorkDorkMain.Models;
 using StorkDork.Areas.Identity.Pages.Account;
+using StorkDorkMain.DAL.Abstract;
 
 
 namespace StorkDorkMain.Controllers;
@@ -13,11 +14,14 @@ public class UserController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly StorkDorkDbContext _context;
+    private readonly ISDUserRepository _sdUserRepository;
 
-    public UserController(UserManager<IdentityUser> userManager, StorkDorkDbContext context)
+    public UserController(UserManager<IdentityUser> userManager, StorkDorkDbContext context, ISDUserRepository sdUserRepository)
     {
         _userManager = userManager;
         _context = context;
+        _sdUserRepository = sdUserRepository;
+
     }
 
     [HttpPost("create")]
@@ -45,5 +49,16 @@ public class UserController : ControllerBase
         }
 
         return BadRequest(result.Errors);
+    }
+
+    // Gets the sdUser for use in javascript
+    public async Task<SdUser?> GetUserId()
+    {
+        var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+
+        if (sdUser == null)
+            return null;
+
+        return sdUser;
     }
 }
