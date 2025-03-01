@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using StorkDork.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using StorkDorkMain.Models;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 internal class Program
 {
@@ -30,6 +32,9 @@ internal class Program
         builder.Services.AddRazorPages();
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
+        // Development SendGrid setup
+        builder.Services.AddSingleton(new SendGridService(builder.Configuration["SendGrid:ApiKey"]));
 
         //StorkDork database setup
         var conStrBuilder = new SqlConnectionStringBuilder(
@@ -117,6 +122,11 @@ internal class Program
             name: "Bird",
             pattern: "Bird/{action=Index}/{id?}",
             defaults: new { controller = "Bird" });
+
+        app.MapControllerRoute(
+            name: "Email",
+            pattern: "Email/{action=Send}/{id?}",
+            defaults: new { controller = "Email" });
 
         // Needed for identity ui routing to work
         app.MapRazorPages();
