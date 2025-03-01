@@ -56,7 +56,7 @@ internal class Program
         );
 
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
         .AddDefaultTokenProviders();
 
@@ -67,7 +67,7 @@ internal class Program
 
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddSingleton<IEmailSender, NoOpEmailSender>();
+        builder.Services.AddHttpClient<IEmailSender, ApiEmailSender>();
 
         var app = builder.Build();
 
@@ -130,10 +130,10 @@ internal class Program
 }
 
 // Dummy email to satisfy identity requiring email sending. WILL DELETE LATER 
-public class NoOpEmailSender : IEmailSender
-{
-    public Task SendEmailAsync(string email, string subject, string htmlMessage)
-    {
-        return Task.CompletedTask; // Does nothing, but satisfies the requirement
-    }
-}
+// public class NoOpEmailSender : IEmailSender
+// {
+//     public Task SendEmailAsync(string email, string subject, string htmlMessage)
+//     {
+//         return Task.CompletedTask; // Does nothing, but satisfies the requirement
+//     }
+// }
