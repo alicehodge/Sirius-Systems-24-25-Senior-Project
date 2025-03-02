@@ -8,28 +8,49 @@ const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-function fetchSightingsByUser() {
-    let user = fetchUser();
-    let url = `api/map/GetSightings/${user.id}`;
-    fetch(url)
-        .then(data => {
-            console.log("Fetched Sightings: ", data);
+async function fetchSightingsByUser() {
+    let user = await fetchUser();
 
-            map.eachLayer((layer) => {
-                if(layer instanceof L.Marker){
-                    map.removeLayer(layer);
-                }
-            });
+    if (!user || typeof user.id !== "number") {
+        console.error("Invalid or missing ID: ", user);
+        return;
+    }
 
-            makeSightingMarkers(data);
+    let url = `/api/map/GetSightings/${user.id}`;
+    let response = await fetch(url);
 
-        });
+    if (!response.ok) {
+        console.error("Failed to fetch sightings:", response.statusText);
+        return;
+    }
+
+    let sightings = await response.json();
+    console.log("Fetched sightings: ", sightings);
+
+    map.eachLayer((layer) => {
+        if(layer instanceof L.Marker){
+            map.removeLayer(layer);
+        }
+    });
+
+    makeSightingMarkers(sightings);
 }
 
-function fetchUser() {
-    let url = "api/User/current-user";
-    return fetch(url);
-    // add calls to error api
+async function fetchUser() {
+    let url = "/api/User/current-user";
+    try {
+        let response = await fetch(url);
+        
+        if (!response.ok) {
+            let errorText = await response.text(); // Get error message
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        return null;
+    }
 }
 
 function makeSightingMarkers(data)
@@ -51,54 +72,3 @@ function makeSightingMarkers(data)
 window.onload = function() {
     fetchSightingsByUser();
 }
-
-// Function to fetch and display sightings
-// function fetchSightings(userId) {
-//     let url = '/api/map/GetSightings'; // Default: all sightings
-//     if (userId && userId !== 'all') {
-//         url = `/api/map/GetSightings/${userId}`; // Fetch specific user's sightings
-//     }
-
-//     fetch(url)
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error(`HTTP error! Status: ${response.status}`);
-//             }
-//             return response.json();
-//         })
-//         .then(data => {
-//             console.log("Fetched Sightings:", data); // Debugging
-
-//             // Clear existing markers
-//             map.eachLayer((layer) => {
-//                 if (layer instanceof L.Marker) {
-//                     map.removeLayer(layer);
-//                 }
-//             });
-
-//             // Check if data is received
-//             if (!data || data.length === 0) {
-//                 console.warn("No sightings found.");
-//                 return;
-//             }
-
-//             data.forEach(sighting => {
-//                 console.log("Sighting Data:", sighting); // Debugging
-
-//                 if (sighting.latitude && sighting.longitude) { // Ensure coordinates exist
-//                     L.marker([sighting.latitude, sighting.longitude])
-//                         .addTo(map)
-//                         .bindPopup(`<b>${sighting.commonName || 'Unknown Bird'}</b><br>
-//                                     <em>${sighting.sciName || 'Unknown'}</em><br>
-//                                     ${sighting.date ? new Date(sighting.date).toLocaleDateString() : "Unknown Date"}<br>
-//                                     ${sighting.description || 'No notes available'}`);
-//                 }
-//             });
-//         })
-//         .catch(error => console.error('Error fetching bird sightings:', error));
-// }
-
-// Event listener for user selection
-// document.getElementById('userSelect').addEventListener('change', (event) => {
-//     fetchSightings(event.target.value);
-// });

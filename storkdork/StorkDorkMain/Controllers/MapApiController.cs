@@ -14,9 +14,9 @@ public class MapApiController : ControllerBase
 {
     private readonly ISightingService _sightingService;
     private readonly ISDUserRepository _sdUserRepository;
-    private readonly UserManager<SdUser> _userManager;
+    private readonly UserManager<IdentityUser> _userManager;
 
-    public MapApiController(ISightingService sightingService, ISDUserRepository sdUserRepository, UserManager<SdUser> userManager)
+    public MapApiController(ISightingService sightingService, ISDUserRepository sdUserRepository, UserManager<IdentityUser> userManager)
     {
         _sightingService = sightingService;
         _sdUserRepository = sdUserRepository;
@@ -65,14 +65,12 @@ public class MapApiController : ControllerBase
     // Grabs all sightings belonging to the currently logged in user
     [HttpGet]
     [Route("GetSightings/{userId}")]
-    public async Task<IActionResult> GetSighitngsByUser()
+    public async Task<IActionResult> GetSighitngsByUser(int userId)
     {
-        var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+        if (userId <= 0)
+            return BadRequest("Invalid user ID");
 
-        if (sdUser == null)
-            await GetSightings();
-
-        var sightings = await _sightingService.GetSightingsByUserIdAsync(sdUser.Id);
+        var sightings = await _sightingService.GetSightingsByUserIdAsync(userId);
         return Ok(sightings);
     }
 }

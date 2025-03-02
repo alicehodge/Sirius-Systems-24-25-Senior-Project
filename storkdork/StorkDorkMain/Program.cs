@@ -50,15 +50,21 @@ internal class Program
             .UseSqlServer(connectionStringIdentity)
         );
 
+        builder.Services.AddDbContext<StorkDorkDbContext>(options => options
+            .UseLazyLoadingProxies()
+            .UseSqlServer(builder.Configuration.GetConnectionString("StorkDorkDB"))
+        );
 
         builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
         .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
         .AddDefaultTokenProviders();
 
+        builder.Services.AddScoped<UserManager<IdentityUser>>();
         builder.Services.AddScoped<DbContext, StorkDorkContext>();
         builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         builder.Services.AddScoped<IBirdRepository, BirdRepository>();
         builder.Services.AddScoped<ISightingService, SightingService>();
+        builder.Services.AddScoped<ISDUserRepository, SDUserRepository>();
 
         builder.Services.AddSwaggerGen();
 
