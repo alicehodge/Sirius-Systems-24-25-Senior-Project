@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using StorkDork.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using StorkDorkMain.Models;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
 internal class Program
 {
@@ -30,6 +32,9 @@ internal class Program
         builder.Services.AddRazorPages();
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
+        // Development SendGrid setup
+        builder.Services.AddSingleton(new SendGridService(builder.Configuration["SendGrid:ApiKey"]));
 
         //StorkDork database setup
         var conStrBuilder = new SqlConnectionStringBuilder(
@@ -51,7 +56,7 @@ internal class Program
         );
 
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
         .AddDefaultTokenProviders();
 
@@ -62,7 +67,8 @@ internal class Program
 
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddSingleton<IEmailSender, NoOpEmailSender>();
+        // Removing this breaks everything for some reason T_T, even when register.cshtml.cs doesn't use IEmailSender? Just leave it. 
+        builder.Services.AddHttpClient<IEmailSender, ApiEmailSender>();
 
         var app = builder.Build();
 
@@ -112,6 +118,11 @@ internal class Program
             pattern: "Bird/{action=Index}/{id?}",
             defaults: new { controller = "Bird" });
 
+        app.MapControllerRoute(
+            name: "Email",
+            pattern: "Email/{action=Send}/{id?}",
+            defaults: new { controller = "Email" });
+
         // Needed for identity ui routing to work
         app.MapRazorPages();
 
@@ -120,10 +131,10 @@ internal class Program
 }
 
 // Dummy email to satisfy identity requiring email sending. WILL DELETE LATER 
-public class NoOpEmailSender : IEmailSender
-{
-    public Task SendEmailAsync(string email, string subject, string htmlMessage)
-    {
-        return Task.CompletedTask; // Does nothing, but satisfies the requirement
-    }
-}
+// public class NoOpEmailSender : IEmailSender
+// {
+//     public Task SendEmailAsync(string email, string subject, string htmlMessage)
+//     {
+//         return Task.CompletedTask; // Does nothing, but satisfies the requirement
+//     }
+// }
