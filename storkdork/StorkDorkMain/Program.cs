@@ -67,6 +67,7 @@ internal class Program
 
         builder.Services.AddSwaggerGen();
 
+        // Removing this breaks everything for some reason T_T, even when register.cshtml.cs doesn't use IEmailSender? Just leave it. 
         builder.Services.AddHttpClient<IEmailSender, ApiEmailSender>();
 
         var app = builder.Build();

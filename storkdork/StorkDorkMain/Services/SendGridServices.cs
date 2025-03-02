@@ -12,12 +12,23 @@ public class SendGridService
         _apiKey = apiKey;
     }
 
-    public async Task SendEmailAsync(string fromEmail, string fromName, string toEmail, string subject, string plainTextContent, string htmlContent)
+    public async Task SendEmailAsync(string fromEmail, string fromName, string toEmail, string templateId, string verificationLink, string user)
     {
         var client = new SendGridClient(_apiKey);
         var from = new EmailAddress(fromEmail, fromName);
         var to = new EmailAddress(toEmail.Trim());
-        var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+
+        var msg = new SendGridMessage();
+        msg.SetFrom(from);
+        msg.AddTo(to);
+        msg.SetTemplateId(templateId);
+
+        var dynamicTemplateData = new
+        {
+            username = user,
+            verification_link = verificationLink
+        };
+        msg.SetTemplateData(dynamicTemplateData);
 
         var response = await client.SendEmailAsync(msg).ConfigureAwait(false);
 
