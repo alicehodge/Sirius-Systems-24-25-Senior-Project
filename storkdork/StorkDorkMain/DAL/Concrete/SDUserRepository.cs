@@ -12,9 +12,9 @@ public class SDUserRepository : ISDUserRepository
 {
 
     private readonly StorkDorkDbContext _context;
-    private readonly UserManager<SdUser> _userManager;
+    private readonly UserManager<IdentityUser> _userManager;
 
-    public SDUserRepository(StorkDorkDbContext context, UserManager<SdUser> userManager)
+    public SDUserRepository(StorkDorkDbContext context, UserManager<IdentityUser> userManager)
     {
         _context = context;
         _userManager = userManager;

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using StorkDorkMain.Models;
 using StorkDork.Areas.Identity.Pages.Account;
 using StorkDorkMain.DAL.Abstract;
+using NuGet.Protocol;
 
 
 namespace StorkDorkMain.Controllers;
@@ -53,13 +54,23 @@ public class UserController : ControllerBase
 
     // Gets the sdUser for use in javascript
     [HttpGet("current-user")]
-    public async Task<SdUser?> GetUserId()
+    public async Task<IActionResult> GetUserId()
     {
-        var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+        try
+        {
+            if (User == null || !User.Identity.IsAuthenticated)
+                return Unauthorized("User is not authenticated.");
 
-        if (sdUser == null)
-            return null;
+            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
 
-        return sdUser;
+            if (sdUser == null)
+                return NotFound("User not found.");
+
+            return Ok(sdUser);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal Server Error: {ex.Message}");
+        }
     }
 }
