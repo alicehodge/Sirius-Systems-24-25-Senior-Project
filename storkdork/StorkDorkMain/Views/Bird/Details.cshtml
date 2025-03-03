@@ -26,6 +26,12 @@
                     </dl>
                 </div>
             </div>
+            <div class="mt-4">
+                <a href="@Url.Action("Create", "BirdLog", new { commonName = Model.CommonName })" class="btn btn-success">
+                    Log as a Bird Sighting
+                </a>
+            </div>
+
 
             @if (!string.IsNullOrEmpty(Model.Range))
             {

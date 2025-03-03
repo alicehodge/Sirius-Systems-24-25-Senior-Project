@@ -1,0 +1,116 @@
+@model StorkDorkMain.Models.Checklist
+
+@{
+    ViewData["Title"] = "Checklist Details";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Checklist Details</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h4 class="card-title">@Model.ChecklistName</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-3">Checklist Name</dt>
+                <dd class="col-sm-9">@Model.ChecklistName</dd>
+
+                <dt class="col-sm-3">Created By</dt>
+                <dd class="col-sm-9">@Model.SdUser.FirstName</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h4>Checklist Items</h4>
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Common Name</th>
+                        <th>Scientific Name</th>
+                        <th>Sighted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ChecklistItems)
+                    {
+                        <tr>
+                            <td>@item.Bird.CommonName</td>
+                            <td>@item.Bird.ScientificName</td>
+                            <td>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input sighted-checkbox" data-id="@item.Id" @(item.Sighted == true ? "checked" : "") />
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit Checklist</a>
+        <a asp-action="Index" asp-route-userId="@Model.SdUserId" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.sighted-checkbox').change(function () {
+                var checklistItemId = $(this).data('id');
+                var isSighted = $(this).is(':checked');
+
+                $.ajax({
+                    url: '@Url.Action("ToggleSighted", "Checklists")',
+                    type: 'POST',
+                    data: {
+                        id: checklistItemId,
+                        sighted: isSighted
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            console.log('Sighted status updated successfully.');
+                        } else {
+                            console.error('Failed to update sighted status.');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .form-check-input {
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+    }
+
+    .btn {
+        margin-right: 10px;
+    }
+</style>
