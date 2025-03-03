@@ -12,25 +12,23 @@
     <div class="col-md-4">
         <form asp-action="Edit" id="sightingForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="SdUserId" />
 
-            <!-- SduserId Dropdown -->
+            <!-- Display Selected User (Read-Only) -->
             <div class="form-group">
-                <label asp-for="SdUserId" class="control-label">User</label>
-                <select asp-for="SdUserId" class="form-control" asp-items="ViewBag.SduserId">
-                    <option value="">-- Select User --</option>
-                </select>
-                <span asp-validation-for="SdUserId" class="text-danger"></span>
+                <label class="control-label">User</label>
+                <input type="text" class="form-control" value="@ViewBag.SelectedUserName" readonly />
             </div>
 
-            <!-- Bird Species Dropdown -->
-            <div class="form-group">
-                <label asp-for="BirdId" class="control-label">Bird Species</label>
-                <select asp-for="BirdId" class="form-control" asp-items="ViewBag.BirdId">
-                    <option value="">-- Select Bird --</option>
-                    <option value="0">N/A</option>
-                </select>
-                <span asp-validation-for="BirdId" class="text-danger"></span>
+            <!-- Bird Species Searchable Input -->
+            <div class="form-group mb-4">
+                <label for="birdSearch" class="form-label">Bird Species</label>
+                <input type="text" id="birdSearch" class="form-control" placeholder="Search for a bird..." autocomplete="off" value="@ViewBag.SelectedBirdName" />
+                <div id="birdResults" class="mt-2" style="display: none;">
+                    <!-- Search results will appear here -->
+                </div>
+                <input type="hidden" asp-for="BirdId" id="BirdId" value="@ViewBag.SelectedBirdId" />
+                <span asp-validation-for="BirdId" id="birdError" class="text-danger"></span>
             </div>
 
             <!-- Location Dropdown -->
@@ -104,9 +102,31 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" class="btn btn-primary" asp-route-userId="@ViewBag.SelectedUserId">Back to List</a>
 </div>
 
+<style>
+    .bird-result {
+        cursor: pointer;
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+    .bird-result:hover {
+        background-color: #e9ecef;
+    }
+    .bird-result small {
+        color: #6c757d;
+    }
+    #birdResults {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 5px;
+    }
+</style>
+
 @section Scripts {
-    <script src="~/js/birdlog/birdlog.js" defer></script>
+    <script src="~/js/birdlog/birdlog.js"></script>
 }

@@ -1,109 +1,146 @@
 @model StorkDorkMain.Models.Sighting
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Bird Sighting";
+    var prefillName = ViewBag.PrefilledBirdName as string ?? "";
 }
 
-<h1>Create</h1>
 
-<h4>Log a Bird Sighting</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" id="sightingForm">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="container mt-5">
+    <h1 class="display-4">Create Bird Sighting</h1>
+    
+    <p class="lead">Log a new bird sighting with the form below.</p>
+    <hr />
 
-            <!-- SduserId Dropdown -->
-            <div class="form-group">
-                <label asp-for="SdUserId" class="control-label">User</label>
-                <select asp-for="SdUserId" class="form-control" asp-items="ViewBag.SduserId">
-                    <option value="">-- Select User --</option>
-                </select>
-                <span asp-validation-for="SdUserId" class="text-danger"></span>
-            </div>
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Create" id="sightingForm">
+                <input type="hidden" name="userId" value="@ViewBag.SelectedUserId" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <!-- Bird Species Dropdown -->
-            <div class="form-group">
-                <label asp-for="BirdId" class="control-label">Bird Species</label>
-                <select asp-for="BirdId" class="form-control" asp-items="ViewBag.BirdId">
-                    <option value="">-- Select Bird --</option>
-                    <option value="0">N/A</option>
-                </select>
-                <span asp-validation-for="BirdId" id="birdError" class="text-danger"></span>
-            </div>
-
-            <!-- Location Dropdown -->
-            <div class="form-group">
-                <label for="PnwLocation">Select a Location</label>
-                <select id="PnwLocation" class="form-control" name="PnwLocation">
-                    <option value="">-- Select Location --</option>
-                    <option value="0">N/A</option>
-                    @foreach (var location in ViewBag.PnwLocations)
-                    {
-                        <option value="@location.Value" data-latlong="@location.Value">@location.Text</option>
-                    }
-                </select>
-                <span id="locationError" class="text-danger"></span>
-            </div>
-
-            <!-- Hidden inputs for Latitude and Longitude -->
-            <input type="hidden" asp-for="Latitude" id="LatitudeInput" />
-            <input type="hidden" asp-for="Longitude" id="LongitudeInput" />
-
-            <!-- Date Input -->
-            <div class="form-group">
-                <label asp-for="Date" class="control-label">Date</label>
-                <input asp-for="Date" class="form-control" type="date" />
-                <span asp-validation-for="Date" class="text-danger"></span>
-            </div>
-
-            <!-- Notes Input -->
-            <div class="form-group">
-                <label asp-for="Notes" class="control-label">Additional Notes</label>
-                <textarea asp-for="Notes" class="form-control" placeholder="Example: Saw a strange looking bird. Weather was sunny and calm." id="NotesInput"></textarea>
-                <span asp-validation-for="Notes" class="text-danger"></span>
-            </div>
-
-            <!-- Weather Conditions Suggestions -->
-            <div class="form-group">
-                <label class="control-label">Weather Conditions (Suggestions)</label>
-                <div class="border p-3 rounded bg-light">
-                    <strong>🌤️ Sky Conditions:</strong>
-                    <ul class="list-unstyled">
-                        <li>• Sunny</li>
-                        <li>• Partly Cloudy</li>
-                        <li>• Overcast</li>
-                    </ul>
-
-                    <strong>🌧️ Precipitation:</strong>
-                    <ul class="list-unstyled">
-                        <li>• Drizzle</li>
-                        <li>• Rain</li>
-                        <li>• Thunderstorm</li>
-                        <li>• Snow</li>
-                    </ul>
-
-                    <strong>💨 Wind Conditions:</strong>
-                    <ul class="list-unstyled">
-                        <li>• Calm</li>
-                        <li>• Windy</li>
-                    </ul>
+                <!-- User Dropdown -->
+                <div class="form-group">
+                    <label asp-for="SdUserId" class="control-label">Select User</label>
+                    <select asp-for="SdUserId" class="form-control" asp-items="ViewBag.Users">
+                        <option value="">-- Select User --</option>
+                    </select>
+                    <span asp-validation-for="SdUserId" class="text-danger"></span>
                 </div>
-                <small class="text-muted">These are suggestions for your notes. Feel free to include them!</small>
-            </div>
 
-            <!-- Submit Button -->
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+               <!-- Bird Species Searchable Dropdown (pre-filled if available) -->
+                <div class="form-group mb-4">
+                    <label for="birdSearch" class="form-label">Bird Species</label>
+                    <input type="text" id="birdSearch" class="form-control" placeholder="Search for a bird..." autocomplete="off" 
+                           value="@prefillName" />
+                    <div id="birdResults" class="mt-2" style="display: none;">
+                        <!-- Search results will appear here -->
+                    </div>
+                    <!-- Hidden field for BirdId; if you're not using it because you're prefilling by name, it can remain empty -->
+                    <input type="hidden" asp-for="BirdId" id="BirdId" value="" />
+                    <span asp-validation-for="BirdId" id="birdError" class="text-danger"></span>
+                </div>
+
+
+                <!-- Location Dropdown -->
+                <div class="form-group mb-4">
+                    <label for="PnwLocation" class="form-label">Select a Location</label>
+                    <select id="PnwLocation" class="form-control" name="PnwLocation">
+                        <option value="">-- Select Location --</option>
+                        <option value="0">N/A</option>
+                        @if (ViewBag.PnwLocations != null)
+                        {
+                            @foreach (var location in ViewBag.PnwLocations)
+                            {
+                                <option value="@location.Value" data-latlong="@location.Value">@location.Text</option>
+                            }
+                            
+                        }
+                    </select>
+                    <span id="locationError" class="text-danger"></span>
+                </div>
+
+                <!-- Hidden inputs for Latitude and Longitude -->
+                <input type="hidden" asp-for="Latitude" id="LatitudeInput" />
+                <input type="hidden" asp-for="Longitude" id="LongitudeInput" />
+
+                <!-- Date Input -->
+                <div class="form-group mb-4">
+                    <label asp-for="Date" class="form-label">Date</label>
+                    <input asp-for="Date" class="form-control" type="date" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+
+                <!-- Notes Input -->
+                <div class="form-group mb-4">
+                    <label asp-for="Notes" class="form-label">Additional Notes</label>
+                    <textarea asp-for="Notes" class="form-control" rows="4" placeholder="Example: Saw a strange looking bird. Weather was sunny and calm." id="NotesInput"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+
+                <!-- Weather Conditions Suggestions -->
+                <div class="form-group mb-4">
+                    <label class="form-label">Weather Conditions (Suggestions)</label>
+                    <div class="border p-3 rounded bg-light">
+                        <strong>🌤️ Sky Conditions:</strong>
+                        <ul class="list-unstyled">
+                            <li>• Sunny</li>
+                            <li>• Partly Cloudy</li>
+                            <li>• Overcast</li>
+                        </ul>
+
+                        <strong>🌧️ Precipitation:</strong>
+                        <ul class="list-unstyled">
+                            <li>• Drizzle</li>
+                            <li>• Rain</li>
+                            <li>• Thunderstorm</li>
+                            <li>• Snow</li>
+                        </ul>
+
+                        <strong>💨 Wind Conditions:</strong>
+                        <ul class="list-unstyled">
+                            <li>• Calm</li>
+                            <li>• Windy</li>
+                        </ul>
+                    </div>
+                    <small class="text-muted">These are suggestions for your notes. Feel free to include them!</small>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group">
+                    <!-- Submit Button -->
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                    </div>
+                    
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<style>
+    .bird-result {
+        cursor: pointer;
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+    .bird-result:hover {
+        background-color: #e9ecef;
+    }
+    .bird-result small {
+        color: #6c757d;
+    }
+    #birdResults {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 5px;
+    }
+</style>
 
 @section Scripts {
-    <script src="~/js/birdlog/birdlog.js" defer></script>
+    <script src="~/js/birdlog/birdlog.js"></script>
 }

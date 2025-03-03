@@ -4,6 +4,9 @@
 
 //CREATE.CSHTML JAVASCRIPT
 // Function to initialize the form validation and event listeners
+// wwwroot/js/birdlog/birdlog.js
+
+// Function to initialize the form validation and event listeners
 function initializeBirdLogForm() {
     const form = document.getElementById('sightingForm');
     if (!form) return; // Exit if the form doesn't exist on the page
@@ -67,7 +70,7 @@ function initializeBirdLogForm() {
             // Get the latitude and longitude from the selected option
             const latLong = selectedOption.getAttribute('data-latlong');
 
-            // If latitude and longitude are available, split them and update the hidden fields
+            // If latitude and longitude are available, update the hidden fields
             if (latLong) {
                 const [latitude, longitude] = latLong.split(','); // Split the string into two parts
                 document.getElementById('LatitudeInput').value = latitude; // Update latitude field
@@ -76,6 +79,82 @@ function initializeBirdLogForm() {
                 // If no latitude and longitude are available, clear the hidden fields
                 document.getElementById('LatitudeInput').value = '';
                 document.getElementById('LongitudeInput').value = '';
+            }
+        });
+    }
+
+    // Bird search functionality
+    const birdSearchInput = document.getElementById('birdSearch');
+    const birdResultsContainer = document.getElementById('birdResults');
+
+    if (birdSearchInput && birdResultsContainer) {
+        birdSearchInput.addEventListener('input', function () {
+            const searchTerm = this.value.trim();
+            console.log(`Search term: ${searchTerm}`); // Debugging: Log the search term
+
+            if (searchTerm.toLowerCase() === "n/a") {
+                // Clear previous results
+                birdResultsContainer.innerHTML = '';
+
+                // Create a special "N/A" option
+                const naOption = document.createElement('div');
+                naOption.className = 'bird-result';
+                naOption.innerHTML = `<strong>N/A</strong>`;
+                naOption.addEventListener('click', function () {
+                    birdSearchInput.value = "N/A"; // Set the input value to "N/A"
+                    document.getElementById('BirdId').value = ""; // Set the hidden BirdId field to "N/A"
+                    birdResultsContainer.style.display = 'none'; // Hide the results dropdown
+                });
+                birdResultsContainer.appendChild(naOption);
+                birdResultsContainer.style.display = 'block'; // Show the results container
+            } else if (searchTerm.length >= 2) { // Only search if the user has typed at least 2 characters
+                fetch(`/birds/search?term=${encodeURIComponent(searchTerm)}`)
+                    .then(response => {
+                        console.log('Response received:', response); // Debugging: Log the response
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Data received:', data); // Debugging: Log the data
+                        // Clear previous results
+                        birdResultsContainer.innerHTML = '';
+
+                        // Display up to 10 results
+                        data.slice(0, 10).forEach(bird => {
+                            const resultItem = document.createElement('div');
+                            resultItem.className = 'bird-result';
+                            resultItem.innerHTML = `
+                                <strong>${bird.text}</strong>
+                                <small>${bird.scientificName}</small>
+                            `;
+                            resultItem.addEventListener('click', function () {
+                                birdSearchInput.value = bird.text; // Set the input value to the selected bird
+                                document.getElementById('BirdId').value = bird.id; // Set the hidden BirdId field
+                                birdResultsContainer.style.display = 'none'; // Hide the results dropdown
+                            });
+                            birdResultsContainer.appendChild(resultItem);
+                        });
+
+                        // Show the results container if there are results
+                        if (data.length > 0) {
+                            birdResultsContainer.style.display = 'block';
+                        } else {
+                            birdResultsContainer.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching bird species:', error); // Debugging: Log any errors
+                        birdResultsContainer.style.display = 'none';
+                    });
+            } else {
+                // Hide the results container if the search term is too short
+                birdResultsContainer.style.display = 'none';
+            }
+        });
+
+        // Hide the results dropdown when clicking outside
+        document.addEventListener('click', function (event) {
+            if (!birdSearchInput.contains(event.target) && !birdResultsContainer.contains(event.target)) {
+                birdResultsContainer.style.display = 'none';
             }
         });
     }
@@ -91,7 +170,6 @@ function scrollToFirstError() {
 
 // Initialize the form when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', initializeBirdLogForm);
-
 ///////////////
 
 
@@ -194,77 +272,83 @@ document.addEventListener("DOMContentLoaded", function () {
     const overlay = document.getElementById("filterOverlay");
     const openFilterFormButton = document.getElementById("openFilterForm");
     const closeFilterFormButton = document.getElementById("closeFilterForm");
+    const birdSearch = document.getElementById("birdSearch");
+    const birdDropdown = document.getElementById("birdDropdown");
+    const selectedBirdsContainer = document.getElementById("selectedBirdsContainer");
+    const selectedBirdsInput = document.getElementById("selectedBirds");
+    const filterForm = document.getElementById("filterForm");
+    const showLogsButton = document.querySelector("button[type='submit']");
+    const userDropdown = document.getElementById("userId");
+    const sightingsTable = document.querySelector(".table-responsive");
+    const messageContainer = document.querySelector(".alert-info") || document.createElement("div");
 
-    // Open the overlay when "Filter My Logs" is clicked
+    let selectedBirds = [];
+    const allBirdNames = window.allBirdNames || [];
+
+    // Function to update the dropdown with matching bird names
+    function updateDropdown(searchTerm) {
+        birdDropdown.innerHTML = "";
+        const matchingBirds = allBirdNames.filter(bird => bird.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        matchingBirds.forEach(bird => {
+            const dropdownItem = document.createElement("div");
+            dropdownItem.className = "dropdown-item";
+            dropdownItem.textContent = bird;
+            dropdownItem.style.cursor = "pointer";
+            dropdownItem.addEventListener("click", function () {
+                if (!selectedBirds.includes(bird)) {
+                    selectedBirds.push(bird);
+                    updateSelectedBirds();
+                }
+            });
+            birdDropdown.appendChild(dropdownItem);
+        });
+
+        birdDropdown.style.display = matchingBirds.length > 0 ? "block" : "none";
+    }
+
+    // Function to update the selected birds (chips)
+    function updateSelectedBirds() {
+        selectedBirdsContainer.innerHTML = "";
+        selectedBirds.forEach(bird => {
+            const chip = document.createElement("div");
+            chip.className = "badge bg-primary me-2";
+            chip.innerHTML = `
+                ${bird}
+                <span class="ms-2" style="cursor: pointer;" onclick="removeBird('${bird}')">×</span>
+            `;
+            selectedBirdsContainer.appendChild(chip);
+        });
+
+        selectedBirdsInput.value = selectedBirds.join(",");
+    }
+
+    // Function to remove a selected bird
+    window.removeBird = function (bird) {
+        selectedBirds = selectedBirds.filter(b => b !== bird);
+        updateSelectedBirds();
+    };
+
+    birdSearch.addEventListener("input", function () {
+        updateDropdown(this.value);
+    });
+
     openFilterFormButton.addEventListener("click", function () {
-        overlay.classList.remove("d-none"); // Show the overlay
+        overlay.classList.remove("d-none");
     });
 
-    // Close the overlay when "Close" is clicked
     closeFilterFormButton.addEventListener("click", function () {
-        overlay.classList.add("d-none"); // Hide the overlay
+        overlay.classList.add("d-none");
     });
 
-    // Handle form submission (Filter My Logs)
-    document.addEventListener("DOMContentLoaded", function () {
-        const overlay = document.getElementById("filterOverlay");
-        const openFilterFormButton = document.getElementById("openFilterForm");
-        const closeFilterFormButton = document.getElementById("closeFilterForm");
-    
-        // Open the overlay when "Filter My Logs" is clicked
-        openFilterFormButton.addEventListener("click", function () {
-            overlay.classList.remove("d-none"); // Show the overlay
-        });
-    
-        // Close the overlay when "Close" is clicked
-        closeFilterFormButton.addEventListener("click", function () {
-            overlay.classList.add("d-none"); // Hide the overlay
-        });
-    
-        // Handle form submission (Filter My Logs)
-        document.getElementById("filterForm").addEventListener("submit", function (event) {
-            event.preventDefault(); // Stop the form from submitting
-    
-            // Get selected bird from the dropdown
-            const birdId = document.getElementById("birdDropdown").value;
-    
-            // Redirect with selected bird as a query parameter
-            window.location.href = `/BirdLog/Index?birdId=${birdId}`;
-        });
-    
-        // Apply sorting when the "Apply Sorting" button is clicked
-        document.getElementById("applySort").addEventListener("click", function () {
-            const selectedSort = document.getElementById("sortDropdown").value;
-            const filterBird = document.getElementById("filterBird").value;
-    
-            // Redirect with selected sort order and filterBird as query parameters
-            window.location.href = `/BirdLog/Index?sortOrder=${selectedSort}&filterBird=${filterBird}`;
-        });
-    
-        // Apply filtering when the "Apply Filter" button is clicked
-        document.getElementById("applyFilter").addEventListener("click", function () {
-            const filterBird = document.getElementById("filterBird").value;
-    
-            // Redirect with filterBird as a query parameter
-            window.location.href = `/BirdLog/Index?filterBird=${filterBird}`;
-        });
-    });
-    
-
-    // Apply sorting when the "Apply Sorting" button is clicked
-    document.getElementById("applySort").addEventListener("click", function () {
-        const selectedSort = document.getElementById("sortDropdown").value;
-        const filterBird = document.getElementById("filterBird").value;
-
-        // Redirect with selected sort order and filterBird as query parameters
-        window.location.href = `/BirdLog/Index?sortOrder=${selectedSort}&filterBird=${filterBird}`;
+    filterForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        window.location.href = `/BirdLog/Index?selectedBirds=${selectedBirds.join(",")}`;
     });
 
-    // Apply filtering when the "Apply Filter" button is clicked
-    document.getElementById("applyFilter").addEventListener("click", function () {
-        const filterBird = document.getElementById("filterBird").value;
-
-        // Redirect with filterBird as a query parameter
-        window.location.href = `/BirdLog/Index?filterBird=${filterBird}`;
+    document.addEventListener("click", function (event) {
+        if (!birdSearch.contains(event.target)) {
+            birdDropdown.style.display = "none";
+        }
     });
 });
