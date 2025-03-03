@@ -34,7 +34,7 @@ internal class Program
             builder.Services.AddSingleton(new SendGridService(sendGridApiKey));
         }
 
-        if (builder.Environment.IsProduction())
+        if (builder.Environment.IsProduction()) // Use the Azure key vault during development
         {
             var keyVaultUrl = builder.Configuration["KeyVault:KeyVaultURL"];
 
