@@ -34,7 +34,7 @@ internal class Program
             builder.Services.AddSingleton(new SendGridService(sendGridApiKey));
         }
 
-        if (builder.Environment.IsDevelopment())
+        if (builder.Environment.IsProduction())
         {
             var keyVaultUrl = builder.Configuration["KeyVault:KeyVaultURL"];
 
