@@ -10,17 +10,43 @@ using StorkDorkMain.Data;
 using Microsoft.AspNetCore.Identity;
 using StorkDork.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Azure.Identity;
 using StorkDorkMain.Models;
+using SendGrid;
+using SendGrid.Helpers.Mail;
+using Azure.Security.KeyVault.Secrets;
+using System.Threading.Tasks;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
         if (builder.Environment.IsDevelopment())
         {
             builder.Configuration.AddUserSecrets<Program>();
+
+            // Access the SendGrid API Key from User Secrets in Development
+            var sendGridApiKey = builder.Configuration["SendGrid:ApiKey"];
+
+            // Add SendGrid to Dependency Injection
+            builder.Services.AddSingleton(new SendGridService(sendGridApiKey));
+        }
+
+        if (builder.Environment.IsProduction()) // Use the Azure key vault during development
+        {
+            var keyVaultUrl = builder.Configuration["KeyVault:KeyVaultURL"];
+
+            var credential = new DefaultAzureCredential();  // Uses Managed Identity
+            builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), credential);
+
+            // Development SendGrid setup
+            builder.Services.AddSingleton<SendGridService>(serviceProvider =>
+            {
+                var apiKey = builder.Configuration["SendGridApiKey"];  // This will get the key from Azure Key Vault now
+                return new SendGridService(apiKey);
+            });
         }
 
         // Add services to the container.
@@ -30,6 +56,7 @@ internal class Program
         builder.Services.AddRazorPages();
 
         builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
 
         //StorkDork database setup
         var conStrBuilder = new SqlConnectionStringBuilder(
@@ -50,19 +77,26 @@ internal class Program
             .UseSqlServer(connectionStringIdentity)
         );
 
+        builder.Services.AddDbContext<StorkDorkDbContext>(options => options
+            .UseLazyLoadingProxies()
+            .UseSqlServer(builder.Configuration.GetConnectionString("StorkDorkDB"))
+        );
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
+        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
         .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
         .AddDefaultTokenProviders();
 
+        builder.Services.AddScoped<UserManager<IdentityUser>>();
         builder.Services.AddScoped<DbContext, StorkDorkContext>();
         builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         builder.Services.AddScoped<IBirdRepository, BirdRepository>();
         builder.Services.AddScoped<ISightingService, SightingService>();
+        builder.Services.AddScoped<ISDUserRepository, SDUserRepository>();
 
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddSingleton<IEmailSender, NoOpEmailSender>();
+        // Removing this breaks everything for some reason T_T, even when register.cshtml.cs doesn't use IEmailSender? Just leave it. 
+        builder.Services.AddHttpClient<IEmailSender, ApiEmailSender>();
 
         var app = builder.Build();
 
@@ -112,6 +146,11 @@ internal class Program
             pattern: "Bird/{action=Index}/{id?}",
             defaults: new { controller = "Bird" });
 
+        app.MapControllerRoute(
+            name: "Email",
+            pattern: "Email/{action=Send}/{id?}",
+            defaults: new { controller = "Email" });
+
         // Needed for identity ui routing to work
         app.MapRazorPages();
 
@@ -120,10 +159,10 @@ internal class Program
 }
 
 // Dummy email to satisfy identity requiring email sending. WILL DELETE LATER 
-public class NoOpEmailSender : IEmailSender
-{
-    public Task SendEmailAsync(string email, string subject, string htmlMessage)
-    {
-        return Task.CompletedTask; // Does nothing, but satisfies the requirement
-    }
-}
+// public class NoOpEmailSender : IEmailSender
+// {
+//     public Task SendEmailAsync(string email, string subject, string htmlMessage)
+//     {
+//         return Task.CompletedTask; // Does nothing, but satisfies the requirement
+//     }
+// }

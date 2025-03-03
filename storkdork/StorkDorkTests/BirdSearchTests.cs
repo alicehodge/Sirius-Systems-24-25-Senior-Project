@@ -275,6 +275,150 @@ namespace StorkDorkTests
             });
         }
 
+        [Test]
+        public async Task SearchBirds_NoResults_ShowsCorrectErrorMessage()
+        {
+            // Arrange
+            var searchTerm = "nonexistentbird";
+            var searchType = "name";
+            _mockBirdRepo.Setup(repo => repo.GetBirdsByName(searchTerm))
+                        .ReturnsAsync(new List<Bird>());
+
+            // Act
+            var result = await _controller.SearchBirds(searchTerm, searchType);
+
+            // Assert
+            Assert.That(result, Is.TypeOf<ViewResult>());
+            var viewResult = (ViewResult)result;
+            Assert.That(viewResult.Model, Is.TypeOf<SearchResultsViewModel>());
+            var model = (SearchResultsViewModel)viewResult.Model;
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.Birds, Is.Empty);
+                Assert.That(model.SearchTerm, Is.EqualTo(searchTerm));
+                Assert.That(model.SearchType, Is.EqualTo(searchType));
+            });
+        }
+
+        [Test]
+        public async Task SearchBirds_NoResultsTaxonomy_ShowsCorrectErrorMessage()
+        {
+            // Arrange
+            var searchTerm = "nonexistentorder";
+            var searchType = "taxonomy";
+            _mockBirdRepo.Setup(repo => repo.GetBirdsByTaxonomy(searchTerm))
+                        .ReturnsAsync(new List<Bird>());
+
+            // Act
+            var result = await _controller.SearchBirds(searchTerm, searchType);
+
+            // Assert
+            Assert.That(result, Is.TypeOf<ViewResult>());
+            var viewResult = (ViewResult)result;
+            Assert.That(viewResult.Model, Is.TypeOf<SearchResultsViewModel>());
+            var model = (SearchResultsViewModel)viewResult.Model;
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.Birds, Is.Empty);
+                Assert.That(model.SearchTerm, Is.EqualTo(searchTerm));
+                Assert.That(model.SearchType, Is.EqualTo(searchType));
+            });
+        }
+
+        [Test]
+        public async Task SearchPreview_NoResults_ReturnsEmptyList()
+        {
+            // Arrange
+            var searchTerm = "nonexistentbird";
+            var searchType = "name";
+            _mockBirdRepo.Setup(repo => repo.GetBirdsByName(searchTerm))
+                        .ReturnsAsync(new List<Bird>());
+
+            // Act
+            var result = await _controller.SearchPreview(searchTerm, searchType);
+
+            // Assert
+            Assert.That(result, Is.TypeOf<JsonResult>());
+            var jsonResult = (JsonResult)result;
+            var birds = ((IEnumerable<BirdPreview>)jsonResult.Value).ToList();
+            Assert.That(birds, Is.Empty);
+        }
+
+        [Test]
+        public async Task SearchBirds_ValidNameSearch_RetainsNameTab()
+        {
+            // Arrange
+            var searchTerm = "robin";
+            var searchType = "name";
+            _mockBirdRepo.Setup(repo => repo.GetBirdsByName(searchTerm))
+                        .ReturnsAsync(_testBirds.Where(b => 
+                            b.CommonName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                        .ToList());
+
+            // Act
+            var result = await _controller.SearchBirds(searchTerm, searchType);
+
+            // Assert
+            var viewResult = (ViewResult)result;
+            var model = (SearchResultsViewModel)viewResult.Model;
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.SearchType, Is.EqualTo("name"));
+                Assert.That(viewResult.ViewName, Is.EqualTo("Index"));
+                // Verify tab state through model
+                Assert.That(model.Birds.Any(), Is.True, "Should have search results");
+            });
+        }
+
+        [Test]
+        public async Task SearchBirds_ValidTaxonomySearch_RetainsTaxonomyTab()
+        {
+            // Arrange
+            var searchTerm = "Passeriformes";
+            var searchType = "taxonomy";
+            _mockBirdRepo.Setup(repo => repo.GetBirdsByTaxonomy(searchTerm))
+                        .ReturnsAsync(_testBirds.Where(b => 
+                            b.Order.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                        .ToList());
+
+            // Act
+            var result = await _controller.SearchBirds(searchTerm, searchType);
+
+            // Assert
+            var viewResult = (ViewResult)result;
+            var model = (SearchResultsViewModel)viewResult.Model;
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.SearchType, Is.EqualTo("taxonomy"));
+                Assert.That(viewResult.ViewName, Is.EqualTo("Index"));
+                // Verify tab state through model
+                Assert.That(model.Birds.Any(), Is.True, "Should have search results");
+            });
+        }
+
+        [Test]
+        public async Task SearchBirds_NoResults_RetainsCorrectTab()
+        {
+            // Arrange
+            var searchTerm = "nonexistentbird";
+            var searchType = "taxonomy"; // Testing with taxonomy search
+            _mockBirdRepo.Setup(repo => repo.GetBirdsByTaxonomy(searchTerm))
+                        .ReturnsAsync(new List<Bird>());
+
+            // Act
+            var result = await _controller.SearchBirds(searchTerm, searchType);
+
+            // Assert
+            var viewResult = (ViewResult)result;
+            var model = (SearchResultsViewModel)viewResult.Model;
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.SearchType, Is.EqualTo("taxonomy"), "Should retain taxonomy search type even with no results");
+                Assert.That(model.Birds, Is.Empty, "Should have no results");
+                Assert.That(viewResult.ViewName, Is.EqualTo("Index"));
+            });
+        }
+
         public void Dispose()
         {
             Dispose(true);
