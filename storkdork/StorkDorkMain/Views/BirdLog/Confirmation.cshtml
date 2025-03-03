@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Log Created Successfully";
+}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-body text-center">
+            <h1 class="card-title">🎉 Log Created Successfully!</h1>
+            <p class="card-text">What would you like to do next? <strong>@ViewBag.UserName</strong></p>
+
+            <a href="@Url.Action("Index", new { userId = ViewBag.UserId })" class="btn btn-primary">View Logs</a>
+            <a href="@Url.Action("Create", new { userId = ViewBag.UserId })" class="btn btn-secondary">Log Another Sighting</a>
+        </div>
+    </div>
+</div>

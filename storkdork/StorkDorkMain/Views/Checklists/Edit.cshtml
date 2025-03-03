@@ -1,0 +1,179 @@
+@model StorkDorkMain.Models.Checklist
+
+@{
+    ViewData["Title"] = "Edit Checklist";
+}
+
+<h1>Edit Checklist</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" id="editChecklistForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="SdUserId" value="@ViewBag.SelectedUserId" />
+
+            <!-- Checklist Name -->
+            <div class="form-group">
+                <label asp-for="ChecklistName" class="control-label"></label>
+                <input asp-for="ChecklistName" class="form-control" />
+                <span asp-validation-for="ChecklistName" class="text-danger"></span>
+            </div>
+
+            <!-- Search bar for birds -->
+            <div class="form-group">
+                <label>Search Birds:</label>
+                <input type="text" id="birdSearch" class="form-control" placeholder="Type to search birds..." />
+                <div id="birdSearchResults" class="dropdown-menu" style="display: none;"></div>
+            </div>
+
+            <!-- List of selected birds -->
+            <div class="form-group">
+                <label>Selected Birds:</label>
+                <ul id="selectedBirdsList" class="list-group"></ul>
+            </div>
+
+            <!-- Hidden field to store selected bird IDs -->
+            <div id="selectedBirdsContainer"></div>
+
+            <!-- Buttons -->
+            <div class="form-group mt-3">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="Index" asp-route-userId="@ViewBag.SelectedUserId" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+    $(document).ready(function () {
+        // Define selectedBirds in this scope so that all functions share it
+        let selectedBirds = [];
+
+        // Pre-populate selected birds from the model if available
+        @if (Model.ChecklistItems != null)
+        {
+            foreach (var item in Model.ChecklistItems)
+            {
+                <text>
+                selectedBirds.push({
+                    id: @item.BirdId,
+                    commonName: "@item.Bird.CommonName",
+                    scientificName: "@item.Bird.ScientificName"
+                });
+                </text>
+            }
+        }
+
+        // Render the initial list and hidden inputs
+        updateSelectedBirdsList();
+        updateHiddenInputs();
+
+        // Search functionality for birds
+        $('#birdSearch').on('input', function () {
+            const query = $(this).val();
+            if (query.length >= 2) {
+                $.get('/Checklists/SearchBirds', { query: query }, function (data) {
+                    const birdSearchResults = $('#birdSearchResults');
+                    birdSearchResults.empty();
+                    if (data.length > 0) {
+                        data.forEach(function (bird) {
+                            const birdItem = $(`
+                                <div class="dropdown-item" 
+                                     data-bird-id="${bird.id}" 
+                                     data-bird-common-name="${bird.commonName}" 
+                                     data-bird-scientific-name="${bird.scientificName}">
+                                    ${bird.commonName} (${bird.scientificName})
+                                </div>
+                            `);
+                            // Add the bird to the list when clicked
+                            birdItem.on('click', function () {
+                                addBirdToList(bird);
+                            });
+                            birdSearchResults.append(birdItem);
+                        });
+                        birdSearchResults.show();
+                    } else {
+                        birdSearchResults.hide();
+                    }
+                });
+            } else {
+                $('#birdSearchResults').hide();
+            }
+        });
+
+        // Hide the search results when clicking outside
+        $(document).on('click', function (event) {
+            if (!$(event.target).closest('#birdSearchResults, #birdSearch').length) {
+                $('#birdSearchResults').hide();
+            }
+        });
+
+        // Adds a bird if it isn't already in the list
+        function addBirdToList(bird) {
+            if (!selectedBirds.some(b => b.id === bird.id)) { // Prevent duplicates
+                selectedBirds.push({
+                    id: bird.id,
+                    commonName: bird.commonName,
+                    scientificName: bird.scientificName
+                });
+                updateSelectedBirdsList();
+                updateHiddenInputs();
+            }
+        }
+
+        // Updates the displayed list of selected birds
+        function updateSelectedBirdsList() {
+            const selectedBirdsList = $('#selectedBirdsList');
+            selectedBirdsList.empty();
+            selectedBirds.forEach(function (bird) {
+                const birdItem = $(`
+                    <li class="list-group-item">
+                        <strong>${bird.commonName}</strong><br />
+                        <em>${bird.scientificName}</em>
+                        <button type="button" class="btn btn-sm btn-danger float-right remove-bird-btn" data-bird-id="${bird.id}">×</button>
+                    </li>
+                `);
+                selectedBirdsList.append(birdItem);
+            });
+
+            // Attach event listeners to remove buttons
+            $('.remove-bird-btn').on('click', function () {
+                const birdId = $(this).data('bird-id');
+                removeBirdFromList(birdId);
+            });
+        }
+
+        // Updates the hidden input fields with the current selected birds
+        function updateHiddenInputs() {
+            const selectedBirdsContainer = $('#selectedBirdsContainer');
+            selectedBirdsContainer.empty();
+            selectedBirds.forEach(function (bird) {
+                selectedBirdsContainer.append(
+                    `<input type="hidden" name="selectedBirds" value="${bird.id}" />`
+                );
+            });
+            console.log("Selected Bird IDs:", selectedBirds.map(b => b.id).join(', '));
+        }
+
+        // Remove the bird with the given ID and update the list and hidden inputs
+        function removeBirdFromList(birdId) {
+            selectedBirds = selectedBirds.filter(b => b.id !== birdId);
+            updateSelectedBirdsList();
+            updateHiddenInputs();
+        }
+
+        // Validate that at least one bird is selected on form submission
+        $('#editChecklistForm').on('submit', function (e) {
+            if (selectedBirds.length === 0) {
+                e.preventDefault();
+                alert("Please select at least one bird.");
+            }
+        });
+    });
+    </script>
+}
