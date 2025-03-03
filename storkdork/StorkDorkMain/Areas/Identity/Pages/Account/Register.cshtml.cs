@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using StorkDorkMain.Models;
 using StorkDorkMain.Data;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace StorkDork.Areas.Identity.Pages.Account
 {
@@ -32,6 +33,7 @@ namespace StorkDork.Areas.Identity.Pages.Account
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly StorkDorkContext _context;
+        private readonly SendGridService _sendGridService;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
@@ -39,7 +41,7 @@ namespace StorkDork.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            StorkDorkContext context)
+            StorkDorkContext context, SendGridService sendGridService)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -48,6 +50,7 @@ namespace StorkDork.Areas.Identity.Pages.Account
             _logger = logger;
             _emailSender = emailSender;
             _context = context;
+            _sendGridService = sendGridService;
         }
 
         /// <summary>
@@ -166,8 +169,17 @@ namespace StorkDork.Areas.Identity.Pages.Account
                             values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                             protocol: Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                            $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                        await _sendGridService.SendEmailAsync(
+                            "storkdorkapp@gmail.com",  // Your "From" email
+                            "Stork Dork",              // Your "From" name
+                            Input.Email,
+                            "d-e272946c8b204c4891106b5633c61fb0",
+                            callbackUrl,
+                            Input.FirstName
+                        );
+
+                        // await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                        //     $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {

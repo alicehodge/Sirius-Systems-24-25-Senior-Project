@@ -113,10 +113,19 @@ namespace StorkDork.Areas.Identity.Pages.Account
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
+                }
+                if (user != null && !user.EmailConfirmed)
+                {
+                    // Email not confirmed, inform the user
+                    _logger.LogInformation("User email not confirmed.");
+                    ModelState.AddModelError(string.Empty, "You must confirm your email before logging in.");
+                    return Page(); // Stay on the login page
                 }
                 if (result.RequiresTwoFactor)
                 {
@@ -129,7 +138,7 @@ namespace StorkDork.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, $"Invalid login attempt.{Input.Password}");
+                    ModelState.AddModelError(string.Empty, $"Invalid login attempt.");
                     return Page();
                 }
             }
