@@ -59,9 +59,9 @@ public partial class StorkDorkContext : DbContext
             entity.Property(e => e.ChecklistName).HasMaxLength(100);
             entity.Property(e => e.SdUserId).HasColumnName("SDUserID");
 
-            entity.HasOne(d => d.SdUser).WithMany(p => p.Checklists)
-                .HasForeignKey(d => d.SdUserId)
-                .HasConstraintName("FK_Checklist_SDUser");
+            // entity.HasOne(d => d.SdUser).WithMany(p => p.Checklists)
+            //     .HasForeignKey(d => d.SdUserId)
+            //     .HasConstraintName("FK_Checklist_SDUser");
         });
 
         modelBuilder.Entity<ChecklistItem>(entity =>
@@ -112,9 +112,9 @@ public partial class StorkDorkContext : DbContext
                 .HasForeignKey(d => d.BirdId)
                 .HasConstraintName("FK_Sighting_Bird");
 
-            entity.HasOne(d => d.SdUser).WithMany(p => p.Sightings)
-                .HasForeignKey(d => d.SdUserId)
-                .HasConstraintName("FK_Sighting_SDUser");
+            // entity.HasOne(d => d.SdUser).WithMany(p => p.Sightings)
+            //     .HasForeignKey(d => d.SdUserId)
+            //     .HasConstraintName("FK_Sighting_SDUser");
         });
 
         OnModelCreatingPartial(modelBuilder);
