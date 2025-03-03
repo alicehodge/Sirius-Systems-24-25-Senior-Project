@@ -1,3 +1,5 @@
+module.exports = {fetchUser, fetchSightingsByUser, makeSightingMarkers};
+
 // Code for Map div
 // Create map centered using the given default location
 const map = L.map('map').setView([44.8485, -123.2340], 14);
