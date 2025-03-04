@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StorkDorkMain.Models;
 
@@ -43,4 +44,8 @@ public partial class Bird
     public virtual ICollection<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
 
     public virtual ICollection<Sighting> Sightings { get; set; } = new List<Sighting>();
+
+    // Navigation property for related birds
+    [NotMapped]
+    public List<Bird> RelatedBirds { get; set; } = new List<Bird>();
 }

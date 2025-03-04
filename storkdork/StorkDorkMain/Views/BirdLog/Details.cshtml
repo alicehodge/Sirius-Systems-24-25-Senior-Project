@@ -4,111 +4,100 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<div class="card mx-auto shadow-lg p-4" style="max-width: 900px; border-radius: 20px;">
+    <div class="row g-0">
+        <!-- Bird Image (Larger) -->
+        <div class="col-md-5 d-flex align-items-center justify-content-center">
+            <img src="/images/placeholder-bird.svg" class="img-fluid rounded" 
+                 alt="Bird Image" style="width: 100%; height: auto; object-fit: cover; border-radius: 15px;">
+        </div>
 
-<div>
-    <h4>Bird Sighting</h4>
-    <hr />
-    <dl class="row">
-        <!-- SduserId -->
-        <dt class="col-sm-2">
-            User ID
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.SdUserId.HasValue)
-            {
-                @Model.SdUserId
-            }
-            else
-            {
-                <span>No User Recorded.</span>
-            }
-        </dd>
+        <!-- Card Details -->
+        <div class="col-md-7">
+            <div class="card-body">
+                <!-- Bird Name (Bigger Font) -->
+                <h3 class="card-title text-primary fw-bold text-center">
+                    @if (Model.BirdId.HasValue && Model.Bird != null)
+                    {
+                        @Model.Bird.CommonName
+                    }
+                    else
+                    {
+                        <span>Unknown Bird</span>
+                    }
+                </h3>
 
-        <!-- Sduser Information (Optional) -->
-        <dt class="col-sm-2">
-            User
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.SdUser != null)
-            {
-                @Model.SdUser.Id <!-- Replace "Name" with the actual property you want to display -->
-            }
-            else
-            {
-                <span>No User Information Available.</span>
-            }
-        </dd>
+                <!-- Observer -->
+                <p class="card-text fs-5">
+                    <strong>Observer:</strong>
+                    @if (Model.SdUser != null)
+                    {
+                        @Model.SdUser.FirstName <!-- Replace with actual user property -->
+                    }
+                    else
+                    {
+                        <span class="text-muted">No User Information Available.</span>
+                    }
+                </p>
 
-        <!-- Bird Species -->
-        <dt class="col-sm-2">
-            Bird Species
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.BirdId.HasValue && Model.Bird != null)
-            {
-                @Model.Bird.CommonName
-            }
-            else
-            {
-                <span>N/A</span>
-            }
-        </dd>
+                <!-- Location -->
+                <p class="card-text fs-5">
+                    <strong>Location:</strong>
+                    @{
+                        string latitude = Model.Latitude?.ToString("0.0000") ?? "NULL";
+                        string longitude = Model.Longitude?.ToString("0.0000") ?? "NULL";
+                        string locationKey = $"{latitude},{longitude}";
 
-        <!-- Location -->
-        <dt class="col-sm-2">
-            Location
-        </dt>
-        <dd class="col-sm-10">
-            @{
-                string latitude = Model.Latitude?.ToString("0.0000") ?? "NULL";
-                string longitude = Model.Longitude?.ToString("0.0000") ?? "NULL";
-                string locationKey = $"{latitude},{longitude}";
+                        string locationName = (latitude != "NULL" && longitude != "NULL" && ViewBag.PnwLocations.ContainsKey(locationKey))
+                            ? ViewBag.PnwLocations[locationKey]
+                            : "Unknown Location";
+                    }
+                    <strong>@locationName</strong>
+                    <br>
+                    <small class="text-muted">Coordinates: @locationKey</small>
+                </p>
 
-                string locationName = (latitude != "NULL" && longitude != "NULL" && ViewBag.PnwLocations.ContainsKey(locationKey))
-                    ? ViewBag.PnwLocations[locationKey]
-                    : "Unknown Location";
-            }
-            <strong>@locationName</strong> <br>
-            <small>Coordinates: @locationKey</small>
-        </dd>
+                <!-- Date -->
+                <p class="card-text fs-5">
+                    <strong>Date:</strong> 
+                    @if (Model.Date.HasValue)
+                    {
+                        @Model.Date.Value.ToString("MMMM dd, yyyy")
+                    }
+                    else
+                    {
+                        <span class="text-muted">No Date Recorded.</span>
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
 
-        <!-- Date -->
-        <dt class="col-sm-2">
-            Date
-        </dt>
-        <dd class="col-sm-10">
-            @if (Model.Date.HasValue)
-            {
-                @Model.Date.Value.ToShortDateString()
-            }
-            else
-            {
-                <span>No Date Recorded.</span>
-            }
-        </dd>
-
-        <!-- Notes -->
-        <dt class="col-sm-2">
-            Notes
-        </dt>
-        <dd class="col-sm-10">
+    <!-- Notes Section (Below Image) -->
+    <div class="card-footer bg-white">
+        <h4 class="fw-bold">Notes</h4>
+        <p class="card-text fs-5">
             @if (!string.IsNullOrEmpty(Model.Notes))
             {
-                // Split the Notes field into user notes and weather conditions
                 var notesParts = Model.Notes.Split(new[] { "|||" }, StringSplitOptions.RemoveEmptyEntries);
                 var userNotes = notesParts.Length > 0 ? notesParts[0].Trim() : "";
                 @userNotes
             }
             else
             {
-                <span>No Notes Recorded</span>
+                <span class="text-muted">No Notes Recorded.</span>
             }
-        </dd>
-    </dl>
-</div>
+        </p>
 
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        <!-- Timestamp -->
+        <p class="text-muted">
+            <small>Last updated @DateTime.Now.ToString("MMM dd, yyyy HH:mm tt")</small>
+        </p>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-between">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg w-50 me-2">Edit</a>
+            <a asp-action="Index" class="btn btn-secondary btn-lg w-50">Back to List</a>
+        </div>
+    </div>
 </div>

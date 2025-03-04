@@ -1,0 +1,83 @@
+@model IEnumerable<StorkDorkMain.Models.Sighting>
+
+@if (Model != null && Model.Any())
+{
+    <div class="table-responsive mt-4">
+        <table class="table table-striped">
+            <thead class="table-light">
+                <tr>
+                    <th class="p-3">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dateDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Date @(ViewBag.SortOrder == "date-asc" ? "▲" : ViewBag.SortOrder == "date-desc" ? "▼" : "")
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dateDropdown">
+                                <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "date-asc", userId = ViewBag.SelectedUserId })">Oldest to Newest</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "date-desc", userId = ViewBag.SelectedUserId })">Newest to Oldest</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "date-null", userId = ViewBag.SelectedUserId })">Null Dates First</a></li>
+                            </ul>
+                        </div>
+                    </th>
+                    <th class="p-3">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="birdDropdownHeader" data-bs-toggle="dropdown" aria-expanded="false">
+                                Bird @(ViewBag.SortOrder == "bird" ? "▲" : ViewBag.SortOrder == "bird-desc" ? "▼" : "")
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="birdDropdownHeader">
+                                <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "bird", userId = ViewBag.SelectedUserId })">A-Z</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "bird-desc", userId = ViewBag.SelectedUserId })">Z-A</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "bird-null", userId = ViewBag.SelectedUserId })">Null Names First</a></li>
+                            </ul>
+                        </div>
+                    </th>
+                    <th class="p-3">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="locationDropdownHeader" data-bs-toggle="dropdown" aria-expanded="false">
+                                Location @(ViewBag.SortOrder == "location" ? "▲" : ViewBag.SortOrder == "location-desc" ? "▼" : "")
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="locationDropdownHeader">
+                                <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "location", userId = ViewBag.SelectedUserId })">A-Z</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "location-desc", userId = ViewBag.SelectedUserId })">Z-A</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "location-null", userId = ViewBag.SelectedUserId })">Null Locations First</a></li>
+                            </ul>
+                        </div>
+                    </th>
+                    <th class="p-3">
+                        Actions
+                        <button id="openFilterMenu" class="btn btn-sm btn-secondary ms-2">Filter</button>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@(item.Date.HasValue ? item.Date.Value.ToShortDateString() : "No date entered")</td>
+                        <td>@(item.Bird?.CommonName ?? "Bird Species Unavailable")</td>
+                        <td>
+                            @{
+                                string latitude = item.Latitude?.ToString("0.0000") ?? "NULL";
+                                string longitude = item.Longitude?.ToString("0.0000") ?? "NULL";
+                                string locationKey = $"{latitude},{longitude}";
+                                string locationName = (latitude != "NULL" && longitude != "NULL" && ViewBag.PnwLocations.ContainsKey(locationKey))
+                                    ? ViewBag.PnwLocations[locationKey]
+                                    : "Unknown Location";
+                            }
+                            <strong>@locationName</strong> <br>
+                            <small class="text-muted">Debug: @locationKey</small>
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <p class="text-muted mt-4">No sightings found for the selected user.</p>
+}
