@@ -316,7 +316,7 @@ namespace StorkDork.Controllers
 
             var sighting = await _context.Sightings
                 .Include(s => s.Bird)
-                .Include(s => s.Sduser)
+                .Include(s => s.SdUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (sighting == null)
             {
@@ -695,7 +695,7 @@ namespace StorkDork.Controllers
 
             var sighting = await _context.Sightings
                 .Include(s => s.Bird)
-                .Include(s => s.Sduser)
+                .Include(s => s.SdUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (sighting == null)
             {
