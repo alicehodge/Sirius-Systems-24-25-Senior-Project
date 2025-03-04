@@ -419,6 +419,157 @@ namespace StorkDorkTests
             });
         }
 
+        [Test]
+        public async Task GetRelatedBirds_WithSubspecies_ReturnsRelatedBirds()
+        {
+            // Arrange
+            var speciesCode = "amecro";
+            var reportAs = "amecro";
+            _testBirds = new List<Bird>
+            {
+                new Bird {
+                    Id = 1,
+                    CommonName = "American Crow",
+                    ScientificName = "Corvus brachyrhynchos",
+                    SpeciesCode = "amecro",
+                    Category = "species",
+                    ReportAs = "amecro"
+                },
+                new Bird {
+                    Id = 2,
+                    CommonName = "American Crow (Northwestern)",
+                    ScientificName = "Corvus brachyrhynchos caurinus",
+                    SpeciesCode = "amecr1",
+                    Category = "issf",
+                    ReportAs = "amecro"
+                }
+            };
+            _mockBirdRepo.Setup(repo => repo.GetRelatedBirds(speciesCode, reportAs, null, 1, 10))
+                        .ReturnsAsync((_testBirds.Skip(1), 1));
+
+            // Act
+            var result = await _mockBirdRepo.Object.GetRelatedBirds(speciesCode, reportAs);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Birds.Count(), Is.EqualTo(1));
+                var relatedBird = result.Birds.First();
+                Assert.That(relatedBird.Category, Is.EqualTo("issf"));
+                Assert.That(relatedBird.ReportAs, Is.EqualTo("amecro"));
+            });
+        }
+
+        [Test]
+        public async Task GetRelatedBirds_WithHybrids_ReturnsHybrids()
+        {
+            // Arrange
+            var speciesCode = "daejun";
+            var reportAs = "daejun";
+            _testBirds = new List<Bird>
+            {
+                new Bird {
+                    Id = 1,
+                    CommonName = "Dark-eyed Junco",
+                    ScientificName = "Junco hyemalis",
+                    SpeciesCode = "daejun",
+                    Category = "species"
+                },
+                new Bird {
+                    Id = 2,
+                    CommonName = "Dark-eyed x White-winged Junco (hybrid)",
+                    ScientificName = "Junco hyemalis x aikeni",
+                    SpeciesCode = "x00123",
+                    Category = "hybrid"
+                }
+            };
+            _mockBirdRepo.Setup(repo => repo.GetRelatedBirds(speciesCode, reportAs, null, 1, 10))
+                        .ReturnsAsync((_testBirds.Skip(1), 1));
+
+            // Act
+            var result = await _mockBirdRepo.Object.GetRelatedBirds(speciesCode, reportAs);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Birds.Count(), Is.EqualTo(1));
+                var hybrid = result.Birds.First();
+                Assert.That(hybrid.Category, Is.EqualTo("hybrid"));
+                Assert.That(hybrid.CommonName.Contains("Dark-eyed"), Is.True);
+            });
+        }
+
+        [Test]
+        public async Task GetRelatedBirds_WithCategoryFilter_ReturnsFilteredResults()
+        {
+            // Arrange
+            var speciesCode = "daejun";
+            var reportAs = "daejun";
+            var categoryFilter = "hybrid";
+            _testBirds = new List<Bird>
+            {
+                new Bird {
+                    Id = 1,
+                    CommonName = "Dark-eyed Junco",
+                    SpeciesCode = "daejun",
+                    Category = "species"
+                },
+                new Bird {
+                    Id = 2,
+                    CommonName = "Dark-eyed Junco (Oregon)",
+                    SpeciesCode = "daej1",
+                    Category = "issf",
+                    ReportAs = "daejun"
+                },
+                new Bird {
+                    Id = 3,
+                    CommonName = "Dark-eyed x White-winged Junco",
+                    SpeciesCode = "x00123",
+                    Category = "hybrid"
+                }
+            };
+            _mockBirdRepo.Setup(repo => repo.GetRelatedBirds(speciesCode, reportAs, categoryFilter, 1, 10))
+                        .ReturnsAsync((_testBirds.Where(b => b.Category == categoryFilter), 1));
+
+            // Act
+            var result = await _mockBirdRepo.Object.GetRelatedBirds(speciesCode, reportAs, categoryFilter);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Birds.Count(), Is.EqualTo(1));
+                Assert.That(result.Birds.All(b => b.Category == categoryFilter), Is.True);
+            });
+        }
+
+        [Test]
+        public async Task GetRelatedBirds_WithPagination_ReturnsCorrectPage()
+        {
+            // Arrange
+            var speciesCode = "daejun";
+            var reportAs = "daejun";
+            var page = 2;
+            var pageSize = 1;
+            _testBirds = new List<Bird>
+            {
+                new Bird { Id = 1, CommonName = "Dark-eyed Junco", Category = "species" },
+                new Bird { Id = 2, CommonName = "Dark-eyed Junco (Oregon)", Category = "issf", ReportAs = "daejun" },
+                new Bird { Id = 3, CommonName = "Dark-eyed x White-winged Junco", Category = "hybrid" }
+            };
+            _mockBirdRepo.Setup(repo => repo.GetRelatedBirds(speciesCode, reportAs, null, page, pageSize))
+                        .ReturnsAsync((_testBirds.Skip((page - 1) * pageSize).Take(pageSize), _testBirds.Count));
+
+            // Act
+            var result = await _mockBirdRepo.Object.GetRelatedBirds(speciesCode, reportAs, null, page, pageSize);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Birds.Count(), Is.EqualTo(pageSize));
+                Assert.That(result.TotalCount, Is.EqualTo(_testBirds.Count));
+            });
+        }
+
         public void Dispose()
         {
             Dispose(true);

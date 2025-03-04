@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using StorkDorkMain.Models;
 using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.DAL.Concrete;
-using StorkDorkMain.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace StorkDork.Controllers
 {
@@ -21,25 +22,39 @@ namespace StorkDork.Controllers
         }
 
         [HttpGet]
-        public Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int? id, string? categoryFilter = null, int page = 1)
         {
-            var bird = _birdRepo.FindById(id);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var bird = _birdRepo.FindById(id.Value);
             if (bird == null)
             {
-                return Task.FromResult<IActionResult>(NotFound());
+                return NotFound();
             }
+
+            var (relatedBirds, totalCount) = await _birdRepo.GetRelatedBirds(
+                bird.SpeciesCode, 
+                bird.ReportAs,
+                categoryFilter,
+                page);
 
             var viewModel = new BirdDetailsViewModel
             {
-                CommonName = bird.CommonName,
-                ScientificName = bird.ScientificName,
-                Order = bird.Order,
-                FamilyCommonName = bird.FamilyCommonName,
-                FamilyScientificName = bird.FamilyScientificName,
-                Range = bird.Range
+                Bird = bird,
+                RelatedBirds = relatedBirds.Select(rb => new RelatedBirdViewModel 
+                {
+                    Bird = rb,
+                    RelationType = rb.Category
+                }).ToList(),
+                CurrentPage = page,
+                TotalPages = (int)Math.Ceiling(totalCount / 10.0),
+                CategoryFilter = categoryFilter
             };
 
-            return Task.FromResult<IActionResult>(View(viewModel));
+            return View(viewModel);
         }
     }
 }
