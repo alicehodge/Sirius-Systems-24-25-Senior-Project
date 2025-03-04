@@ -12,6 +12,7 @@ using StorkDork.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Azure.Identity;
 using StorkDorkMain.Models;
+using StorkDorkMain.Services;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Azure.Security.KeyVault.Secrets;
@@ -97,6 +98,7 @@ internal class Program
 
         // Removing this breaks everything for some reason T_T, even when register.cshtml.cs doesn't use IEmailSender? Just leave it. 
         builder.Services.AddHttpClient<IEmailSender, ApiEmailSender>();
+        builder.Services.AddHttpClient<IEBirdService, EBirdService>();
 
         var app = builder.Build();
 
