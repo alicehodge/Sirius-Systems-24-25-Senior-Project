@@ -1,4 +1,4 @@
-module.exports = {fetchUser, fetchSightingsByUser, makeSightingMarkers};
+//module.exports = {fetchUser, fetchSightingsByUser, makeSightingMarkers};
 
 // Code for Map div
 // Create map centered using the given default location
