@@ -8,6 +8,8 @@ const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
+// const geojson = L.geoJson(globalGeoJson).addTp(map);
+
 async function fetchSightingsByUser() {
     let user = await fetchUser();
 
@@ -53,18 +55,41 @@ async function fetchUser() {
     }
 }
 
+async function reverseGeocode(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data && data.address) {
+            const country = data.address.country || "Unknown Country";
+            const subdivision = data.address.state || data.address.province || "Unknown Region";
+
+            return `${subdivision}, ${country}`;
+        }
+    } catch (error) {
+        console.error("Reverse geocoding failed:", error);
+    }
+    return "Location not found";
+}
+
 function makeSightingMarkers(data)
 {
-    data.forEach(sighting => {
+    data.forEach(async sighting => {
                 console.log("Sighting Data:", sighting); // Debugging
 
                 if (sighting.latitude && sighting.longitude) { // Ensure coordinates exist
+
+                    const locationName = await reverseGeocode(sighting.latitude, sighting.longitude);
+
                     L.marker([sighting.latitude, sighting.longitude])
                         .addTo(map)
                         .bindPopup(`<b>${sighting.commonName || 'Unknown Bird'}</b><br>
                                     <em>${sighting.sciName || 'Unknown'}</em><br>
                                     ${sighting.date ? new Date(sighting.date).toLocaleDateString() : "Unknown Date"}<br>
-                                    ${sighting.description || 'No notes available'}`);
+                                    ${sighting.description || 'No notes available'}<br>
+                                    <strong>Location:</strong> ${locationName}`);
                 }
             });
 }
