@@ -93,6 +93,7 @@ internal class Program
         builder.Services.AddScoped<IBirdRepository, BirdRepository>();
         builder.Services.AddScoped<ISightingService, SightingService>();
         builder.Services.AddScoped<ISDUserRepository, SDUserRepository>();
+        builder.Services.AddScoped<IMilestoneRepository, MilestoneRepository>();
 
         builder.Services.AddSwaggerGen();
 

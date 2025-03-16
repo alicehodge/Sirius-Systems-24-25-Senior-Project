@@ -1,7 +1,11 @@
+@model StorkDorkMain.Models.MilestoneViewModel;
+
 @{
-    ViewData["Title"] = "User Milestones";
+    ViewData["Title"] = "Milestones";
 }
 
-<div class="text-center">
-    <h1 class="display-4">View Your Milestones</h1>
+<div class="container mt-4">
+    <h1> @Model.FirstName </h1>
+    <h2> @Model.Milestone.SightingsMade</h2>
+    <h2> @Model.Milestone.PhotosContributed</h2>
 </div>

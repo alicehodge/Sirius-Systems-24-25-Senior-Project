@@ -9,14 +9,25 @@ namespace StorkDork.Controllers;
 
 public class MilestoneController : Controller
 {
+    private readonly IMilestoneRepository _milestoneRepo;
+    private readonly ISDUserRepository _sduserRepo;
 
-    public MilestoneController()
+    public MilestoneController(IMilestoneRepository milestoneRepo, ISDUserRepository sduserRepo)
     {
-
+        _milestoneRepo = milestoneRepo;
+        _sduserRepo = sduserRepo;
     }
 
-    public IActionResult Milestone()
+    public async Task<IActionResult> Milestone()
     {
-        return View();
+        SdUser user = await _sduserRepo.GetSDUserByIdentity(User);
+        MilestoneViewModel vm = new MilestoneViewModel();
+        Milestone ms = new Milestone();
+        ms.SightingsMade = await _milestoneRepo.GetSightingsMade(user.Id);
+        ms.PhotosContributed = await _milestoneRepo.GetPhotosContributed(user.Id);
+        vm.FirstName = user.FirstName;
+        vm.Milestone = ms;
+
+        return View(vm);
     }
 }
