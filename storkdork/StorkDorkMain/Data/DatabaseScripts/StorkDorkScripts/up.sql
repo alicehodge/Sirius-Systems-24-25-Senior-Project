@@ -41,6 +41,13 @@ CREATE TABLE [ChecklistItem] (
   [Sighted] bit
 );
 
+CREATE TABLE [Milestone] (
+  [ID] int PRIMARY KEY IDENTITY(1, 1),
+  [SDUserID] int,
+  [SightingsMade] int,
+  [PhotosContributed] int
+)
+
 ALTER TABLE [Sighting] ADD CONSTRAINT [FK_Sighting_SDUser] 
     FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
 
@@ -55,3 +62,6 @@ ALTER TABLE [ChecklistItem] ADD CONSTRAINT [FK_ChecklistItem_Checklist]
 
 ALTER TABLE [ChecklistItem] ADD CONSTRAINT [FK_ChecklistItem_Bird] 
     FOREIGN KEY ([BirdID]) REFERENCES [Bird] ([ID]);
+
+ALTER TABLE [Milestone] ADD CONSTRAINT [FK_Milestone_SDUser]
+    FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
