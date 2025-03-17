@@ -87,12 +87,19 @@ internal class Program
         .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
         .AddDefaultTokenProviders();
 
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/Identity/Account/Login";
+            options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+        });
+
         builder.Services.AddScoped<UserManager<IdentityUser>>();
         builder.Services.AddScoped<DbContext, StorkDorkContext>();
         builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         builder.Services.AddScoped<IBirdRepository, BirdRepository>();
         builder.Services.AddScoped<ISightingService, SightingService>();
         builder.Services.AddScoped<ISDUserRepository, SDUserRepository>();
+        builder.Services.AddScoped<IMilestoneRepository, MilestoneRepository>();
 
         builder.Services.AddSwaggerGen();
 

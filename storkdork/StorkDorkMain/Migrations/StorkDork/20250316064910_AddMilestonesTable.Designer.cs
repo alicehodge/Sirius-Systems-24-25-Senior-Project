@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StorkDorkMain.Data;
 
@@ -11,9 +12,11 @@ using StorkDorkMain.Data;
 namespace StorkDork.Migrations.StorkDork
 {
     [DbContext(typeof(StorkDorkContext))]
-    partial class StorkDorkContextModelSnapshot : ModelSnapshot
+    [Migration("20250316064910_AddMilestonesTable")]
+    partial class AddMilestonesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
