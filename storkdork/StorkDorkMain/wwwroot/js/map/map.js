@@ -8,7 +8,7 @@ const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
-// const geojson = L.geoJson(globalGeoJson).addTp(map);
+let markers = {};
 
 async function fetchSightingsByUser() {
     let user = await fetchUser();
@@ -74,30 +74,44 @@ async function reverseGeocode(lat, lng) {
     return "Location not found";
 }
 
-function makeSightingMarkers(data)
-{
+async function makeSightingMarkers(data) {
     data.forEach(async sighting => {
-                console.log("Sighting Data:", sighting); // Debugging
+        console.log("Sighting Data:", sighting);
 
-                if (sighting.latitude && sighting.longitude) { // Ensure coordinates exist
-                    L.marker([sighting.latitude, sighting.longitude])
-                        .addTo(map)
-                        .bindPopup(`<b>${sighting.commonName || 'Unknown Bird'}</b><br>
-                                    <em>${sighting.sciName || 'Unknown'}</em><br>
-                                    ${sighting.date ? new Date(sighting.date).toLocaleDateString() : "Unknown Date"}<br>
-                                    ${sighting.description || 'No notes available'}`);
+        if (sighting.latitude && sighting.longitude) {
+            const marker = L.marker([sighting.latitude, sighting.longitude]).addTo(map);
 
-                    if (!sighting.country || !sighting.subdivision) {
-                        const location = await reverseGeocode(sighting.latitude, sighting.longitude);
-                        console.log(`Resolved location: ${location}`);
+            // Store marker reference for later updates
+            markers[sighting.sightingId] = marker;
 
-                        if (location !== "location not found") {
-                            const [subdivision, country] = location.split(',');
-                            await updateSightingLocation(sighting.sightingId, country.trim(), subdivision.trim());
-                        }
-                    }
+            const popupContent = `<b>${sighting.commonName || 'Unknown Bird'}</b><br>
+                                  <em>${sighting.sciName || 'Unknown'}</em><br>
+                                  ${sighting.date ? new Date(sighting.date).toLocaleDateString() : "Unknown Date"}<br>
+                                  ${sighting.description || 'No notes available'}<br>
+                                  <strong>Location:</strong> ${sighting.subdivision || 'Unknown'}, ${sighting.country || 'Unknown'}`;
+
+            marker.bindPopup(popupContent);
+
+            if (!sighting.country || !sighting.subdivision) {
+                const location = await reverseGeocode(sighting.latitude, sighting.longitude);
+                console.log(`Resolved location: ${location}`);
+
+                if (location !== "location not found") {
+                    const [subdivision, country] = location.split(',');
+
+                    // Update backend
+                    await updateSightingLocation(sighting.sightingId, country.trim(), subdivision.trim());
+
+                    // Update marker popup dynamically
+                    marker.setPopupContent(`<b>${sighting.commonName || 'Unknown Bird'}</b><br>
+                                            <em>${sighting.sciName || 'Unknown'}</em><br>
+                                            ${sighting.date ? new Date(sighting.date).toLocaleDateString() : "Unknown Date"}<br>
+                                            ${sighting.description || 'No notes available'}<br>
+                                            <strong>Location:</strong> ${subdivision.trim()}, ${country.trim()}`);
                 }
-            });
+            }
+        }
+    });
 }
 
 async function updateSightingLocation(sightingId, country, subdivision) {

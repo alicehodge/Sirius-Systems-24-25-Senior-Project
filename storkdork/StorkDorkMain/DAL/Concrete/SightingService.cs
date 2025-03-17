@@ -24,12 +24,15 @@ public class SightingService : ISightingService
             .Include(s => s.Bird)
             .Select(s => new SightMarker
             {
+                SightingId = s.Id,
                 CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
                 Longitude = s.Longitude,
                 Latitude = s.Latitude,
                 Description = s.Notes,
-                Date = s.Date
+                Date = s.Date,
+                Country = s.Country,
+                Subdivision = s. Subdivision
             })
             .ToListAsync();
     }
@@ -47,7 +50,9 @@ public class SightingService : ISightingService
                 Longitude = s.Longitude,
                 Latitude = s.Latitude,
                 Description = s.Notes,
-                Date = s.Date
+                Date = s.Date,
+                Country = s.Country,
+                Subdivision = s.Subdivision
             })
             .ToListAsync();
     }
