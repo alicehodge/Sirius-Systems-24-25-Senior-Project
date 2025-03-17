@@ -80,18 +80,51 @@ function makeSightingMarkers(data)
                 console.log("Sighting Data:", sighting); // Debugging
 
                 if (sighting.latitude && sighting.longitude) { // Ensure coordinates exist
-
-                    const locationName = await reverseGeocode(sighting.latitude, sighting.longitude);
-
                     L.marker([sighting.latitude, sighting.longitude])
                         .addTo(map)
                         .bindPopup(`<b>${sighting.commonName || 'Unknown Bird'}</b><br>
                                     <em>${sighting.sciName || 'Unknown'}</em><br>
                                     ${sighting.date ? new Date(sighting.date).toLocaleDateString() : "Unknown Date"}<br>
-                                    ${sighting.description || 'No notes available'}<br>
-                                    <strong>Location:</strong> ${locationName}`);
+                                    ${sighting.description || 'No notes available'}`);
+
+                    if (!sighting.country || !sighting.subdivision) {
+                        const location = await reverseGeocode(sighting.latitude, sighting.longitude);
+                        console.log(`Resolved location: ${location}`);
+
+                        if (location !== "location not found") {
+                            const [subdivision, country] = location.split(',');
+                            await updateSightingLocation(sighting.sightingId, country.trim(), subdivision.trim());
+                        }
+                    }
                 }
             });
+}
+
+async function updateSightingLocation(sightingId, country, subdivision) {
+    const payload = {
+        sightingId: sightingId, 
+        country: country || "Unknown", 
+        subdivision: subdivision || "Unknown"
+    };
+
+    console.log("Sending payload:", payload);
+
+    try {
+        const response = await fetch("/api/sighting/UpdateLocation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to update location: ${response.status} - ${errorText}`);
+        }
+
+        console.log(`Successfully updated location for sighting ${sightingId}`);
+    } catch (error) {
+        console.error("Error updating sighting location:", error);
+    }
 }
 
 window.onload = function() {

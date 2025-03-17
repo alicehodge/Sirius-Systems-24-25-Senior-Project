@@ -26,5 +26,5 @@ public partial class Sighting
     // for SD-37
     public string? Country { get; set; }
 
-    public string? CountrySubdivision { get; set; }
+    public string? Subdivision { get; set; }
 }
