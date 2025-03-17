@@ -1,0 +1,120 @@
+@model StorkDorkMain.Models.MilestoneViewModel;
+
+@{
+    ViewData["Title"] = "Milestones";
+}
+
+<div class="container mt-4">
+    <div class="row mb-4 justify-content-center">
+        <div class="=col-md-8 mx-auto text-center">
+            <h1>@Model.FirstName's Milestones:</h1>
+        </div>
+        <div class="col-md-8 mx-auto text-center">
+            @* <div id="statistics">
+                <h2 class="text-start">Statistics:</h2>
+            </div>
+
+            <hr class="my-4" style="border-color: white;">
+
+            <div id="milestones">
+                <h2 class="text-start">Milestones:</h2>
+            </div> *@
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h4>StorkDork Statistics:</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">Sightings Made:</dt>
+                        @if (Model.Milestone.SightingsMade > 0)
+                        {
+                            <dd class="col-sm-9">You've made @Model.Milestone.SightingsMade sightings so far!</dd>
+                        }
+                        @if (Model.Milestone.SightingsMade <= 0)
+                        {
+                            <dd class="col-sm-9"> Make your first sighting today!</dd>
+                        }
+
+                        <dt class="col-sm-3">Photos Contributed:</dt>
+                        @if (Model.Milestone.PhotosContributed > 0)
+                        {
+                            <dd class="col-sm-9">You've uploaded @Model.Milestone.PhotosContributed verified photos!</dd>
+                        }
+
+                        @if (Model.Milestone.PhotosContributed <= 0)
+                        {
+                            <dd class="col-sm-9"> upload your first photo today!</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h4>StorkDork Milestones:</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        @if (Model.SightingsTier == 1)
+                        {
+                            <dt class="col-sm-3">
+                                <figure>
+                                    <img src="@Model.GoldUrl" alt="Gold Medal" class="img-fluid" style="max-width: 50px;">
+                                    <figcaption>Gold Sightings</figcaption>
+                                </figure>
+                            </dt>
+                        }
+                        @if (Model.SightingsTier == 2)
+                        {
+                            <dt class="col-sm-3">
+                                <figure>
+                                    <img src="@Model.SilverUrl" alt="Silver Medal" class="img-fluid"
+                                        style="max-width: 50px;">
+                                    <figcaption>Silver Sightings</figcaption>
+                                </figure>
+                            </dt>
+                        }
+                        @if (Model.SightingsTier == 3)
+                        {
+                            <dt class="col-sm-3">
+                                <figure>
+                                    <img src="@Model.BronzeUrl" alt="Bronze Medal" class="img-fluid"
+                                        style="max-width: 50px;">
+                                    <figcaption>Bronze Sightings</figcaption>
+                                </figure>
+                            </dt>
+                        }
+                        @if (Model.PhotosTier == 1)
+                        {
+                            <dt class="col-sm-3">
+                                <figure>
+                                    <img src="@Model.GoldUrl" alt="Gold Medal" class="img-fluid" style="max-width: 50px;">
+                                    <figcaption>Gold Photos</figcaption>
+                                </figure>
+                            </dt>
+                        }
+                        @if (Model.PhotosTier == 2)
+                        {
+                            <dt class="col-sm-3">
+                                <figure>
+                                    <img src="@Model.SilverUrl" alt="Silver Medal" class="img-fluid"
+                                        style="max-width: 50px;">
+                                    <figcaption>Silver Photos</figcaption>
+                                </figure>
+                            </dt>
+                        }
+                        @if (Model.PhotosTier == 3)
+                        {
+                            <dt class="col-sm-3">
+                                <figure>
+                                    <img src="@Model.BronzeUrl" alt="Bronze Medal" class="img-fluid"
+                                        style="max-width: 50px;">
+                                    <figcaption>Bronze Photos</figcaption>
+                                </figure>
+                            </dt>
+                        }
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
