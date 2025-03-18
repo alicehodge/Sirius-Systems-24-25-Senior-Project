@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace StorkDorkMain.Models;
 
+
+
 public partial class Sighting
 {
     public int Id { get; set; }
@@ -22,4 +24,9 @@ public partial class Sighting
     public virtual Bird? Bird { get; set; }
 
     public virtual SdUser? SdUser { get; set; }
+
+    // for SD-44
+    public string? Country { get; set; }
+
+    public string? Subdivision { get; set; }
 }

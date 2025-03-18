@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StorkDorkMain.Data;
 
@@ -11,9 +12,11 @@ using StorkDorkMain.Data;
 namespace StorkDork.Migrations.StorkDork
 {
     [DbContext(typeof(StorkDorkContext))]
-    partial class StorkDorkContextModelSnapshot : ModelSnapshot
+    [Migration("20250316064910_AddMilestonesTable")]
+    partial class AddMilestonesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,6 +138,28 @@ namespace StorkDork.Migrations.StorkDork
                     b.ToTable("ChecklistItem", (string)null);
                 });
 
+            modelBuilder.Entity("StorkDorkMain.Models.Milestone", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PhotosContributed")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SDUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SightingsMade")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Milestones");
+                });
+
             modelBuilder.Entity("StorkDorkMain.Models.SdUser", b =>
                 {
                     b.Property<int>("Id")
@@ -148,6 +173,12 @@ namespace StorkDork.Migrations.StorkDork
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)")
                         .HasColumnName("AspNetIdentityID");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id")
                         .HasName("PK__SDUser__3214EC277D9B2DC9");
@@ -198,9 +229,8 @@ namespace StorkDork.Migrations.StorkDork
             modelBuilder.Entity("StorkDorkMain.Models.Checklist", b =>
                 {
                     b.HasOne("StorkDorkMain.Models.SdUser", "SdUser")
-                        .WithMany("Checklists")
-                        .HasForeignKey("SdUserId")
-                        .HasConstraintName("FK_Checklist_SDUser");
+                        .WithMany()
+                        .HasForeignKey("SdUserId");
 
                     b.Navigation("SdUser");
                 });
@@ -230,9 +260,8 @@ namespace StorkDork.Migrations.StorkDork
                         .HasConstraintName("FK_Sighting_Bird");
 
                     b.HasOne("StorkDorkMain.Models.SdUser", "SdUser")
-                        .WithMany("Sightings")
-                        .HasForeignKey("SdUserId")
-                        .HasConstraintName("FK_Sighting_SDUser");
+                        .WithMany()
+                        .HasForeignKey("SdUserId");
 
                     b.Navigation("Bird");
 
@@ -249,13 +278,6 @@ namespace StorkDork.Migrations.StorkDork
             modelBuilder.Entity("StorkDorkMain.Models.Checklist", b =>
                 {
                     b.Navigation("ChecklistItems");
-                });
-
-            modelBuilder.Entity("StorkDorkMain.Models.SdUser", b =>
-                {
-                    b.Navigation("Checklists");
-
-                    b.Navigation("Sightings");
                 });
 #pragma warning restore 612, 618
         }

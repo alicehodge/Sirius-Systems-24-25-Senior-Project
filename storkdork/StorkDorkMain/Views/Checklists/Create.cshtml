@@ -9,27 +9,19 @@
 <!-- Display validation errors -->
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<!-- Display the selected user's name -->
-@if (ViewBag.SelectedUserName != null)
-{
-    <div class="alert alert-info">
-        Creating checklist for: <strong>@ViewBag.SelectedUserName</strong>
-    </div>
-}
-
 <form asp-action="Create" id="createChecklistForm">
     <!-- Hidden field to store the selected user's ID -->
-    <input type="hidden" asp-for="SdUserId" value="@ViewBag.SelectedUserId" />
+    <input type="hidden" asp-for="SdUserId" />
 
     <div class="form-group">
-        <label asp-for="ChecklistName" class="control-label"></label>
-        <input asp-for="ChecklistName" class="form-control" />
-        <span asp-validation-for="ChecklistName" class="text-danger"></span>
-    </div>
+    <label asp-for="ChecklistName" class="control-label">Checklist Name</label>
+    <input asp-for="ChecklistName" class="form-control" placeholder="Type here to enter the name of your checklist" />
+    <span asp-validation-for="ChecklistName" class="text-danger"></span>
+</div>
 
     <!-- Search bar for birds -->
     <div class="form-group">
-        <label>Search Birds:</label>
+        <label>Search For Birds:</label>
         <input type="text" id="birdSearch" class="form-control" placeholder="Type to search birds..." />
         <div id="birdSearchResults" class="dropdown-menu" style="display: none;"></div>
     </div>
@@ -45,7 +37,7 @@
 
     <div class="form-group">
         <input type="submit" value="Create" class="btn btn-primary" />
-        <a asp-action="Index" asp-route-userId="@ViewBag.SelectedUserId" class="btn btn-secondary">Cancel</a>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
     </div>
 </form>
 
@@ -53,115 +45,114 @@
 
 @section Scripts {
     <script>
-    $(document).ready(function () {
-    const birdSearch = $('#birdSearch');
-    const birdSearchResults = $('#birdSearchResults');
-    const selectedBirdsList = $('#selectedBirdsList');
-    const selectedBirdsInput = $('#selectedBirds');
+        $(document).ready(function () {
+            const birdSearch = $('#birdSearch');
+            const birdSearchResults = $('#birdSearchResults');
+            const selectedBirdsList = $('#selectedBirdsList');
+            const selectedBirdsInput = $('#selectedBirds');
 
-    // List to store selected birds (with ID, common name, and scientific name)
-    let selectedBirds = [];
+            // List to store selected birds (with ID, common name, and scientific name)
+            let selectedBirds = [];
 
-    // Fetch birds as the user types
-    birdSearch.on('input', function () {
-        const query = $(this).val();
-        if (query.length >= 2) { // Only search if the query has at least 2 characters
-            $.get('/Checklists/SearchBirds', { query: query }, function (data) {
-                birdSearchResults.empty();
-                if (data.length > 0) {
-                    data.forEach(function (bird) {
-                        const birdItem = $(`
-                            <div class="dropdown-item" data-bird-id="${bird.id}" data-bird-common-name="${bird.commonName}" data-bird-scientific-name="${bird.scientificName}">
-                                ${bird.commonName} (${bird.scientificName})
-                            </div>
-                        `);
-                        birdItem.on('click', function () {
-                            addBirdToList(bird);
-                        });
-                        birdSearchResults.append(birdItem);
+            // Fetch birds as the user types
+            birdSearch.on('input', function () {
+                const query = $(this).val();
+                if (query.length >= 2) { // Only search if the query has at least 2 characters
+                    $.get('/Checklists/SearchBirds', { query: query }, function (data) {
+                        birdSearchResults.empty();
+                        if (data.length > 0) {
+                            data.forEach(function (bird) {
+                                const birdItem = $(`
+                                    <div class="dropdown-item" data-bird-id="${bird.id}" data-bird-common-name="${bird.commonName}" data-bird-scientific-name="${bird.scientificName}">
+                                        ${bird.commonName} (${bird.scientificName})
+                                    </div>
+                                `);
+                                birdItem.on('click', function () {
+                                    addBirdToList(bird);
+                                });
+                                birdSearchResults.append(birdItem);
+                            });
+                            birdSearchResults.show();
+                        } else {
+                            birdSearchResults.hide();
+                        }
                     });
-                    birdSearchResults.show();
                 } else {
                     birdSearchResults.hide();
                 }
             });
-        } else {
-            birdSearchResults.hide();
-        }
-    });
-
-    // Close dropdown when clicking outside
-    $(document).on('click', function (event) {
-        if (!$(event.target).closest(birdSearchResults).length && !$(event.target).closest(birdSearch).length) {
-            birdSearchResults.hide();
-        }
-    });
-
-    // Add bird to the selected list
-        function addBirdToList(bird) {
-        if (!selectedBirds.some(b => b.id === bird.id)) { // Prevent duplicates
-            selectedBirds.push({
-                id: bird.id,
-                commonName: bird.commonName,
-                scientificName: bird.scientificName
+            // Close dropdown when clicking outside
+            $(document).on('click', function (event) {
+                if (!$(event.target).closest(birdSearchResults).length && !$(event.target).closest(birdSearch).length) {
+                    birdSearchResults.hide();
+                }
             });
-            updateSelectedBirdsList();
-            updateHiddenInputs(); // Update hidden inputs
-        }
-    }
 
-    // Remove bird from the selected list
-    function removeBirdFromList(birdId) {
-        birdId = parseInt(birdId);
-        selectedBirds = selectedBirds.filter(b => b.id !== birdId);
-        updateSelectedBirdsList();
-        updateHiddenInputs(); // Update hidden inputs
-    }
+            // Add bird to the selected list
+            function addBirdToList(bird) {
+                if (!selectedBirds.some(b => b.id === bird.id)) { // Prevent duplicates
+                    selectedBirds.push({
+                        id: bird.id,
+                        commonName: bird.commonName,
+                        scientificName: bird.scientificName
+                    });
+                    updateSelectedBirdsList();
+                    updateHiddenInputs(); // Update hidden inputs
+                }
+            }
 
-    // Update the displayed list of selected birds
-    function updateSelectedBirdsList() {
-        selectedBirdsList.empty();
-        selectedBirds.forEach(function (bird) {
-            const birdItem = $(`
-                <li class="list-group-item">
-                    <strong>${bird.commonName}</strong><br />
-                    <em>${bird.scientificName}</em>
-                    <button type="button" class="btn btn-sm btn-danger float-right remove-bird" data-bird-id="${bird.id}">×</button>
-                </li>
-            `);
-            
-            birdItem.find('.remove-bird').on('click', function () {
-                const birdId = $(this).data('bird-id');
-                removeBirdFromList(birdId);
+            // Remove bird from the selected list
+            function removeBirdFromList(birdId) {
+                birdId = parseInt(birdId);
+                selectedBirds = selectedBirds.filter(b => b.id !== birdId);
+                updateSelectedBirdsList();
+                updateHiddenInputs(); // Update hidden inputs
+            }
+
+            // Update the displayed list of selected birds
+            function updateSelectedBirdsList() {
+                selectedBirdsList.empty();
+                selectedBirds.forEach(function (bird) {
+                    const birdItem = $(`
+                        <li class="list-group-item">
+                            <strong>${bird.commonName}</strong><br />
+                            <em>${bird.scientificName}</em>
+                            <button type="button" class="btn btn-sm btn-danger float-right remove-bird" data-bird-id="${bird.id}">×</button>
+                        </li>
+                    `);
+
+                    birdItem.find('.remove-bird').on('click', function () {
+                        const birdId = $(this).data('bird-id');
+                        removeBirdFromList(birdId);
+                    });
+                    selectedBirdsList.append(birdItem);
+                });
+            }
+
+            // Update the hidden input with selected bird IDs
+            function updateHiddenInputs() {
+                const container = $('#selectedBirdsContainer');
+                container.empty(); // Clear existing inputs
+
+                selectedBirds.forEach(function (bird) {
+                    container.append(
+                        `<input type="hidden" name="selectedBirds" value="${bird.id}" />`
+                    );
+                });
+                console.log("Selected Bird IDs:", selectedBirds.map(b => b.id).join(', ')); // Debugging
+            }
+
+            // Handle form submission
+            $('#createChecklistForm').on('submit', function (e) {
+                console.log("Form submitted"); // Debugging
+                console.log("SdUserId:", $('#SdUserId').val()); // Debugging
+                console.log("Selected Birds:", $('#selectedBirds').val()); // Debugging
+
+                if (selectedBirds.length === 0) {
+                    e.preventDefault(); // Prevent form submission if no birds are selected
+                    alert("Please select at least one bird.");
+                }
             });
-            selectedBirdsList.append(birdItem);
         });
-    }
-
-    // Update the hidden input with selected bird IDs
-    function updateHiddenInputs() {
-        const container = $('#selectedBirdsContainer');
-        container.empty(); // Clear existing inputs
-
-        selectedBirds.forEach(function (bird) {
-            container.append(
-                `<input type="hidden" name="selectedBirds" value="${bird.id}" />`
-            );
-        });
-        console.log("Selected Bird IDs:", selectedBirds.map(b => b.id).join(', ')); // Debugging
-    }
-
-    // Handle form submission
-    $('#createChecklistForm').on('submit', function (e) {
-        console.log("Form submitted"); // Debugging
-        console.log("SdUserId:", $('#SdUserId').val()); // Debugging
-        console.log("Selected Birds:", $('#selectedBirds').val()); // Debugging
-
-        if (selectedBirds.length === 0) {
-            e.preventDefault(); // Prevent form submission if no birds are selected
-            alert("Please select at least one bird.");
-        }
-    });
-});
     </script>
 }
