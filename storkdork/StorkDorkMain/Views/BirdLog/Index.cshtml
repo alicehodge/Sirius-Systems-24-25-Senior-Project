@@ -1,80 +1,93 @@
 @model IEnumerable<StorkDorkMain.Models.Sighting>
 
-@{
-    ViewData["Title"] = "Bird Sightings";
-}
-
 <div class="container mt-4">
     <h1 class="mb-4">Bird Sightings</h1>
 
-    <!-- User Dropdown -->
-    <form method="get" asp-action="Index">
-        <div class="form-group">
-            <label for="userId">Select a User</label>
-            <select id="userId" name="userId" class="form-control">
-                <option value="">-- Select User --</option>
-                @foreach (var user in ViewBag.Users)
-                {
-                    <option value="@user.Value" selected="@(user.Value == ViewBag.SelectedUserId?.ToString() ? "selected" : null)">
-                        @user.Text
-                    </option>
-                }
-            </select>
-        </div>
-        <button type="submit" class="btn btn-primary mt-3">Show Logs</button>
-    </form>
+    <!-- Filter Panel (Hidden by Default) -->
+    <div id="filterPanel" class="card mb-4" style="display: none;">
+        <div class="card-body">
+            <form method="get" asp-action="Index">
+                <!-- Bird Search Input -->
+                <div class="form-group mb-3">
+                    <label for="filterBird">Filter by Bird Species:</label>
+                    <input type="text" id="filterBird" name="filterBird" class="form-control" value="@ViewBag.FilterBird" />
+                </div>
 
-    <!-- Display the message if no user is selected -->
-    @if (ViewBag.Message != null)
-    {
-        <div class="alert alert-info mt-4">
-            @ViewBag.Message
-        </div>
-    }
+                <!-- Location Dropdown -->
+                <div class="form-group mb-3">
+                    <label for="locationId">Filter by Location:</label>
+                    <select id="locationId" name="locationId" class="form-control">
+                        <option value="">-- Select Location --</option>
+                        @if (ViewBag.PnwLocations != null)
+                        {
+                            foreach (var kvp in (Dictionary<string, string>)ViewBag.PnwLocations)
+                            {
+                                <option value="@kvp.Key" selected="@(ViewBag.LocationId == kvp.Key ? "selected" : null)">
+                                    @kvp.Value
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
 
-    <!-- Display the sightings if a user is selected -->
+                <!-- Apply and Reset Filter Buttons -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a href="@Url.Action("Index", "BirdLog")" class="btn btn-secondary ms-2">Reset Filters</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
     @if (Model != null && Model.Any())
     {
         <div class="table-responsive mt-4">
             <table class="table table-striped">
                 <thead class="table-light">
                     <tr>
+                        <!-- Date Column with Sort Arrows -->
                         <th class="p-3">
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dateDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     Date @(ViewBag.SortOrder == "date-asc" ? "▲" : ViewBag.SortOrder == "date-desc" ? "▼" : "")
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dateDropdown">
-                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "date-asc", userId = ViewBag.SelectedUserId })">Recent Sightings</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "date-desc", userId = ViewBag.SelectedUserId })">Oldest Sightings</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "date-null", userId = ViewBag.SelectedUserId })">Null Dates First</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "date-asc" })">Recent Sightings</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "date-desc" })">Oldest Sightings</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "date-null" })">Null Dates First</a></li>
                                 </ul>
                             </div>
                         </th>
+
+                        <!-- Bird Column with Sort Arrows -->
                         <th class="p-3">
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="birdDropdownHeader" data-bs-toggle="dropdown" aria-expanded="false">
                                     Bird @(ViewBag.SortOrder == "bird" ? "▲" : ViewBag.SortOrder == "bird-desc" ? "▼" : "")
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="birdDropdownHeader">
-                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "bird", userId = ViewBag.SelectedUserId })">A-Z</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "bird-desc", userId = ViewBag.SelectedUserId })">Z-A</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "bird-null", userId = ViewBag.SelectedUserId })">Null Names First</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "bird" })">A-Z</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "bird-desc" })">Z-A</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "bird-null" })">Null Names First</a></li>
                                 </ul>
                             </div>
                         </th>
+
+                        <!-- Location Column with Sort Arrows -->
                         <th class="p-3">
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="locationDropdownHeader" data-bs-toggle="dropdown" aria-expanded="false">
                                     Location @(ViewBag.SortOrder == "location" ? "▲" : ViewBag.SortOrder == "location-desc" ? "▼" : "")
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="locationDropdownHeader">
-                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "location", userId = ViewBag.SelectedUserId })">A-Z</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "location-desc", userId = ViewBag.SelectedUserId })">Z-A</a></li>
-                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "location-null", userId = ViewBag.SelectedUserId })">Null Locations First</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "location" })">A-Z</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "location-desc" })">Z-A</a></li>
+                                    <li><a class="dropdown-item" href="@Url.Action("Index", new { sortOrder = "location-null" })">Null Locations First</a></li>
                                 </ul>
                             </div>
                         </th>
+
+                        <!-- Actions Column -->
                         <th class="p-3">
                             Actions
                             <button id="openFilterMenu" class="btn btn-sm btn-secondary ms-2">Filter</button>
@@ -82,27 +95,37 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model)
+                    @foreach (var sighting in Model)
                     {
                         <tr>
-                            <td>@(item.Date.HasValue ? item.Date.Value.ToShortDateString() : "No date entered")</td>
-                            <td>@(item.Bird?.CommonName ?? "Bird Species Unavailable")</td>
+                            <td>
+                                @(sighting.Date.HasValue 
+                                    ? sighting.Date.Value.ToShortDateString() 
+                                    : "No date entered")
+                            </td>
+                            <td>
+                                @(sighting.Bird?.CommonName ?? "Bird Species Unavailable")
+                            </td>
                             <td>
                                 @{
-                                    string latitude = item.Latitude?.ToString("0.0000") ?? "NULL";
-                                    string longitude = item.Longitude?.ToString("0.0000") ?? "NULL";
+                                    string latitude = sighting.Latitude?.ToString("0.0000") ?? "NULL";
+                                    string longitude = sighting.Longitude?.ToString("0.0000") ?? "NULL";
                                     string locationKey = $"{latitude},{longitude}";
                                     string locationName = (latitude != "NULL" && longitude != "NULL" && ViewBag.PnwLocations.ContainsKey(locationKey))
                                         ? ViewBag.PnwLocations[locationKey]
                                         : "Unknown Location";
                                 }
-                                <strong>@locationName</strong> <br>
-                                <small class="text-muted">Debug: @locationKey</small>
+                                <strong>@locationName</strong>
+                                @if (locationKey != null)
+                                {
+                                    <br />
+                                    <small class="text-muted">@locationKey</small>
+                                }
                             </td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                                <a asp-action="Edit" asp-route-id="@sighting.Id" class="btn btn-sm btn-warning">Edit</a>
+                                <a asp-action="Details" asp-route-id="@sighting.Id" class="btn btn-sm btn-info">Details</a>
+                                <a asp-action="Delete" asp-route-id="@sighting.Id" class="btn btn-sm btn-danger">Delete</a>
                             </td>
                         </tr>
                     }
@@ -110,12 +133,23 @@
             </table>
         </div>
     }
-    else if (ViewBag.Message == null)
+    else
     {
-        <p class="text-muted mt-4">No sightings found for the selected user.</p>
+        <p class="text-muted mt-4">No sightings found for your account.</p>
     }
 </div>
 
 @section Scripts {
     <script src="~/js/birdLog.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterButton = document.getElementById("openFilterMenu");
+            const filterPanel = document.getElementById("filterPanel");
+
+            // Toggle filter panel visibility
+            filterButton.addEventListener("click", function () {
+                filterPanel.style.display = filterPanel.style.display === "none" ? "block" : "none";
+            });
+        });
+    </script>
 }
