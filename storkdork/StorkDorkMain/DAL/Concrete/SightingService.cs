@@ -74,6 +74,7 @@ public class SightingService : ISightingService
 
         return eBirdSightings;
     }
+    
     public async Task UpdateSightingLocationAsync(int sightingId, string country, string subdivision)
     {
         var sighting = await _storkDorkContext.Sightings.FindAsync(sightingId);

@@ -42,7 +42,7 @@ public class MapApiController : ControllerBase
             return StatusCode(500, $"Internal Server Error: {ex.Message}");
         }
     }
-    
+
     // Grabs all sightings belonging to the currently logged in user
     [HttpGet]
     [Route("GetSightings/{userId}")]

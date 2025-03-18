@@ -9,7 +9,6 @@
 <!-- Display validation errors -->
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-
 <form asp-action="Create" id="createChecklistForm">
     <!-- Hidden field to store the selected user's ID -->
     <input type="hidden" asp-for="SdUserId" />
@@ -82,7 +81,6 @@
                     birdSearchResults.hide();
                 }
             });
-
             // Close dropdown when clicking outside
             $(document).on('click', function (event) {
                 if (!$(event.target).closest(birdSearchResults).length && !$(event.target).closest(birdSearch).length) {

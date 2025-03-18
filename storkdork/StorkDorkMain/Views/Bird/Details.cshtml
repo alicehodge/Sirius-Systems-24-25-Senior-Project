@@ -49,6 +49,7 @@
                 <button class="btn btn-primary" id="addToChecklistBtn" data-bird-id="@Model.Bird.Id">
                     Add to Checklist
                 </button>
+
             </div>
         </div>
     </div>
@@ -197,7 +198,6 @@
     </div>
 </div>
 
-
 @section Scripts {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -312,10 +312,6 @@
         }
     </script>
 
-
-
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const addBtn = document.getElementById('addToChecklistBtn');
@@ -408,7 +404,4 @@
             });
         });
     </script>
-
-
-
 }

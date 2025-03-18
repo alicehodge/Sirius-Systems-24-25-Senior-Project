@@ -11,29 +11,20 @@ using StorkDorkMain.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using StorkDorkMain.DAL.Abstract;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-
 
 namespace StorkDork.Controllers
 {
-    
 
 
     public class BirdLogController : Controller
     {
         private readonly StorkDorkContext _context;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ISDUserRepository _sdUserRepository;
-        
 
-        public BirdLogController(StorkDorkContext context, UserManager<IdentityUser> userManager, ISDUserRepository sdUserRepository)
+        public BirdLogController(StorkDorkContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
             _userManager = userManager;
-            _sdUserRepository = sdUserRepository;
-
-            
         }
 
         [HttpGet("birds/search")]
@@ -72,31 +63,59 @@ namespace StorkDork.Controllers
         }
 
         // GET: BirdLog
-        public async Task<IActionResult> Index(string sortOrder, int? birdId, int? locationId, string filterBird, string[] selectedBirds)
+        public async Task<IActionResult> Index(string sortOrder, int? birdId, int? locationId, string filterBird, string[] selectedBirds, int? userId)
         {
-            //This is to check if the user is authenticated
-            if (!User.Identity.IsAuthenticated)
+            if(_context.SdUsers == null)
             {
-                return Unauthorized("User is not authenticated"); 
-            }
-
-            //To get the current user's SdUser
-            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
-            if (sdUser == null)
-            {
-                return NotFound("User not found");
+                throw new InvalidOperationException("SdUsers DbSet is not initialized.");
             }
 
 
+            //Get the users for the dropdown
+            ViewBag.Users = new SelectList(_context.SdUsers, "Id", "FirstName");
 
-            //To get sightings based on the logged on user
+            //store the selected user id into the viewbag
+            ViewBag.SelectedUserId = userId;
+
+            //get sightings based on the selected user
             var sightingsQuery = _context.Sightings
                 .Include(s => s.Bird)
                 .Include(s => s.SdUser)
-                .Where(s => s.SdUserId == sdUser.Id)
                 .AsQueryable();
+
+
+            if (userId.HasValue)
+            {
+                sightingsQuery =  sightingsQuery.Where(s => s.SdUserId == userId);
+            }
+
+            sightingsQuery = ApplySorting(sortOrder, sightingsQuery);
+
+            var sightings = await sightingsQuery.ToListAsync();
             
+
+
+           
+
+            //if no user is selected
+            if (!userId.HasValue)
+            {
+                ViewBag.Message = "Please select a user to view logs for";
+                return View(new List<Sighting>());
+            }
+            
+
           
+
+
+            
+             // Apply userId filter if provided
+            if (userId.HasValue)
+            {
+                sightingsQuery = sightingsQuery.Where(s => s.SdUserId == userId);
+            }
+
+
 
             // Apply bird filter if a birdId is provided
             if (birdId.HasValue)
@@ -110,7 +129,7 @@ namespace StorkDork.Controllers
             }
 
 
-            ViewBag.UserName = sdUser.FirstName;
+
             // Predefined dictionary of PNW locations with their coordinates and names
             ViewBag.PnwLocations = new Dictionary<string, string>
             {
@@ -134,10 +153,8 @@ namespace StorkDork.Controllers
                 { "44.3611,-111.4550", "Harriman State Park, ID" }
             };
 
-
             ViewBag.SortOrder = sortOrder;
             ViewBag.Birds = await _context.Birds.ToListAsync();
-            
             
 
             ViewBag.FamilyCommonNames = await _context.Birds
@@ -152,19 +169,23 @@ namespace StorkDork.Controllers
                 .Distinct()
                 .ToListAsync();
 
+        
+
+
+            
+
+
+
             
             // Apply bird name filter if filterBird is provided
             if (!string.IsNullOrEmpty(filterBird))
             {
-                sightingsQuery =  sightingsQuery
-                    .Where(s => s.Bird != null && s.Bird.CommonName != null && s.Bird.CommonName
-                    .Contains(filterBird)); // Filter sightings by bird name
+                sightingsQuery =  sightingsQuery.Where(s => s.Bird != null && s.Bird.CommonName != null && s.Bird.CommonName.Contains(filterBird)); // Filter sightings by bird name
             }
             
-            sightingsQuery = ApplySorting(sortOrder, sightingsQuery);
 
-
-            
+            // Convert the filtered sightings to a list
+            var sightingList =  await sightingsQuery.ToListAsync(); 
 
             // Sorting options for the sightings
             var sortOptions = new Dictionary<string, Func<IQueryable<Sighting>,IQueryable<Sighting>>>
@@ -243,12 +264,31 @@ namespace StorkDork.Controllers
                 }
     
             }
+
+            // A predefined list of common PNW bird sighting locations with longitude and latitde coordinates
+            ViewBag.PnwLocations = new Dictionary<string, string>
+            {
+                { "48.4244,-122.3358", "Skagit Valley, WA" },
+                { "46.8797,-121.7269", "Mount Rainier National Park, WA" },
+                { "47.6573,-122.4057", "Discovery Park, Seattle, WA" },
+                { "47.0726,-122.7175", "Nisqually National Wildlife Refuge, WA" },
+                { "47.8601,-123.9343", "Olympic National Park (Hoh Rainforest), WA" },
+                { "45.7156,-122.7745", "Sauvie Island, OR" },
+                { "42.9778,-118.9097", "Malheur National Wildlife Refuge, OR" },
+                { "42.8684,-122.1685", "Crater Lake National Park, OR" },
+                { "45.9190,-123.9740", "Ecola State Park, OR" },
+                { "42.1561,-121.7381", "Klamath Basin, OR" },
+                { "49.0456,-123.0586", "Boundary Bay, BC" },
+                { "49.3043,-123.1443", "Stanley Park, Vancouver, BC" },
+                { "49.1167,-123.1500", "Reifel Migratory Bird Sanctuary, BC" },
+                { "48.7500,-125.5000", "Pacific Rim National Park, BC" },
+                { "49.5000,-119.5833", "Okanagan Valley, BC" },
+                { "47.5000,-116.8000", "Lake Coeur d’Alene, ID" },
+                { "43.3000,-112.0000", "Camas National Wildlife Refuge, ID" },
+                { "44.3611,-111.4550", "Harriman State Park, ID" }
+            };
             
-
-           
-            var sightings = await sightingsQuery.ToListAsync();
             return View(await sightingsQuery.ToListAsync());
-
            
         }
         // Helper method to get location name from latitude and longitude
@@ -278,16 +318,9 @@ namespace StorkDork.Controllers
                 .Include(s => s.Bird)
                 .Include(s => s.SdUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
-
             if (sighting == null)
             {
                 return NotFound();
-            }
-
-            var currentUser = await _sdUserRepository.GetSDUserByIdentity(User);
-            if (sighting.SdUserId != currentUser?.Id)
-            {
-                return RedirectToAction("Index");
             }
 
               // A predefined list of common PNW bird sighting locations with longitude and latitde coordinates
@@ -318,9 +351,9 @@ namespace StorkDork.Controllers
 
 
 
-       
+
         // GET: BirdLog/Create
-        public async Task<IActionResult> Create(string? searchTerm = null, string? commonName = null)
+        public IActionResult Create(string? searchTerm = null, string? commonName = null)
         {
             if (!string.IsNullOrWhiteSpace(commonName))
             {
@@ -346,18 +379,9 @@ namespace StorkDork.Controllers
                 ViewBag.PnwLocations = GetPnwLocations();
             }
 
-            var currentSdUser = await _sdUserRepository.GetSDUserByIdentity(User);
-            if (currentSdUser == null)
-            {
-                Console.WriteLine("Error: No SdUser found for the logged-in IdentityUser.");
-                return RedirectToAction("Index");
 
-            }
-
-
-
-           //get the current user id
-            ViewBag.SdUserId = currentSdUser.Id;
+           // Populate ViewBag with users
+            ViewBag.Users = new SelectList(_context.SdUsers, "Id", "FirstName");
 
             // Populate ViewBag with birds
             ViewBag.Birds = new SelectList(_context.Birds, "Id", "CommonName");
@@ -397,26 +421,22 @@ namespace StorkDork.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sightings)
+        public async Task<IActionResult> Create([Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sighting)
         {
             var selectedLocation = Request.Form["PnwLocation"];
 
-            var currentSdUser = await _sdUserRepository.GetSDUserByIdentity(User);
-
-            if (currentSdUser == null)
-
+            // Ensure SdUserId is valid
+            if (sighting.SdUserId == 0 || !_context.SdUsers.Any(u => u.Id == sighting.SdUserId))
             {
-                ModelState.AddModelError("", "User not found");
-                return RedirectToAction("Index");
+                ModelState.AddModelError("SdUserId", "Invalid user selected.");
+                
             }
-
-            sightings.SdUserId = currentSdUser.Id;
-
+            
 
             if (selectedLocation == "0")
             {
-                sightings.Latitude = null;
-                sightings.Longitude = null;
+                sighting.Latitude = null;
+                sighting.Longitude = null;
             }
             else if (string.IsNullOrEmpty(selectedLocation))
             {
@@ -426,7 +446,7 @@ namespace StorkDork.Controllers
 
    
             // Check if both Bird and Location are left blank (not even N/A)
-            if (sightings.BirdId == null && string.IsNullOrEmpty(selectedLocation))
+            if (sighting.BirdId == null && string.IsNullOrEmpty(selectedLocation))
             {
                 ModelState.AddModelError("BirdId", "Please select a bird or choose N/A.");
                 ModelState.AddModelError("PnwLocation", "Please select a location or choose N/A.");
@@ -435,24 +455,24 @@ namespace StorkDork.Controllers
 
             if (ModelState.IsValid)
             {
-
-                _context.Add(sightings);
+                _context.Add(sighting);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Confirmation), new { userId = sightings.SdUserId });
-            
-            }
-            
                 
                 // Debugging: Log success
-            Console.WriteLine("Sighting saved successfully.");
+                Console.WriteLine("Sighting saved successfully.");
 
                 // Redirect to the confirmation page
-
+                return RedirectToAction(nameof(Confirmation), new { userId = sighting.SdUserId });
+            }
             
              // Debugging: Log ModelState errors
-
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine($"ModelState Error: {error.ErrorMessage}");
+            }
             // If the model state is invalid, repopulate the ViewBag and return the view
-            ViewBag.Birds = new SelectList(_context.Birds, "Id", "CommonName", sightings.BirdId);
+            ViewBag.Users = new SelectList(_context.SdUsers, "Id", "FirstName", sighting.SdUserId);
+            ViewBag.Birds = new SelectList(_context.Birds, "Id", "CommonName", sighting.BirdId);
                     
             
             ViewBag.PnwLocations = new List<SelectListItem>
@@ -480,17 +500,18 @@ namespace StorkDork.Controllers
             
 
             
-            return View(sightings);
+            return View(sighting);
         }
 
         // GET: BirdLog/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            
             if (id == null)
             {
                 return NotFound();
             }
+
+
 
             var sighting = await _context.Sightings
                 .Include(s => s.Bird)
@@ -503,10 +524,6 @@ namespace StorkDork.Controllers
             {
                 return NotFound();
             }
-
-            var currentUser = await _sdUserRepository.GetSDUserByIdentity(User);
-            if (sighting.SdUserId != currentUser?.Id)
-                return Forbid();
 
             ViewBag.SelectedLatLong = sighting.Latitude.HasValue && sighting.Longitude.HasValue
                 ? $"{sighting.Latitude},{sighting.Longitude}"
@@ -623,6 +640,10 @@ namespace StorkDork.Controllers
                 
             }
 
+       
+           
+            ViewBag.SelectedUserId = sighting.SdUserId; // Pass the selected user's ID back to the view
+            ViewBag.SelectedUserName = _context.SdUsers.FirstOrDefault(u => u.Id == sighting.SdUserId)?.FirstName; // Pass the selected user's name back to the view
 
              if (sighting.BirdId.HasValue)
             {
@@ -766,33 +787,32 @@ namespace StorkDork.Controllers
         }
 
         
-        private IQueryable<Sighting> ApplySorting(string sortOrder, IQueryable<Sighting> sightingsQuery)
+    private IQueryable<Sighting> ApplySorting(string sortOrder, IQueryable<Sighting> sightingsQuery)
+    {
+        // Add your sorting logic here (same as in the Index action)
+        switch (sortOrder)
         {
-            // Add your sorting logic here (same as in the Index action)
-            switch (sortOrder)
-            {
-                case "date-asc":
-                    return sightingsQuery.OrderBy(s => s.Date);
-                case "date-desc":
-                    return sightingsQuery.OrderByDescending(s => s.Date);
-                case "date-null":
-                    return sightingsQuery
-                        .OrderBy(s => s.Date == null ? 0 : 1) // Sort nulls first
-                        .ThenBy(s => s.Date); // Then sort by date
+            case "date-asc":
+                return sightingsQuery.OrderBy(s => s.Date);
+            case "date-desc":
+                return sightingsQuery.OrderByDescending(s => s.Date);
+            case "date-null":
+                return sightingsQuery
+                    .OrderBy(s => s.Date == null ? 0 : 1) // Sort nulls first
+                    .ThenBy(s => s.Date); // Then sort by date
 
-                case "bird":
-                    return sightingsQuery.OrderBy(s => s.Bird.CommonName);
-                case "bird-desc":
-                    return sightingsQuery.OrderByDescending(s => s.Bird.CommonName);
+            case "bird":
+                return sightingsQuery.OrderBy(s => s.Bird.CommonName);
+            case "bird-desc":
+                return sightingsQuery.OrderByDescending(s => s.Bird.CommonName);
 
-                case "location":
-                    return sightingsQuery.OrderBy(s => s.Latitude).ThenBy(s => s.Longitude);
-                case "location-desc":
-                    return sightingsQuery.OrderByDescending(s => s.Latitude).ThenByDescending(s => s.Longitude);
-            }
-            return sightingsQuery.OrderBy(s => s.Date);
+            case "location":
+                return sightingsQuery.OrderBy(s => s.Latitude).ThenBy(s => s.Longitude);
+            case "location-desc":
+                return sightingsQuery.OrderByDescending(s => s.Latitude).ThenByDescending(s => s.Longitude);
         }
-        
+        return sightingsQuery.OrderBy(s => s.Date);
+    }
     
 
 
