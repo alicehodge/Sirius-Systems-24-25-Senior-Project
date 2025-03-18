@@ -88,6 +88,7 @@ async function makeSightingMarkers(data) {
 
             const popupContent = `<b>${sighting.commonName || 'Unknown Bird'}</b><br>
                                   <em>${sighting.sciName || 'Unknown'}</em><br>
+                                  <strong>Spotted by: ${sighting.birder}</strong><br>
                                   ${sighting.date ? new Date(sighting.date).toLocaleDateString() : "Unknown Date"}<br>
                                   ${sighting.description || 'No notes available'}<br>
                                   <strong>Location:</strong> ${sighting.subdivision || 'Unknown'}, ${sighting.country || 'Unknown'}`;
@@ -107,6 +108,7 @@ async function makeSightingMarkers(data) {
                     // Update marker popup dynamically
                     marker.setPopupContent(`<b>${sighting.commonName || 'Unknown Bird'}</b><br>
                                             <em>${sighting.sciName || 'Unknown'}</em><br>
+                                            <strong>Spotted by: ${sighting.birder}</strong><br>
                                             ${sighting.date ? new Date(sighting.date).toLocaleDateString() : "Unknown Date"}<br>
                                             ${sighting.description || 'No notes available'}<br>
                                             <strong>Location:</strong> ${subdivision.trim()}, ${country.trim()}`);
