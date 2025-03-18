@@ -13,4 +13,5 @@ public class SightMarker
     public DateTime? Date {get;set;}
     public string? Country {get;set;}
     public string? Subdivision {get;set;}
+    public string? Birder {get;set;}
 }

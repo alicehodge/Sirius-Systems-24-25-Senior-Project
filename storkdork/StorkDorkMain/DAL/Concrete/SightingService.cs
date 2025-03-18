@@ -38,7 +38,8 @@ public class SightingService : ISightingService
                 Description = s.Notes,
                 Date = s.Date,
                 Country = s.Country,
-                Subdivision = s. Subdivision
+                Subdivision = s. Subdivision,
+                Birder = $"{s.SdUser.FirstName}, {s.SdUser.LastName}"
             })
             .ToListAsync();
     }
@@ -58,7 +59,8 @@ public class SightingService : ISightingService
                 Description = s.Notes,
                 Date = s.Date,
                 Country = s.Country,
-                Subdivision = s.Subdivision
+                Subdivision = s.Subdivision,
+                Birder = $"{s.SdUser.FirstName}, {s.SdUser.LastName}"
             })
             .ToListAsync();
     }
