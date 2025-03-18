@@ -25,7 +25,9 @@ CREATE TABLE [Sighting] (
   [Date] datetime2,
   [Latitude] decimal(8,6),
   [Longitude] decimal(9,6),
-  [Notes] nvarchar(3000)
+  [Notes] nvarchar(3000),
+  [Country] nvarchar(100),
+  [Subdivision] nvarshar(100)
 );
 
 CREATE TABLE [Checklist] (
