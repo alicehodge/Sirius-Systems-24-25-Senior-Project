@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace StorkDorkMain.Models;
 
+
+
 public partial class Sighting
 {
     public int Id { get; set; }
