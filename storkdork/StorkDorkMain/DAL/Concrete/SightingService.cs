@@ -30,12 +30,16 @@ public class SightingService : ISightingService
             .Include(s => s.Bird)
             .Select(s => new SightMarker
             {
-                CommonName = s.Bird.CommonName ?? "Unknown Name",
+                SightingId = s.Id,
+                CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
                 Longitude = s.Longitude,
                 Latitude = s.Latitude,
                 Description = s.Notes,
-                Date = s.Date
+                Date = s.Date,
+                Country = s.Country,
+                Subdivision = s. Subdivision,
+                Birder = $"{s.SdUser.FirstName}, {s.SdUser.LastName}"
             })
             .ToListAsync();
     }
@@ -47,12 +51,16 @@ public class SightingService : ISightingService
             .Include(s => s.Bird)
             .Select(s => new SightMarker
             {
-                CommonName = s.Bird.CommonName ?? "Unknown Name",
+                SightingId = s.Id,
+                CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
                 Longitude = s.Longitude,
                 Latitude = s.Latitude,
                 Description = s.Notes,
-                Date = s.Date
+                Date = s.Date,
+                Country = s.Country,
+                Subdivision = s.Subdivision,
+                Birder = $"{s.SdUser.FirstName}, {s.SdUser.LastName}"
             })
             .ToListAsync();
     }
@@ -65,6 +73,19 @@ public class SightingService : ISightingService
         var eBirdSightings = await _eBirdService.GetNearestSightings(birdId, latitude, longitude);
 
         return eBirdSightings;
+    }
+    
+    public async Task UpdateSightingLocationAsync(int sightingId, string country, string subdivision)
+    {
+        var sighting = await _storkDorkContext.Sightings.FindAsync(sightingId);
+        if (sighting == null)
+        {
+            throw new KeyNotFoundException("Sighting not found.");
+        }
+
+        sighting.Country = country;
+        sighting.Subdivision = subdivision;
+        await _storkDorkContext.SaveChangesAsync();
     }
 
     // public async Task<List<SightMarker>> GetSightingsByCurrentUserAsync(int userId)

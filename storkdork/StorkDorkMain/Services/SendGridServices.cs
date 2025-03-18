@@ -40,8 +40,6 @@ public class SendGridService
         var responseBody = await response.Body.ReadAsStringAsync();
         Console.WriteLine($"Response body: {responseBody}");
     }
-<<<<<<< HEAD
-=======
 
     public async Task SendEmailAsync(string fromEmail, string fromName, string toEmail, string templateId, string resetLink)
     {
@@ -70,5 +68,4 @@ public class SendGridService
         var responseBody = await response.Body.ReadAsStringAsync();
         Console.WriteLine($"Response body: {responseBody}");
     }
->>>>>>> dev
 }
