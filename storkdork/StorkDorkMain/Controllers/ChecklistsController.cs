@@ -12,7 +12,7 @@ using StorkDorkMain.Data;
 using StorkDorkMain.Models;
 using Microsoft.AspNetCore.Authorization;
 using StorkDorkMain.DAL.Abstract;
-
+//
 namespace StorkDorkMain.Controllers
 {
     public class ChecklistsController : Controller
