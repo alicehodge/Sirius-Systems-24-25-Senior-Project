@@ -423,6 +423,11 @@ namespace StorkDork.Controllers
 
                 ModelState.AddModelError("PnwLocation", "Please select a location or select N/A");
             }
+             // Validate bird (always check, even if location is provided)
+            if (sightings.BirdId == null)
+            {
+                ModelState.AddModelError("BirdId", "Please select a bird or choose N/A.");
+            }
 
    
             // Check if both Bird and Location are left blank (not even N/A)
