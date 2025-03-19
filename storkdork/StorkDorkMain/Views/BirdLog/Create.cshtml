@@ -4,7 +4,7 @@
     ViewData["Title"] = "Create Bird Sighting";
     var prefillName = ViewBag.PrefilledBirdName as string ?? "";
 }
-
+<!--  >-->
 
 <div class="container mt-5">
     <h1 class="display-4">Create Bird Sighting</h1>
@@ -19,13 +19,7 @@
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <!-- User Dropdown -->
-                <div class="form-group">
-                    <label asp-for="SdUserId" class="control-label">Select User</label>
-                    <select asp-for="SdUserId" class="form-control" asp-items="ViewBag.Users">
-                        <option value="">-- Select User --</option>
-                    </select>
-                    <span asp-validation-for="SdUserId" class="text-danger"></span>
-                </div>
+                <input type="hidden" asp-for="SdUserId" value="@ViewBag.SdUserId" />
 
                <!-- Bird Species Searchable Dropdown (pre-filled if available) -->
                 <div class="form-group mb-4">
