@@ -26,6 +26,8 @@ public partial class StorkDorkContext : DbContext
 
     public virtual DbSet<Sighting> Sightings { get; set; }
 
+    public virtual DbSet<Milestone> Milestone { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Name=ConnectionStrings:StorkDorkDB");
 

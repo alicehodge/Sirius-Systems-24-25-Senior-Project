@@ -28,21 +28,21 @@ namespace StorkDorkTests
             // Arrange
             var mockSightings = new List<SightMarker>
             {
-                new SightMarker 
-                { 
-                    CommonName = "American Herring Gull", 
+                new SightMarker
+                {
+                    CommonName = "American Herring Gull",
                     SciName = "Larus smithsonianus",
-                    Longitude = -123.24m, 
-                    Latitude = 44.85m, 
+                    Longitude = -123.24m,
+                    Latitude = 44.85m,
                     Description = "Seen near the park",
                     Date = DateTime.UtcNow
                 },
-                new SightMarker 
-                { 
-                    CommonName = "Northern Flicker", 
+                new SightMarker
+                {
+                    CommonName = "Northern Flicker",
                     SciName = "Colaptes auratus",
-                    Longitude = -123.25m, 
-                    Latitude = 44.86m, 
+                    Longitude = -123.25m,
+                    Latitude = 44.86m,
                     Description = "Perched on a fence",
                     Date = DateTime.UtcNow
                 }
@@ -87,12 +87,12 @@ namespace StorkDorkTests
             int userId = 1;
             var mockSightings = new List<SightMarker>
             {
-                new SightMarker 
-                { 
-                    CommonName = "Common Raven", 
+                new SightMarker
+                {
+                    CommonName = "Common Raven",
                     SciName = "Corvus corax",
-                    Longitude = -123.2378m, 
-                    Latitude = 44.8490m, 
+                    Longitude = -123.2378m,
+                    Latitude = 44.8490m,
                     Description = "Hopping near the library",
                     Date = DateTime.UtcNow
                 }

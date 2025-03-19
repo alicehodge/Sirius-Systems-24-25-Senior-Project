@@ -3,22 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+<<<<<<< HEAD
+=======
+using Microsoft.AspNetCore.Identity;
+>>>>>>> dev
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StorkDorkMain.Data;
 using StorkDorkMain.Models;
+<<<<<<< HEAD
 
+=======
+using Microsoft.AspNetCore.Authorization;
+using StorkDorkMain.DAL.Abstract;
+//
+>>>>>>> dev
 namespace StorkDorkMain.Controllers
 {
     public class ChecklistsController : Controller
     {
         private readonly StorkDorkContext _context;
+<<<<<<< HEAD
 
         public ChecklistsController(StorkDorkContext context)
         {
             _context = context;
+=======
+        private readonly ISDUserRepository _sdUserRepository;
+
+        public ChecklistsController(StorkDorkContext context, ISDUserRepository sdUserRepository)
+        {
+            _context = context;
+            _sdUserRepository = sdUserRepository;
+>>>>>>> dev
         }
 
         public async Task<IActionResult> SearchBirds(string query)
@@ -35,6 +54,7 @@ namespace StorkDorkMain.Controllers
                     .ToListAsync();
             return Json(birds);
         } 
+<<<<<<< HEAD
           
 
         // GET: Checklists
@@ -73,6 +93,40 @@ namespace StorkDorkMain.Controllers
             }
      
             return View(checklists);
+=======
+
+          
+
+        // GET: Checklists
+        public async Task<IActionResult> Index()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized("User is not authenticated");
+            }
+            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+            if (sdUser == null)
+            {
+                return NotFound("User not found");
+            }
+
+            //Get the checklsits for the logged in user
+            var checklists = await _context.Checklists
+                .Include(c => c.SdUser)
+                .Include(c => c.ChecklistItems)
+                    .ThenInclude(ci => ci.Bird)
+                .Where(c => c.SdUserId == sdUser.Id)
+                .ToListAsync();
+        
+            if (!checklists.Any())
+            {
+                ViewBag.NoChecklistsMessage = "No checklists found. Create one?";
+            }
+
+            ViewBag.UserName = sdUser.FirstName;
+            return View(checklists);
+
+>>>>>>> dev
         }
         
 
@@ -98,6 +152,7 @@ namespace StorkDorkMain.Controllers
             return View(checklist);
         }
 
+<<<<<<< HEAD
         // GET: Checklists/Create
         public IActionResult Create(int? userId)
         {
@@ -116,11 +171,28 @@ namespace StorkDorkMain.Controllers
 
             ViewBag.SelectedUserName = selectedUser.FirstName;
 
+=======
+
+        // GET: Checklists/Create
+        public async Task<IActionResult> Create()
+        {
+            // Fetch the details for the user
+            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+            if (sdUser == null)
+            {
+                return NotFound("User not found");
+            }
+
+>>>>>>> dev
             // Fetch all birds from the database to display in the form
             var birds = _context.Birds.ToList();
             ViewBag.Birds = new SelectList(birds, "Id", "CommonName"); // Pass birds to the view
 
+<<<<<<< HEAD
             ViewBag.SelectedUserId = userId;
+=======
+            ViewBag.SelectedSdUserId = sdUser.Id;
+>>>>>>> dev
             return View();
         }
 
@@ -131,6 +203,7 @@ namespace StorkDorkMain.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ChecklistName,SdUserId")] Checklist checklist, int[] selectedBirds)
         {
+<<<<<<< HEAD
             
             if (ModelState.IsValid)
             {
@@ -142,6 +215,19 @@ namespace StorkDorkMain.Controllers
                     return View(checklist); // Return the view with an error message
                 }
 
+=======
+            // Get the current user's SdUser
+            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+            if (sdUser == null)
+            {
+                return NotFound("User not found");
+            }
+
+            checklist.SdUserId = sdUser.Id; 
+            
+            if (ModelState.IsValid)
+            {
+>>>>>>> dev
                 _context.Add(checklist);
                 await _context.SaveChangesAsync();
             
@@ -160,6 +246,7 @@ namespace StorkDorkMain.Controllers
                     await _context.SaveChangesAsync();
               
                 }
+<<<<<<< HEAD
                 return RedirectToAction("Index", new { userId = checklist.SdUserId });
                 
             }
@@ -172,6 +259,11 @@ namespace StorkDorkMain.Controllers
                 ViewBag.SelectedUserName = selectedUser.FirstName;
             }
             ViewBag.SelectedUserId = checklist.SdUserId;
+=======
+                return RedirectToAction(nameof(Index));
+                
+            }
+>>>>>>> dev
             var birds = _context.Birds.ToList();
             ViewBag.Birds = new SelectList(birds, "Id", "CommonName");
     
@@ -184,6 +276,15 @@ namespace StorkDorkMain.Controllers
         // GET: Checklists/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+<<<<<<< HEAD
+=======
+            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+            if (sdUser == null)
+            {
+                return NotFound("User not found");
+            }
+            
+>>>>>>> dev
             if (id == null)
             {
                 return NotFound();
@@ -213,6 +314,15 @@ namespace StorkDorkMain.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ChecklistName,SdUserId")] Checklist checklist, int[] selectedBirds)
         {
+<<<<<<< HEAD
+=======
+            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+            if (sdUser == null)
+            {
+                return NotFound("User not found");
+            }
+
+>>>>>>> dev
             if (id != checklist.Id)
             {
                 return NotFound();
@@ -267,8 +377,13 @@ namespace StorkDorkMain.Controllers
                     }
                     
                     
+<<<<<<< HEAD
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index", new { userId = existingChecklist.SdUserId });
+=======
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+>>>>>>> dev
 
                 }
 
@@ -290,7 +405,10 @@ namespace StorkDorkMain.Controllers
             var allBirds = await _context.Birds.ToListAsync();
 
             ViewBag.AllBirds = new MultiSelectList(allBirds, "Id", "CommonName", selectedBirds);
+<<<<<<< HEAD
             ViewBag.SelectedUserId = checklist.SdUserId;
+=======
+>>>>>>> dev
             return View(checklist);
         }
 
@@ -299,6 +417,15 @@ namespace StorkDorkMain.Controllers
         // GET: Checklists/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+<<<<<<< HEAD
+=======
+            // Get the current user's SdUser
+        var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+        if (sdUser == null)
+        {
+            return NotFound("User not found");
+        }
+>>>>>>> dev
             if (id == null)
             {
                 return NotFound();
@@ -445,6 +572,107 @@ namespace StorkDorkMain.Controllers
             }
         }
 
+<<<<<<< HEAD
+=======
+        // In ChecklistsController.cs
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserChecklists()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
+            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+            if (sdUser == null)
+            {
+                return NotFound();
+            }
+
+            var checklists = await _context.Checklists
+                .Where(c => c.SdUserId == sdUser.Id)
+                .Select(c => new { id = c.Id, name = c.ChecklistName })
+                .ToListAsync();
+
+            return Json(checklists);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddBirdToChecklist(int birdId, int? checklistId, string checklistName)
+        {
+            try
+            {
+                if (!User.Identity.IsAuthenticated)
+                {
+                    return Unauthorized();
+                }
+
+                var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+                if (sdUser == null)
+                {
+                    return NotFound("User not found");
+                }
+
+                // Validate either checklistId or checklistName must be provided
+                if (!checklistId.HasValue && string.IsNullOrWhiteSpace(checklistName))
+                {
+                    return BadRequest("Either select an existing checklist or provide a name for a new one");
+                }
+
+                Checklist checklist;
+                
+                if (checklistId.HasValue)
+                {
+                    // Add to existing checklist
+                    checklist = await _context.Checklists
+                        .Include(c => c.ChecklistItems)
+                        .FirstOrDefaultAsync(c => c.Id == checklistId && c.SdUserId == sdUser.Id);
+                    
+                    if (checklist == null)
+                    {
+                        return NotFound("Checklist not found");
+                    }
+                }
+                else
+                {
+                    // Create new checklist
+                    checklist = new Checklist
+                    {
+                        ChecklistName = checklistName.Trim(),
+                        SdUserId = sdUser.Id
+                    };
+                    
+                    _context.Add(checklist);
+                    await _context.SaveChangesAsync();
+                }
+
+                // Check if bird already exists in checklist
+                if (!checklist.ChecklistItems.Any(ci => ci.BirdId == birdId))
+                {
+                    var checklistItem = new ChecklistItem
+                    {
+                        ChecklistId = checklist.Id,
+                        BirdId = birdId,
+                        Sighted = false
+                    };
+                    
+                    _context.Add(checklistItem);
+                    await _context.SaveChangesAsync();
+                }
+
+                return Ok(new { message = "Bird added to checklist successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+
+ 
+>>>>>>> dev
         
 
         

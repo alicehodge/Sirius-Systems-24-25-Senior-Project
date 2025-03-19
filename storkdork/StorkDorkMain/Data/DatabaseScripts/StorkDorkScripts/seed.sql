@@ -17,3 +17,7 @@ INSERT INTO [Sighting] ([SDUserID], [BirdID], [Date], [Latitude], [Longitude], [
 (1, (SELECT ID FROM Bird WHERE CommonName = 'White-crowned Sparrow'), '2024-12-09 11:10:00', 44.8475, -123.2311, 'Singing in a bush near the science building'),
 (2, (SELECT ID FROM Bird WHERE CommonName = 'Song Sparrow'), '2024-12-10 16:25:00', 44.8508, -123.2333, 'Perched on a garden fence near the quad'),
 (2, (SELECT ID FROM Bird WHERE CommonName = 'Brewer''s Blackbird'), '2024-12-26 14:14:00', 44.8516, -123.2400, '');
+
+INSERT INTO [Milestone] ([SDUserID], [SightingsMade], [PhotosContributed]) VALUES
+(1, 136, 23),
+(1, 12, 0);

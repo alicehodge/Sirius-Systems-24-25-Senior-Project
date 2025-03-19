@@ -7,6 +7,7 @@
     @Html.AntiForgeryToken()
 </div>
 
+<<<<<<< HEAD
 
 <h1>My Bird Watching Checklists</h1>
 
@@ -26,6 +27,10 @@
     </div>
 </form>
 
+=======
+<h1>My Bird Watching Checklists</h1>
+
+>>>>>>> dev
 @if (ViewBag.NoChecklistsMessage != null)
 {
     <div class="alert alert-info mt-3">
@@ -33,6 +38,7 @@
     </div>
 }
 
+<<<<<<< HEAD
 @if (ViewBag.SelectedUserId != null)
 {
     <p>
@@ -42,12 +48,20 @@
 
 <div class="row">
     <div class="row">
+=======
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Checklist</a>
+</p>
+
+<div class="row">
+>>>>>>> dev
     @foreach (var checklist in Model)
     {
         var spotted = checklist.ChecklistItems?.Count(ci => ci.Sighted ?? false) ?? 0;
         var total = checklist.ChecklistItems?.Count ?? 0;
 
         <div class="col-md-6 mb-4">
+<<<<<<< HEAD
     <div class="card checklist-card" data-checklist-id="@checklist.Id">
         <!-- Clickable header for collapse -->
         <div class="card-header clickable" 
@@ -104,11 +118,70 @@
         </div>
     </div>
 </div>
+=======
+            <div class="card checklist-card" data-checklist-id="@checklist.Id">
+                <!-- Clickable header for collapse -->
+                <div class="card-header clickable" 
+                     data-bs-toggle="collapse" 
+                     data-bs-target="#checklist-@checklist.Id">
+                    <h5 class="card-title mb-0 d-inline">@checklist.ChecklistName</h5>
+                    <span class="badge bg-primary float-end">
+                        @checklist.ChecklistItems.Count Birds
+                    </span>
+                </div>
+
+                <!-- Collapsible content -->
+                <div class="collapse" id="checklist-@checklist.Id">
+                    <div class="card-body">
+                        <ul class="list-group">
+                            @foreach (var item in checklist.ChecklistItems)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div class="ms-2 me-auto">
+                                        <input type="checkbox" 
+                                               class="sighted-checkbox form-check-input me-2"
+                                               data-checklist-item-id="@item.Id"
+                                               @(item.Sighted == true ? "checked" : "")>
+                                        <div class="fw-bold">@item.Bird.CommonName</div>
+                                        <div class="text-muted">@item.Bird.ScientificName</div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+
+                        <div class="mt-3">
+                            <small class="text-muted mt-1 d-block text-center">
+                                <span class="spotted-count">@spotted out of @total birds spotted</span>
+                            </small>
+                        </div>
+
+                        <!-- Complete message -->
+                        <div class="alert alert-success mt-3 mb-0 complete-message" 
+                             style="display: none;">
+                            <strong>Complete!</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="btn-group">
+                        <a asp-action="Edit" asp-route-id="@checklist.Id" 
+                           class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@checklist.Id" 
+                           class="btn btn-sm btn-outline-danger">Delete</a>
+                        <a asp-action="Details" asp-route-id="@checklist.Id" 
+                           class="btn btn-sm btn-outline-pink">Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+>>>>>>> dev
     }
 </div>
 
 @section Scripts {
     <script>
+<<<<<<< HEAD
     document.addEventListener('DOMContentLoaded', function () {
     // Use event delegation for checkboxes
         document.body.addEventListener('change', async function (event) {
@@ -225,3 +298,66 @@ async function markChecklistComplete(checklistId) {
 }
     </script>
 }
+=======
+        // JavaScript for toggling sighted status and marking checklists as complete
+        document.addEventListener('DOMContentLoaded', function () {
+            // Use event delegation for checkboxes
+            document.body.addEventListener('change', async function (event) {
+                const checkbox = event.target.closest('.sighted-checkbox');
+                if (!checkbox) return;
+
+                const isSighted = checkbox.checked; // Use the current state of the checkbox
+                const checklistItemId = checkbox.dataset.checklistItemId;
+                const card = checkbox.closest('.card');
+
+                try {
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                    if (!token) {
+                        console.error('Anti-forgery token not found');
+                        return;
+                    }
+
+                    const response = await fetch(`/Checklists/ToggleSighted/${checklistItemId}?sighted=${isSighted}`, {
+                        method: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        }
+                    });
+
+                    if (!response.ok) throw new Error('Server error');
+
+                    const data = await response.json();
+                    console.log('Server response:', data); // Log the server response
+
+                    if (data.success) {
+                        // Update spotted count
+                        const spottedCount = card.querySelector('.spotted-count');
+                        if (spottedCount) {
+                            spottedCount.textContent = `${data.spotted} out of ${data.total} birds spotted`;
+                        }
+
+                        // Check if all checkboxes are checked
+                        const checkboxes = card.querySelectorAll('.sighted-checkbox');
+                        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+
+                        // Show or hide the complete message
+                        const completeMessage = card.querySelector('.complete-message');
+                        if (completeMessage) {
+                            completeMessage.style.display = allChecked ? 'block' : 'none';
+                        }
+                    } else {
+                        // Revert the checkbox state if the server request fails
+                        checkbox.checked = !isSighted;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Revert the checkbox state if there's an error
+                    checkbox.checked = !isSighted;
+                }
+            });
+        });
+    </script>
+}
+
+<!-- Notes -->
+>>>>>>> dev
