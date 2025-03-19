@@ -3,41 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-<<<<<<< HEAD
-=======
 using Microsoft.AspNetCore.Identity;
->>>>>>> dev
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StorkDorkMain.Data;
 using StorkDorkMain.Models;
-<<<<<<< HEAD
-
-=======
 using Microsoft.AspNetCore.Authorization;
 using StorkDorkMain.DAL.Abstract;
 //
->>>>>>> dev
 namespace StorkDorkMain.Controllers
 {
     public class ChecklistsController : Controller
     {
         private readonly StorkDorkContext _context;
-<<<<<<< HEAD
-
-        public ChecklistsController(StorkDorkContext context)
-        {
-            _context = context;
-=======
         private readonly ISDUserRepository _sdUserRepository;
 
         public ChecklistsController(StorkDorkContext context, ISDUserRepository sdUserRepository)
         {
             _context = context;
             _sdUserRepository = sdUserRepository;
->>>>>>> dev
+
         }
 
         public async Task<IActionResult> SearchBirds(string query)
@@ -54,46 +41,6 @@ namespace StorkDorkMain.Controllers
                     .ToListAsync();
             return Json(birds);
         } 
-<<<<<<< HEAD
-          
-
-        // GET: Checklists
-        public async Task<IActionResult> Index(int? userId)
-        {
-            // getting users for the user dropdown
-            var users = await _context.SdUsers.ToListAsync();
-            ViewBag.Users = new SelectList(users, "Id", "FirstName");
-
-            //Pass the selected userId back to the view
-            ViewBag.SelectedUserId = userId;
-
-
-            // FIlter the cheklists by user ID if a user is selected
-            IQueryable<Checklist> checklistsQuery = _context.Checklists
-                .Include(c => c.SdUser)
-                .Include(c => c.ChecklistItems)
-                    .ThenInclude(ci => ci.Bird);
-                
-
-            
-            //to check if there are no checklists for the user
-            if (userId.HasValue)
-            {
-                checklistsQuery = checklistsQuery.Where(c => c.SdUserId == userId.Value);
-            }
-            else
-            {
-                checklistsQuery = checklistsQuery.Where(c => false);
-            }
-
-            var checklists = await checklistsQuery.ToListAsync();
-            if (userId.HasValue && !checklists.Any())
-            {
-                ViewBag.NoChecklistsMessage = "No checklists found. Create one?";
-            }
-     
-            return View(checklists);
-=======
 
           
 
@@ -126,7 +73,6 @@ namespace StorkDorkMain.Controllers
             ViewBag.UserName = sdUser.FirstName;
             return View(checklists);
 
->>>>>>> dev
         }
         
 
@@ -152,26 +98,6 @@ namespace StorkDorkMain.Controllers
             return View(checklist);
         }
 
-<<<<<<< HEAD
-        // GET: Checklists/Create
-        public IActionResult Create(int? userId)
-        {
-            //redirect if no user is selected
-            if (userId == null)
-            {
-                return RedirectToAction("Index");
-            }
-
-            // Fetch the details for the user
-            var selectedUser = _context.SdUsers.FirstOrDefault(u => u.Id == userId);
-            if (selectedUser == null)
-            {
-                return RedirectToAction("Index");
-            }
-
-            ViewBag.SelectedUserName = selectedUser.FirstName;
-
-=======
 
         // GET: Checklists/Create
         public async Task<IActionResult> Create()
@@ -183,16 +109,11 @@ namespace StorkDorkMain.Controllers
                 return NotFound("User not found");
             }
 
->>>>>>> dev
             // Fetch all birds from the database to display in the form
             var birds = _context.Birds.ToList();
             ViewBag.Birds = new SelectList(birds, "Id", "CommonName"); // Pass birds to the view
 
-<<<<<<< HEAD
-            ViewBag.SelectedUserId = userId;
-=======
             ViewBag.SelectedSdUserId = sdUser.Id;
->>>>>>> dev
             return View();
         }
 
@@ -203,19 +124,6 @@ namespace StorkDorkMain.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ChecklistName,SdUserId")] Checklist checklist, int[] selectedBirds)
         {
-<<<<<<< HEAD
-            
-            if (ModelState.IsValid)
-            {
-                var userExists = await _context.SdUsers.AnyAsync(u => u.Id == checklist.SdUserId);
-                if (!userExists)
-                {
-                    ModelState.AddModelError(" ", "Invalid user ID.");
-                    ViewBag.SelectedUserId = checklist.SdUserId;
-                    return View(checklist); // Return the view with an error message
-                }
-
-=======
             // Get the current user's SdUser
             var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
             if (sdUser == null)
@@ -227,7 +135,6 @@ namespace StorkDorkMain.Controllers
             
             if (ModelState.IsValid)
             {
->>>>>>> dev
                 _context.Add(checklist);
                 await _context.SaveChangesAsync();
             
@@ -246,24 +153,9 @@ namespace StorkDorkMain.Controllers
                     await _context.SaveChangesAsync();
               
                 }
-<<<<<<< HEAD
-                return RedirectToAction("Index", new { userId = checklist.SdUserId });
-                
-            }
-
-            //if the model is invalid, return create view with the user
-            var selectedUser = _context.SdUsers.FirstOrDefault(u => u.Id == checklist.SdUserId);
-
-            if (selectedUser != null)
-            {
-                ViewBag.SelectedUserName = selectedUser.FirstName;
-            }
-            ViewBag.SelectedUserId = checklist.SdUserId;
-=======
                 return RedirectToAction(nameof(Index));
                 
             }
->>>>>>> dev
             var birds = _context.Birds.ToList();
             ViewBag.Birds = new SelectList(birds, "Id", "CommonName");
     
@@ -276,15 +168,12 @@ namespace StorkDorkMain.Controllers
         // GET: Checklists/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-<<<<<<< HEAD
-=======
             var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
             if (sdUser == null)
             {
                 return NotFound("User not found");
             }
             
->>>>>>> dev
             if (id == null)
             {
                 return NotFound();
@@ -314,15 +203,12 @@ namespace StorkDorkMain.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ChecklistName,SdUserId")] Checklist checklist, int[] selectedBirds)
         {
-<<<<<<< HEAD
-=======
             var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
             if (sdUser == null)
             {
                 return NotFound("User not found");
             }
 
->>>>>>> dev
             if (id != checklist.Id)
             {
                 return NotFound();
@@ -377,13 +263,8 @@ namespace StorkDorkMain.Controllers
                     }
                     
                     
-<<<<<<< HEAD
-                await _context.SaveChangesAsync();
-                return RedirectToAction("Index", new { userId = existingChecklist.SdUserId });
-=======
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
->>>>>>> dev
 
                 }
 
@@ -405,10 +286,6 @@ namespace StorkDorkMain.Controllers
             var allBirds = await _context.Birds.ToListAsync();
 
             ViewBag.AllBirds = new MultiSelectList(allBirds, "Id", "CommonName", selectedBirds);
-<<<<<<< HEAD
-            ViewBag.SelectedUserId = checklist.SdUserId;
-=======
->>>>>>> dev
             return View(checklist);
         }
 
@@ -417,15 +294,12 @@ namespace StorkDorkMain.Controllers
         // GET: Checklists/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-<<<<<<< HEAD
-=======
             // Get the current user's SdUser
         var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
         if (sdUser == null)
         {
             return NotFound("User not found");
         }
->>>>>>> dev
             if (id == null)
             {
                 return NotFound();
@@ -572,8 +446,6 @@ namespace StorkDorkMain.Controllers
             }
         }
 
-<<<<<<< HEAD
-=======
         // In ChecklistsController.cs
 
         [HttpGet]
@@ -672,7 +544,6 @@ namespace StorkDorkMain.Controllers
 
 
  
->>>>>>> dev
         
 
         

@@ -11,77 +11,6 @@
                  alt="Bird Image" style="width: 100%; height: auto; object-fit: cover; border-radius: 15px;">
         </div>
 
-<<<<<<< HEAD
-<div class="card mx-auto shadow-lg p-4" style="max-width: 900px; border-radius: 20px;">
-    <div class="row g-0">
-        <!-- Bird Image (Larger) -->
-        <div class="col-md-5 d-flex align-items-center justify-content-center">
-            <img src="/images/placeholder-bird.svg" class="img-fluid rounded" 
-                 alt="Bird Image" style="width: 100%; height: auto; object-fit: cover; border-radius: 15px;">
-        </div>
-
-        <!-- Card Details -->
-        <div class="col-md-7">
-            <div class="card-body">
-                <!-- Bird Name (Bigger Font) -->
-                <h3 class="card-title text-primary fw-bold text-center">
-                    @if (Model.BirdId.HasValue && Model.Bird != null)
-                    {
-                        @Model.Bird.CommonName
-                    }
-                    else
-                    {
-                        <span>Unknown Bird</span>
-                    }
-                </h3>
-
-                <!-- Observer -->
-                <p class="card-text fs-5">
-                    <strong>Observer:</strong>
-                    @if (Model.SdUser != null)
-                    {
-                        @Model.SdUser.FirstName <!-- Replace with actual user property -->
-                    }
-                    else
-                    {
-                        <span class="text-muted">No User Information Available.</span>
-                    }
-                </p>
-
-                <!-- Location -->
-                <p class="card-text fs-5">
-                    <strong>Location:</strong>
-                    @{
-                        string latitude = Model.Latitude?.ToString("0.0000") ?? "NULL";
-                        string longitude = Model.Longitude?.ToString("0.0000") ?? "NULL";
-                        string locationKey = $"{latitude},{longitude}";
-
-                        string locationName = (latitude != "NULL" && longitude != "NULL" && ViewBag.PnwLocations.ContainsKey(locationKey))
-                            ? ViewBag.PnwLocations[locationKey]
-                            : "Unknown Location";
-                    }
-                    <strong>@locationName</strong>
-                    <br>
-                    <small class="text-muted">Coordinates: @locationKey</small>
-                </p>
-
-                <!-- Date -->
-                <p class="card-text fs-5">
-                    <strong>Date:</strong> 
-                    @if (Model.Date.HasValue)
-                    {
-                        @Model.Date.Value.ToString("MMMM dd, yyyy")
-                    }
-                    else
-                    {
-                        <span class="text-muted">No Date Recorded.</span>
-                    }
-                </p>
-            </div>
-        </div>
-    </div>
-
-=======
         <!-- Card Details -->
         <div class="col-md-7">
             <div class="card-body">
@@ -125,7 +54,6 @@
         </div>
     </div>
 
->>>>>>> dev
     <!-- Notes Section (Below Image) -->
     <div class="card-footer bg-white">
         <h4 class="fw-bold">Notes</h4>
