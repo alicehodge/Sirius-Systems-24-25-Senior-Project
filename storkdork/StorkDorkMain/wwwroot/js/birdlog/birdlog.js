@@ -110,13 +110,9 @@ function initializeBirdLogForm() {
             } else if (searchTerm.length >= 2) { // Only search if the user has typed at least 2 characters
                 fetch(`/birds/search?term=${encodeURIComponent(searchTerm)}`)
                     .then(response => {
-<<<<<<< HEAD
-                        console.log('Response received:', response); // Debugging: Log the response
-=======
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
                         }
->>>>>>> dev
                         return response.json();
                     })
                     .then(data => {
@@ -290,19 +286,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let selectedBirds = [];
     const allBirdNames = window.allBirdNames || [];
-
-<<<<<<< HEAD
-    // Function to update the dropdown with matching bird names
-    function updateDropdown(searchTerm) {
-        birdDropdown.innerHTML = "";
-        const matchingBirds = allBirdNames.filter(bird => bird.toLowerCase().includes(searchTerm.toLowerCase()));
-
-=======
     // Update the dropdown with matching bird names
     function updateDropdown(searchTerm) {
         birdDropdown.innerHTML = "";
         const matchingBirds = allBirdNames.filter(bird => bird.toLowerCase().includes(searchTerm.toLowerCase()));
->>>>>>> dev
         matchingBirds.forEach(bird => {
             const dropdownItem = document.createElement("div");
             dropdownItem.className = "dropdown-item";
@@ -316,18 +303,12 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             birdDropdown.appendChild(dropdownItem);
         });
-<<<<<<< HEAD
 
-        birdDropdown.style.display = matchingBirds.length > 0 ? "block" : "none";
-    }
-
-    // Function to update the selected birds (chips)
-=======
         birdDropdown.style.display = matchingBirds.length > 0 ? "block" : "none";
     }
 
     // Update the displayed list of selected birds (chips)
->>>>>>> dev
+
     function updateSelectedBirds() {
         selectedBirdsContainer.innerHTML = "";
         selectedBirds.forEach(bird => {
@@ -339,10 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
             `;
             selectedBirdsContainer.appendChild(chip);
         });
-<<<<<<< HEAD
 
-=======
->>>>>>> dev
         selectedBirdsInput.value = selectedBirds.join(",");
     }
 
