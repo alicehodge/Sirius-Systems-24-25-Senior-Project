@@ -19,7 +19,6 @@ namespace StorkDork.Controllers
 {
     
 
-
     public class BirdLogController : Controller
     {
         private readonly StorkDorkContext _context;
@@ -430,8 +429,8 @@ namespace StorkDork.Controllers
 
             if (selectedLocation == "0")
             {
-                sighting.Latitude = null;
-                sighting.Longitude = null;
+                sightings.Latitude = null;
+                sightings.Longitude = null;
             }
             else if (string.IsNullOrEmpty(selectedLocation))
             {
@@ -455,7 +454,7 @@ namespace StorkDork.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Add(sighting);
+                _context.Add(sightings);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Confirmation), new { userId = sightings.SdUserId });
             
@@ -499,7 +498,7 @@ namespace StorkDork.Controllers
             
 
             
-            return View(sighting);
+            return View(sightings);
         }
 
         // GET: BirdLog/Edit/5
