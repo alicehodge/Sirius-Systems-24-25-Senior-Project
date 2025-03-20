@@ -134,7 +134,6 @@ namespace StorkDork.Controllers
                 { "44.3611,-111.4550", "Harriman State Park, ID" }
             };
 
-
             ViewBag.SortOrder = sortOrder;
             ViewBag.Birds = await _context.Birds.ToListAsync();
             
@@ -243,6 +242,29 @@ namespace StorkDork.Controllers
                 }
     
             }
+
+            // A predefined list of common PNW bird sighting locations with longitude and latitde coordinates
+            ViewBag.PnwLocations = new Dictionary<string, string>
+            {
+                { "48.4244,-122.3358", "Skagit Valley, WA" },
+                { "46.8797,-121.7269", "Mount Rainier National Park, WA" },
+                { "47.6573,-122.4057", "Discovery Park, Seattle, WA" },
+                { "47.0726,-122.7175", "Nisqually National Wildlife Refuge, WA" },
+                { "47.8601,-123.9343", "Olympic National Park (Hoh Rainforest), WA" },
+                { "45.7156,-122.7745", "Sauvie Island, OR" },
+                { "42.9778,-118.9097", "Malheur National Wildlife Refuge, OR" },
+                { "42.8684,-122.1685", "Crater Lake National Park, OR" },
+                { "45.9190,-123.9740", "Ecola State Park, OR" },
+                { "42.1561,-121.7381", "Klamath Basin, OR" },
+                { "49.0456,-123.0586", "Boundary Bay, BC" },
+                { "49.3043,-123.1443", "Stanley Park, Vancouver, BC" },
+                { "49.1167,-123.1500", "Reifel Migratory Bird Sanctuary, BC" },
+                { "48.7500,-125.5000", "Pacific Rim National Park, BC" },
+                { "49.5000,-119.5833", "Okanagan Valley, BC" },
+                { "47.5000,-116.8000", "Lake Coeur d’Alene, ID" },
+                { "43.3000,-112.0000", "Camas National Wildlife Refuge, ID" },
+                { "44.3611,-111.4550", "Harriman State Park, ID" }
+            };
             
 
            
@@ -278,16 +300,9 @@ namespace StorkDork.Controllers
                 .Include(s => s.Bird)
                 .Include(s => s.SdUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
-
             if (sighting == null)
             {
                 return NotFound();
-            }
-
-            var currentUser = await _sdUserRepository.GetSDUserByIdentity(User);
-            if (sighting.SdUserId != currentUser?.Id)
-            {
-                return RedirectToAction("Index");
             }
 
               // A predefined list of common PNW bird sighting locations with longitude and latitde coordinates
@@ -318,7 +333,7 @@ namespace StorkDork.Controllers
 
 
 
-       
+
         // GET: BirdLog/Create
         public async Task<IActionResult> Create(string? searchTerm = null, string? commonName = null)
         {
@@ -415,8 +430,8 @@ namespace StorkDork.Controllers
 
             if (selectedLocation == "0")
             {
-                sightings.Latitude = null;
-                sightings.Longitude = null;
+                sighting.Latitude = null;
+                sighting.Longitude = null;
             }
             else if (string.IsNullOrEmpty(selectedLocation))
             {
@@ -440,8 +455,7 @@ namespace StorkDork.Controllers
 
             if (ModelState.IsValid)
             {
-
-                _context.Add(sightings);
+                _context.Add(sighting);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Confirmation), new { userId = sightings.SdUserId });
             
@@ -485,13 +499,12 @@ namespace StorkDork.Controllers
             
 
             
-            return View(sightings);
+            return View(sighting);
         }
 
         // GET: BirdLog/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            
             if (id == null)
             {
                 return NotFound();
