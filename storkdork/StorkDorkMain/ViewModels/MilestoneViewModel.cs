@@ -5,6 +5,7 @@ namespace StorkDorkMain.Models;
 public class MilestoneViewModel
 {
     public Milestone Milestone { get; set; }
+    public MostSpottedBirdDTO? MostSpottedBird { get; set; }
     public string FirstName { get; set; }
     public int SightingsTier { get; set; }
     public int PhotosTier { get; set; }

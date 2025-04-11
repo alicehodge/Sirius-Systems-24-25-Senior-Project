@@ -8,6 +8,8 @@ namespace StorkDorkMain.DAL.Concrete;
 public class MilestoneRepository : Repository<Milestone>, IMilestoneRepository
 {
     private DbSet<Milestone> _milestones;
+    private DbSet<Sighting> _sightings;
+    private DbSet<Bird> _birds;
     private readonly StorkDorkContext _context;
 
     public const int GoldTier = 1;
@@ -16,22 +18,50 @@ public class MilestoneRepository : Repository<Milestone>, IMilestoneRepository
     public const int NoTier = 0;
     public MilestoneRepository(StorkDorkContext context) : base(context)
     {
-        _milestones = context.Milestone;
         _context = context;
+        _milestones = context.Milestone;
+        _sightings = context.Sightings;
+        _birds = context.Birds;
     }
 
-    public async Task<int> GetSightingsMade(int SDUserID)
+    public async Task<MostSpottedBirdDTO?> GetMostSpottedBirdAsync(int userId)
+    {
+        var result = await _sightings
+            .Where(s => s.SdUserId == userId)
+            .GroupBy(s => s.BirdId)
+            .OrderByDescending(g => g.Count())
+            .Select(g => new
+            {
+                BirdId = g.Key,
+                Count = g.Count()
+            })
+            .Join(_birds,
+                s => s.BirdId,
+                b => b.Id,
+                (s, b) => new MostSpottedBirdDTO
+                {
+                    BirdID = b.Id,
+                    SpeciesCode = b.SpeciesCode,
+                    CommonName = b.CommonName,
+                    SightingsCount = s.Count
+                })
+            .FirstOrDefaultAsync();
+
+        return result;
+    }
+
+    public async Task<int> GetSightingsMade(int userId)
     {
         return await _milestones
-                    .Where(s => s.SDUserId == SDUserID)
+                    .Where(s => s.SDUserId == userId)
                     .Select(s => s.SightingsMade)
                     .FirstOrDefaultAsync();
     }
 
-    public async Task<int> GetPhotosContributed(int SDUserID)
+    public async Task<int> GetPhotosContributed(int userId)
     {
         return await _milestones
-                    .Where(s => s.SDUserId == SDUserID)
+                    .Where(s => s.SDUserId == userId)
                     .Select(s => s.PhotosContributed)
                     .FirstOrDefaultAsync();
     }
@@ -51,10 +81,10 @@ public class MilestoneRepository : Repository<Milestone>, IMilestoneRepository
             return NoTier;
     }
 
-    public void IncrementSightingsMade(int SDUserID)
+    public void IncrementSightingsMade(int userId)
     {
         var milestone = _milestones
-                        .FirstOrDefault(s => s.SDUserId == SDUserID);
+                        .FirstOrDefault(s => s.SDUserId == userId);
 
         if (milestone != null)
         {
