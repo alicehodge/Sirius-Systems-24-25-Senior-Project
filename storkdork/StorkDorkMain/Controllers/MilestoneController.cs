@@ -32,8 +32,7 @@ public class MilestoneController : Controller
         vm.Milestone = ms;
         vm.SightingsTier = MilestoneHelper.GetMilestoneTier(ms.SightingsMade);
         vm.PhotosTier = MilestoneHelper.GetMilestoneTier(ms.PhotosContributed);
-        // vm.SightingsTier = _milestoneRepo.GetMilestoneTier(ms.SightingsMade);
-        // vm.PhotosTier = _milestoneRepo.GetMilestoneTier(ms.PhotosContributed);
+        vm.MostSpottedBird = await _milestoneRepo.GetMostSpottedBirdAsync(user.Id);
 
         return View(vm);
     }
