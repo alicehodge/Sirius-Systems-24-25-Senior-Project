@@ -6,6 +6,7 @@ public interface IMilestoneRepository : IRepository<Milestone>
 {
     Task<int> GetSightingsMade(int SDUserID);
     Task<int> GetPhotosContributed(int SDUserID);
+    Task<MostSpottedBirdDTO?> GetMostSpottedBirdAsync(int userId);
     int GetMilestoneTier(int Achievement);
     void IncrementSightingsMade(int SDUserID);
 }
