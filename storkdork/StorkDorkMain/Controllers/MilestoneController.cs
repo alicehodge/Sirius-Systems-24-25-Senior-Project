@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using StorkDorkMain.Models;
 using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.DAL.Concrete;
+using StorkDorkMain.Helpers;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -29,8 +30,9 @@ public class MilestoneController : Controller
         ms.PhotosContributed = await _milestoneRepo.GetPhotosContributed(user.Id);
         vm.FirstName = user.FirstName;
         vm.Milestone = ms;
-        vm.SightingsTier = _milestoneRepo.GetMilestoneTier(ms.SightingsMade);
-        vm.PhotosTier = _milestoneRepo.GetMilestoneTier(ms.PhotosContributed);
+        vm.SightingsTier = MilestoneHelper.GetMilestoneTier(ms.SightingsMade);
+        vm.PhotosTier = MilestoneHelper.GetMilestoneTier(ms.PhotosContributed);
+        vm.MostSpottedBird = await _milestoneRepo.GetMostSpottedBirdAsync(user.Id);
 
         return View(vm);
     }

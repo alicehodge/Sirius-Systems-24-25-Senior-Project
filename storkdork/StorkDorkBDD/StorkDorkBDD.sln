@@ -1,0 +1,30 @@
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorkDorkBDD", "StorkDorkBDD.csproj", "{FAA3DE2B-BE46-DBED-34EC-23AC8D74D973}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StorkDork", "..\StorkDorkMain\StorkDork.csproj", "{D5923E4A-6EF9-4AF4-9AEC-CBFEA760248F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FAA3DE2B-BE46-DBED-34EC-23AC8D74D973}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAA3DE2B-BE46-DBED-34EC-23AC8D74D973}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAA3DE2B-BE46-DBED-34EC-23AC8D74D973}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAA3DE2B-BE46-DBED-34EC-23AC8D74D973}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5923E4A-6EF9-4AF4-9AEC-CBFEA760248F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5923E4A-6EF9-4AF4-9AEC-CBFEA760248F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5923E4A-6EF9-4AF4-9AEC-CBFEA760248F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5923E4A-6EF9-4AF4-9AEC-CBFEA760248F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {68FA7334-D6AB-403D-82D0-11F23994C8E6}
+	EndGlobalSection
+EndGlobal
