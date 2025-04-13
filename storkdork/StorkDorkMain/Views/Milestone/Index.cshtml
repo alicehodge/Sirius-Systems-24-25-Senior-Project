@@ -51,6 +51,12 @@
                             <dt class="col-sm-3">Most Spotted Bird:</dt>
                             <dd class="col-sm-9">Your most spotted bird is the @Model.MostSpottedBird.CommonName</dd>
                         }
+                        @if (Model.MostSightingsInDay != null)
+                        {
+                            <dt class="col-sm-3">Most Spottings in a Day:
+                                @Model.MostSightingsInDay.DayOfSightings?.ToString("MMMM dd, yyyy")</dt>
+                            <dd class="col-sm-9">Number of Sightings: @Model.MostSightingsInDay.NumberOfSightings</dd>
+                        }
                     </dl>
                 </div>
             </div>
