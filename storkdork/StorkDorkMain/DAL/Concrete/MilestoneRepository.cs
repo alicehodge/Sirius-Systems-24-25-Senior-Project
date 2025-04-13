@@ -1,3 +1,4 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.Data;
@@ -16,6 +17,7 @@ public class MilestoneRepository : Repository<Milestone>, IMilestoneRepository
     public const int SilverTier = 2;
     public const int BronzeTier = 3;
     public const int NoTier = 0;
+    public DateTime sqlMinDate = new DateTime(1753, 1, 1);
     public MilestoneRepository(StorkDorkContext context) : base(context)
     {
         _context = context;
@@ -45,6 +47,22 @@ public class MilestoneRepository : Repository<Milestone>, IMilestoneRepository
                     CommonName = b.CommonName,
                     SightingsCount = s.Count
                 })
+            .FirstOrDefaultAsync();
+
+        return result;
+    }
+
+    public async Task<SightingsInADayDTO?> GetDailySightingRecord(int userId)
+    {
+        var result = await _sightings
+            .Where(s => s.SdUserId == userId)
+            .GroupBy(s => EF.Functions.DateDiffDay(sqlMinDate, s.Date))
+            .OrderByDescending(g => g.Count())
+            .Select(g => new SightingsInADayDTO
+            {
+                DayOfSightings = sqlMinDate.AddDays(g.Key ?? 0),
+                NumberOfSightings = g.Count()
+            })
             .FirstOrDefaultAsync();
 
         return result;

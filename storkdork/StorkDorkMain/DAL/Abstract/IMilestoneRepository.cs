@@ -4,9 +4,10 @@ namespace StorkDorkMain.DAL.Abstract;
 
 public interface IMilestoneRepository : IRepository<Milestone>
 {
-    Task<int> GetSightingsMade(int SDUserID);
-    Task<int> GetPhotosContributed(int SDUserID);
+    Task<int> GetSightingsMade(int userId);
+    Task<int> GetPhotosContributed(int userId);
     Task<MostSpottedBirdDTO?> GetMostSpottedBirdAsync(int userId);
+    Task<SightingsInADayDTO?> GetDailySightingRecord(int userId);
     int GetMilestoneTier(int Achievement);
-    void IncrementSightingsMade(int SDUserID);
+    void IncrementSightingsMade(int userId);
 }
