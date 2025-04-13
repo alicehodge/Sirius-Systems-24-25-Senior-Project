@@ -7,7 +7,7 @@ using System;
 namespace StorkDorkBDD.StepDefinitions;
 
 [Binding]
-public class HomepageStepDefinition : IDisposable
+public class MilestoneStepDefinition : IDisposable
 {
     private IWebDriver _driver;
 
@@ -15,7 +15,7 @@ public class HomepageStepDefinition : IDisposable
     public void Setup()
     {
         var options = new ChromeOptions();
-        options.AddArgument("--headless"); // Run in headless mode (no UI)
+        options.AddArgument("--headless");
         options.AddArgument("--no-sandbox");
         options.AddArgument("--disable-dev-shm-usage");
 
@@ -38,16 +38,24 @@ public class HomepageStepDefinition : IDisposable
         _driver.Quit();
     }
 
-    [Given("I open the home page")]
-    public void GivenIOpenTheHomePage()
+    [Given(@"I open the milestone page as (.*)")]
+    public void GivenIOpenTheMilestonePageAs(string email)
     {
-        _driver.Navigate().GoToUrl("http://localhost:5208");
+        // Navigate to the login page
+        _driver.Navigate().GoToUrl("http://localhost:5208/Identity/Account/Login");
+
+        // Fill in the login form
+        _driver.FindElement(By.Id("Input_Email")).SendKeys(email);
+        _driver.FindElement(By.Id("Input_Password")).SendKeys("676770Winger!");
+        _driver.FindElement(By.Id("login-submit")).Click();
+
+        // Navigate to the milestone page
+        _driver.Navigate().GoToUrl("http://localhost:5208/Milestone");
     }
 
-    [Then(@"I should see homepage text ""(.*)""")]
-    public void ThenIShouldSeeHomepageText(string text)
+    [Then(@"I should see milestone text ""(.*)""")]
+    public void ThenIShouldSeeMilestoneText(string text)
     {
         Assert.That(_driver.PageSource.Contains(text), Is.True);
     }
-
 }
