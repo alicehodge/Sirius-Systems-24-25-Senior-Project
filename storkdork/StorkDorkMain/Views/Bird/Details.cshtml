@@ -1,3 +1,4 @@
+@using StorkDorkMain.Models
 @model StorkDorkMain.Models.BirdDetailsViewModel
 
 
@@ -41,7 +42,15 @@
                     </div>
                 </div>
             }
-            <!-- Add to Bird Log Button -->
+            
+            @* user range submission *@
+            @if (User.Identity.IsAuthenticated)
+            {
+                ViewData["BirdId"] = Model.Bird.Id;
+                <partial name="_RangeSubmissionForm" model='new RangeSubmissionViewModel { BirdId = Model.Bird.Id }' />
+            }
+
+            @* add to Bird Log Button *@
             <div class="mt-3">
                 <a href="@Url.Action("Create", "BirdLog", new { commonName = Model.Bird.CommonName })" class="btn btn-success">
                     Log as a Bird Sighting

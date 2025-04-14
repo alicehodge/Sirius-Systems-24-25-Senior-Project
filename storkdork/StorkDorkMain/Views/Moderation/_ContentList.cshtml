@@ -1,0 +1,53 @@
+@model IEnumerable<ModeratedContent>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No content to display</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Content Type</th>
+                    <th>Submitted By</th>
+                    <th>Submission Date</th>
+                    <th>Status</th>
+                    <th>Moderated By</th>
+                    <th>Moderation Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var content in Model)
+                {
+                    <tr>
+                        <td>@content.ContentType</td>
+                        <td>@(content.Submitter?.FirstName ?? "Unknown")</td>
+                        <td>@content.SubmittedDate.ToShortDateString()</td>
+                        <td>
+                            @if (content.Status == "Approved")
+                            {
+                                <span class="badge bg-success">Approved</span>
+                            }
+                            else if (content.Status == "Rejected")
+                            {
+                                <span class="badge bg-danger">Rejected</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning">Pending</span>
+                            }
+                        </td>
+                        <td>@(content.Moderator?.FirstName ?? "-")</td>
+                        <td>@(content.ModeratedDate?.ToShortDateString() ?? "-")</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@content.Id" class="btn btn-sm btn-primary">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,5 +1,3 @@
-
-
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation;
 using Microsoft.Data.SqlClient;
@@ -99,12 +97,18 @@ internal class Program
         builder.Services.AddScoped<ISightingService, SightingService>();
         builder.Services.AddScoped<ISDUserRepository, SDUserRepository>();
         builder.Services.AddScoped<IMilestoneRepository, MilestoneRepository>();
+        builder.Services.AddScoped<IModerationService, ModerationService>();
+        builder.Services.AddScoped<IModeratedContentRepository, ModeratedContentRepository>();
 
         builder.Services.AddSwaggerGen();
 
         // Removing this breaks everything for some reason T_T, even when register.cshtml.cs doesn't use IEmailSender? Just leave it. 
         builder.Services.AddHttpClient<IEmailSender, ApiEmailSender>();
         builder.Services.AddHttpClient<IEBirdService, EBirdService>();
+
+        // Add after existing Identity configuration
+        builder.Services.AddScoped<RoleInitializerService>();
+        builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
         var app = builder.Build();
 
@@ -161,6 +165,22 @@ internal class Program
 
         // Needed for identity ui routing to work
         app.MapRazorPages();
+
+        // Add initialization code after building the app
+        if (app.Environment.IsDevelopment())
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleInitializer = scope.ServiceProvider.GetRequiredService<RoleInitializerService>();
+                await roleInitializer.InitializeRoles();
+                
+                // Create admin user if needed
+                var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                var adminEmail = configuration["AdminUser:Email"];
+                var adminPassword = configuration["AdminUser:Password"];
+                await roleInitializer.CreateAdminUser(adminEmail, adminPassword);
+            }
+        }
 
         app.Run();
     }

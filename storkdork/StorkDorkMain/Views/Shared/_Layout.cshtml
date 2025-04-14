@@ -71,7 +71,25 @@
                                     asp-action="Index">Milestones</a>
                             </li>
                         }
-
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Milestone"
+                                    asp-action="Index">Milestones</a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="moderationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Moderation
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="moderationDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Moderation" asp-action="Index">Pending Queue</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Moderation" asp-action="History">History</a></li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
 
                     <ul class="navbar-nav ms-auto">
