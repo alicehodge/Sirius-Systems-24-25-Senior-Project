@@ -167,20 +167,20 @@ internal class Program
         app.MapRazorPages();
 
         // Add initialization code after building the app
-        if (app.Environment.IsDevelopment())
-        {
-            using (var scope = app.Services.CreateScope())
-            {
-                var roleInitializer = scope.ServiceProvider.GetRequiredService<RoleInitializerService>();
-                await roleInitializer.InitializeRoles();
+        // if (app.Environment.IsDevelopment())
+        // {
+        //     using (var scope = app.Services.CreateScope())
+        //     {
+        //         var roleInitializer = scope.ServiceProvider.GetRequiredService<RoleInitializerService>();
+        //         await roleInitializer.InitializeRoles();
                 
-                // Create admin user if needed
-                var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-                var adminEmail = configuration["AdminUser:Email"];
-                var adminPassword = configuration["AdminUser:Password"];
-                await roleInitializer.CreateAdminUser(adminEmail, adminPassword);
-            }
-        }
+        //         // Create admin user if needed
+        //         var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        //         var adminEmail = configuration["AdminUser:Email"];
+        //         var adminPassword = configuration["AdminUser:Password"];
+        //         await roleInitializer.CreateAdminUser(adminEmail, adminPassword);
+        //     }
+        // }
 
         app.Run();
     }
