@@ -6,7 +6,7 @@
 }
 else
 {
-    <div class="table-responsive">
+    <div id="pending-content-list" class="table-responsive">
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -22,32 +22,75 @@ else
             <tbody>
                 @foreach (var content in Model)
                 {
-                    <tr>
+                    <tr class="pending-content-item">
                         <td>@content.ContentType</td>
                         <td>@(content.Submitter?.FirstName ?? "Unknown")</td>
                         <td>@content.SubmittedDate.ToShortDateString()</td>
                         <td>
                             @if (content.Status == "Approved")
                             {
-                                <span class="badge bg-success">Approved</span>
+                                <span class="content-status badge bg-success">Approved</span>
                             }
                             else if (content.Status == "Rejected")
                             {
-                                <span class="badge bg-danger">Rejected</span>
+                                <span class="content-status badge bg-danger">Rejected</span>
                             }
                             else
                             {
-                                <span class="badge bg-warning">Pending</span>
+                                <span class="content-status badge bg-warning">Pending</span>
                             }
                         </td>
                         <td>@(content.Moderator?.FirstName ?? "-")</td>
                         <td>@(content.ModeratedDate?.ToShortDateString() ?? "-")</td>
                         <td>
                             <a asp-action="Details" asp-route-id="@content.Id" class="btn btn-sm btn-primary">Details</a>
+                            @if (content.Status == "Pending")
+                            {
+                                <button class="btn btn-sm btn-success" onclick="showApprovalModal(@content.Id)">Approve</button>
+                                <button class="btn btn-sm btn-danger" onclick="showRejectionModal(@content.Id)">Reject</button>
+                            }
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+    </div>
+
+    <!-- Approval Modal -->
+    <div class="modal fade" id="approvalModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Approve Content</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="moderator-notes" class="form-control" rows="3" placeholder="Enter moderator notes"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="submit-approval" type="button" class="btn btn-success">Submit Approval</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div class="modal fade" id="rejectionModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Content</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="rejection-reason" class="form-control" rows="3" placeholder="Enter rejection reason"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="submit-rejection" type="button" class="btn btn-danger">Submit Rejection</button>
+                </div>
+            </div>
+        </div>
     </div>
 }

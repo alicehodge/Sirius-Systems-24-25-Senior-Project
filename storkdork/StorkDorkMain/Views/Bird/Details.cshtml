@@ -43,12 +43,12 @@
                 </div>
             }
             
-            @* user range submission *@
-            @if (User.Identity.IsAuthenticated)
+            @* user range submission - next sprint *@
+            @* @if (User.Identity.IsAuthenticated)
             {
                 ViewData["BirdId"] = Model.Bird.Id;
                 <partial name="_RangeSubmissionForm" model='new RangeSubmissionViewModel { BirdId = Model.Bird.Id }' />
-            }
+            } *@
 
             @* add to Bird Log Button *@
             <div class="mt-3">

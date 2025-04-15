@@ -16,39 +16,13 @@
             <dd class="col-sm-9">@Model.SubmissionNotes</dd>
         </dl>
 
-        <div class="mt-3">
-            <form asp-controller="Moderation" asp-action="RejectContent" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@Model.Id" />
-                <div class="form-group mb-3">
-                    <label for="rejectionNotes">Rejection Reason</label>
-                    <textarea name="notes" id="rejectionNotes" class="form-control" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-danger">Reject Content</button>
-            </form>
-
-            <form action="@Url.Action("ApproveContent", "Moderation")" method="post">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="id" value="@Model.Id" />
-                <div class="form-group mb-3">
-                    <label for="notes">Moderator Notes</label>
-                    <textarea name="notes" id="notes" class="form-control"></textarea>
-                </div>
-                <button type="submit" class="btn btn-success">Approve Content</button>
-            </form>
-        </div>
+        @if (Model.Status == "Pending")
+        {
+            <input type="hidden" id="current-content-id" value="@Model.Id" />
+            <div class="mt-3">
+                <button class="btn btn-success" onclick="showApprovalModal(@Model.Id)">Approve</button>
+                <button class="btn btn-danger" onclick="showRejectionModal(@Model.Id)">Reject</button>
+            </div>
+        }
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        $(document).ready(function() {
-            $('form').submit(function(e) {
-                if (!$(this).valid()) {
-                    e.preventDefault();
-                }
-            });
-        });
-    </script>
-}
