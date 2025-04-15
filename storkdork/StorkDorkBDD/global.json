@@ -1,7 +1,0 @@
-{
-    "sdk": {
-        "version": "8.0.404"
-    },
-    "omnisharp.sdkPath": "C:\\Program Files\\dotnet",
-    "dotnet.sdkVersion": "8.0.404"
-}

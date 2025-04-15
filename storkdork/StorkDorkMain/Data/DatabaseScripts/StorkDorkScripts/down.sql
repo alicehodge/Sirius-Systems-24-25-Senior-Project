@@ -22,6 +22,8 @@ ALTER TABLE [ModeratedContent] DROP COLUMN [BirdId];
 ALTER TABLE [ModeratedContent] DROP COLUMN [RangeDescription];
 ALTER TABLE [ModeratedContent] DROP COLUMN [SubmissionNotes];
 
+ALTER TABLE [UserSettings] DROP CONSTRAINT FK_UserSettings_SDUser;
+
 -- Drop tables
 DROP TABLE [ChecklistItem];
 
@@ -34,6 +36,8 @@ DROP TABLE [SDUser];
 DROP TABLE [Bird];
 
 DROP TABLE [Milestone];
+
+DROP TABLE [UserSettings];
 
 -- Drop moderation tables
 DROP TABLE [RangeSubmission];

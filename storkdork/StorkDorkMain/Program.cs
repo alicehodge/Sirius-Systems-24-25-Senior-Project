@@ -99,6 +99,7 @@ internal class Program
         builder.Services.AddScoped<IMilestoneRepository, MilestoneRepository>();
         builder.Services.AddScoped<IModerationService, ModerationService>();
         builder.Services.AddScoped<IModeratedContentRepository, ModeratedContentRepository>();
+        builder.Services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
 
         builder.Services.AddSwaggerGen();
 

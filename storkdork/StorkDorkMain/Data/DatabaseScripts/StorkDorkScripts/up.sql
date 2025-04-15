@@ -65,6 +65,12 @@ CREATE TABLE [ModeratedContent] (
     [SubmissionNotes] nvarchar(500) NULL
 );
 
+CREATE TABLE [UserSettings] (
+  [ID] int PRIMARY KEY IDENTITY(1, 1),
+  [SDUserID] int,
+  [AnonymousSightings] bit NOT NULL DEFAULT 0,
+);
+
 ALTER TABLE [Sighting] ADD CONSTRAINT [FK_Sighting_SDUser] 
     FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
 
@@ -83,6 +89,9 @@ ALTER TABLE [ChecklistItem] ADD CONSTRAINT [FK_ChecklistItem_Bird]
 ALTER TABLE [Milestone] ADD CONSTRAINT [FK_Milestone_SDUser]
     FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
 
+ALTER TABLE [UserSettings] ADD CONSTRAINT [FK_UserSettings_SDUser]
+    FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
+
 ALTER TABLE [ModeratedContent] ADD CONSTRAINT [FK_ModeratedContent_Submitter]
     FOREIGN KEY ([SubmitterId]) REFERENCES [SDUser] ([ID]) ON DELETE NO ACTION;
 
@@ -94,3 +103,4 @@ ALTER TABLE [ModeratedContent] ADD CONSTRAINT [FK_ModeratedContent_Bird]
 
 ALTER TABLE [ModeratedContent] ADD CONSTRAINT [CK_ModeratedContent_Status]
     CHECK ([Status] IN ('Pending', 'Approved', 'Rejected'));
+
