@@ -1,0 +1,21 @@
+@model IEnumerable<ModeratedContent>
+
+<h2>Content Moderation</h2>
+
+<div class="row mb-3">
+    <div class="col">
+        <div class="btn-group filter-buttons">
+            <button class="btn btn-outline-primary" data-filter="Pending">Pending</button>
+            <button class="btn btn-outline-success" data-filter="Approved">Approved</button>
+            <button class="btn btn-outline-danger" data-filter="Rejected">Rejected</button>
+        </div>
+    </div>
+</div>
+
+<div id="contentList">
+    @await Html.PartialAsync("_ContentList", Model)
+</div>
+
+@section Scripts {
+    <script src="~/js/moderation.js"></script>
+}

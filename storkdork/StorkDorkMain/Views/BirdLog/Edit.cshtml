@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit" id="sightingForm">
+        <form asp-action="Edit" id="sightingForm" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="SdUserId" />
 
@@ -93,6 +93,26 @@
                 <small class="text-muted">These are suggestions for your notes. Feel free to include them!</small>
             </div>
 
+            <div class="form-group">
+                <label class="control-label">Current Photo</label>
+                @if (Model.PhotoData != null && Model.PhotoContentType != null)
+                {
+                    <div class="mb-3">
+                        <img id="photoPreview" src="data:@Model.PhotoContentType;base64,@Convert.ToBase64String(Model.PhotoData)" style="max-height: 200px" />
+                        <div class="form-check mt-2">
+                            <button type="button" id="removePhoto" class="btn btn-sm btn-danger mt-2">Remove Photo</button>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted">No photo uploaded</p>
+                }
+                
+                <label class="control-label">@(Model.PhotoData != null ? "Replace Photo" : "Upload Photo")</label>
+                <input type="file" id="photoFile" name="photoFile" accept="image/*" onchange="previewNewPhoto()" />
+                <small class="text-muted">Max 5MB (JPEG, PNG)</small>
+            </div>
             <!-- Submit Button -->
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
@@ -129,4 +149,63 @@
 
 @section Scripts {
     <script src="~/js/birdlog/birdlog.js"></script>
+    <script>
+        document.getElementById('removePhoto').addEventListener('click', function () {
+            // Clear preview
+            const preview = document.getElementById('photoPreview');
+            if (preview) {
+                preview.src = "";
+                preview.style.display = "none";
+            }
+
+            // Clear file input
+            const fileInput = document.getElementById('photoFile');
+            if (fileInput) {
+                fileInput.value = "";
+            }
+
+            // Tell backend to remove photo
+            document.getElementById('removePhoto').value = "true";
+        });
+
+        function previewNewPhoto() {
+            const fileInput = document.getElementById('photoFile');
+            const preview = document.getElementById('photoPreview');
+
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+        }
+
+        document.getElementById('removePhoto')?.addEventListener('click', function () {
+            // Clear preview
+            const preview = document.getElementById('photoPreview');
+            if (preview) {
+                preview.src = "";
+                preview.style.display = "none";
+            }
+
+            // Clear file input
+            const fileInput = document.getElementById('photoFile');
+            if (fileInput) {
+                fileInput.value = "";
+            }
+
+            // Set hidden input to indicate removal
+            const flagInput = document.getElementById('removePhotoFlag');
+            if (flagInput) {
+                flagInput.value = "true";
+            }
+        });
+
+    </script>
 }

@@ -15,6 +15,8 @@ public partial class SdUser
 
     public string? LastName { get; set; }
 
+    public virtual UserSettings? UserSettings {get;set;}
+
     // public virtual ICollection<Checklist> Checklists { get; set; } = new List<Checklist>();
 
     // public virtual ICollection<Sighting> Sightings { get; set; } = new List<Sighting>();
