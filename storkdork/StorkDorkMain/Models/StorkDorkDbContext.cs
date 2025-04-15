@@ -67,17 +67,11 @@ public partial class StorkDorkDbContext : DbContext
             // entity.HasOne(d => d.SdUser).WithMany(p => p.Sightings).HasConstraintName("FK_Sighting_SDUser");
         });
 
-        modelBuilder.Entity<UserSettingsGroup>(entity => 
+        modelBuilder.Entity<UserSettings>(entity => 
         {
-            entity.HasKey(e => e.IsDeclarationRequired).HasName("PK_UserSettings_3214EC27");
+            entity.HasKey(e => e.Id).HasName("PK_UserSettings_3214EC27");
 
-            entity.Property(e => e.AnonymousSightings)
-                .HasDefaultValue(false);
-
-            entity.HasOne(d => d.SdUser)
-                .WithMany(p => p.UserSettings)
-                .HasForeignKey(d => d.SdUserId)
-                .HasConstraintName("FK_UserSettings_SDUser");
+            entity.Property(e => e.AnonymousSightings).HasDefaultValue(false);
         });
 
             OnModelCreatingPartial(modelBuilder);
