@@ -1,8 +1,10 @@
 @model UserSettings;
 
-<form id="settings-form">
-    <table>
-        <input type="checkbox" asp-for="AnonymousSightings" name="anonymous-sightings" id="anon-sights">
-        <label for="anonymous-sightings" asp-for="AnonymousSightings" >I want my sightings to be anonymous</label>
-    </table>
+<form id="settings-form" method="post">
+    <input type="hidden" asp-formaction="Id" />
+
+    <input type="checkbox" asp-for="AnonymousSightings">
+    <label asp-for="AnonymousSightings" >&nbsp; I want my sightings to be anonymous</label>
+
+    <button type="submit">Save</button>
 </form>
