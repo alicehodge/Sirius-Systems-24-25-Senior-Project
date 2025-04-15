@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using StorkDorkMain.Models;
 
@@ -66,7 +67,20 @@ public partial class StorkDorkDbContext : DbContext
             // entity.HasOne(d => d.SdUser).WithMany(p => p.Sightings).HasConstraintName("FK_Sighting_SDUser");
         });
 
-        OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<UserSettingsGroup>(entity => 
+        {
+            entity.HasKey(e => e.IsDeclarationRequired).HasName("PK_UserSettings_3214EC27");
+
+            entity.Property(e => e.AnonymousSightings)
+                .HasDefaultValue(false);
+
+            entity.HasOne(d => d.SdUser)
+                .WithMany(p => p.UserSettings)
+                .HasForeignKey(d => d.SdUserId)
+                .HasConstraintName("FK_UserSettings_SDUser");
+        });
+
+            OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
