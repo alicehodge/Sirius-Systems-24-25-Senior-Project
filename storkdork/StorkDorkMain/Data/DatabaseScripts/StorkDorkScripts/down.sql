@@ -11,6 +11,8 @@ ALTER TABLE [Sighting] DROP CONSTRAINT FK_Sighting_SDUser;
 
 ALTER TABLE [Milestone] DROP CONSTRAINT FK_Milestone_SDUser;
 
+ALTER TABLE [UserSettings] DROP CONSTRAINT FK_UserSettings_SDUser;
+
 -- Drop tables
 DROP TABLE [ChecklistItem];
 
@@ -23,3 +25,5 @@ DROP TABLE [SDUser];
 DROP TABLE [Bird];
 
 DROP TABLE [Milestone];
+
+DROP TABLE [UserSettings];

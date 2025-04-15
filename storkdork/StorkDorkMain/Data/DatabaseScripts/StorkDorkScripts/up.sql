@@ -50,6 +50,12 @@ CREATE TABLE [Milestone] (
   [PhotosContributed] int
 )
 
+CREATE TABLE [UserSettings] (
+  [ID] int PRIMARY KEY IDENTITY(1, 1),
+  [SDUserID] int,
+  [AnonymousSightings] bit NOT NULL DEFAULT 0,
+);
+
 ALTER TABLE [Sighting] ADD CONSTRAINT [FK_Sighting_SDUser] 
     FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
 
@@ -67,3 +73,6 @@ ALTER TABLE [ChecklistItem] ADD CONSTRAINT [FK_ChecklistItem_Bird]
 
 ALTER TABLE [Milestone] ADD CONSTRAINT [FK_Milestone_SDUser]
     FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
+
+ALTER TABLE [UserSettings] ADD CONSTRAINT [FK_UserSettings_SDUser]
+    FOREIGN KEU ([SDUserID]) REFERENCES [SDUser] ([ID]);
