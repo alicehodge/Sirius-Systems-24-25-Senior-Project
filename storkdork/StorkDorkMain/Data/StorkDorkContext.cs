@@ -27,12 +27,16 @@ public partial class StorkDorkContext : DbContext
     public virtual DbSet<Sighting> Sightings { get; set; }
 
     public virtual DbSet<Milestone> Milestone { get; set; }
+    
+    public DbSet<ModeratedContent> ModeratedContent { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Name=ConnectionStrings:StorkDorkDB");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Bird>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Bird__3214EC27B23D066D");
@@ -117,6 +121,68 @@ public partial class StorkDorkContext : DbContext
             // entity.HasOne(d => d.SdUser).WithMany(p => p.Sightings)
             //     .HasForeignKey(d => d.SdUserId)
             //     .HasConstraintName("FK_Sighting_SDUser");
+        });
+
+        modelBuilder.Entity<ModeratedContent>(entity =>
+        {
+            entity.ToTable("ModeratedContent");
+            entity.HasKey(e => e.Id);
+            
+            // Configure discriminator for TPH inheritance
+            entity.HasDiscriminator<string>("ContentType")
+                .HasValue<ModeratedContent>("Base")
+                .HasValue<RangeSubmission>("BirdRange");
+            
+            // Configure properties
+            entity.Property(e => e.ContentType)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            entity.Property(e => e.SubmittedDate)
+                .IsRequired();
+            
+            entity.Property(e => e.SubmitterId)
+                .IsRequired();
+            
+            entity.Property(e => e.ModeratorId)
+                .IsRequired(false);
+            
+            entity.Property(e => e.ModeratorNotes)
+                .IsRequired(false);
+
+            entity.Property(e => e.ModeratedDate)
+                .IsRequired(false);
+            
+            // Navigation properties
+            entity.HasOne(e => e.Submitter)
+                .WithMany()
+                .HasForeignKey(e => e.SubmitterId)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            entity.HasOne(e => e.Moderator)
+                .WithMany()
+                .HasForeignKey(e => e.ModeratorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Configure RangeSubmission specifically
+        modelBuilder.Entity<RangeSubmission>(entity =>
+        {
+            entity.HasOne(r => r.Bird)
+                .WithMany()
+                .HasForeignKey(r => r.BirdId);
+            
+            entity.Property(e => e.RangeDescription)
+                .IsRequired()
+                .HasMaxLength(2000);
+            
+            entity.Property(e => e.SubmissionNotes)
+                .IsRequired(false)
+                .HasMaxLength(500);
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -71,7 +71,18 @@
                                     asp-action="Index">Milestones</a>
                             </li>
                         }
-
+                        @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="moderationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Moderation
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="moderationDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Moderation" asp-action="Index">Pending Queue</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Moderation" asp-action="History">History</a></li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
 
                     <ul class="navbar-nav ms-auto">
@@ -115,6 +126,10 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    @section Scripts {
+        <script src="~/js/moderation.js"></script>
+    }
 </body>
 
 </html>
