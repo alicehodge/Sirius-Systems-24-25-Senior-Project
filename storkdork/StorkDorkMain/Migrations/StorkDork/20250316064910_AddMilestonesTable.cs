@@ -18,17 +18,17 @@ namespace StorkDork.Migrations.StorkDork
                 name: "FK_Sighting_SDUser",
                 table: "Sighting");
 
-            migrationBuilder.AddColumn<string>(
-                name: "FirstName",
-                table: "SDUser",
-                type: "nvarchar(max)",
-                nullable: true);
+           //migrationBuilder.AddColumn<string>(
+            //    name: "FirstName",
+             //   table: "SDUser",
+             //   type: "nvarchar(max)",
+             //   nullable: true);
 
-            migrationBuilder.AddColumn<string>(
-                name: "LastName",
-                table: "SDUser",
-                type: "nvarchar(max)",
-                nullable: true);
+           // migrationBuilder.AddColumn<string>(
+            //    name: "LastName",
+             //   table: "SDUser",
+             //   type: "nvarchar(max)",
+             //   nullable: true);
 
             migrationBuilder.CreateTable(
                 name: "Milestones",

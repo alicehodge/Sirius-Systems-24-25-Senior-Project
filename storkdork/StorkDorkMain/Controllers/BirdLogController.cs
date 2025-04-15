@@ -299,6 +299,7 @@ namespace StorkDork.Controllers
                 .Include(s => s.Bird)
                 .Include(s => s.SdUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (sighting == null)
             {
                 return NotFound();
@@ -333,7 +334,7 @@ namespace StorkDork.Controllers
 
 
 
-        // GET: BirdLog/Create
+          // GET: BirdLog/Create
         public async Task<IActionResult> Create(string? searchTerm = null, string? commonName = null)
         {
             if (!string.IsNullOrWhiteSpace(commonName))
@@ -411,7 +412,7 @@ namespace StorkDork.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sightings)
+        public async Task<IActionResult> Create([Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sightings, IFormFile photoFile)
         {
             var selectedLocation = Request.Form["PnwLocation"];
 
@@ -451,12 +452,46 @@ namespace StorkDork.Controllers
                 ModelState.AddModelError("PnwLocation", "Please select a location or choose N/A.");
             }
 
+            if (photoFile != null && photoFile.Length > 0)
+            {
+                // Validate file
+                if (photoFile.Length > 5 * 1024 * 1024) // 5MB
+                {
+                    ModelState.AddModelError("", "File size exceeds 5MB limit");
+                }
+                else if (!photoFile.ContentType.StartsWith("image/")) 
+                {
+                    ModelState.AddModelError("", "Only image files are allowed");
+                }
+                else
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await photoFile.CopyToAsync(memoryStream);
+                        sightings.PhotoData = memoryStream.ToArray();
+                        sightings.PhotoContentType = photoFile.ContentType;
+     
+                    }
+                }
+            }
+
 
             if (ModelState.IsValid)
             {
-                _context.Add(sightings);
+                if (photoFile != null && photoFile.Length > 0)
+                {
+                    using var memoryStream = new MemoryStream();
+                    await photoFile.CopyToAsync(memoryStream);
+                    sightings.PhotoData = memoryStream.ToArray();
+                }
+
+                 _context.Add(sightings);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Confirmation), new { userId = sightings.SdUserId });
+
+                return RedirectToAction(nameof(Confirmation), new { 
+                    userId = sightings.SdUserId,
+                    hasPhoto = sightings.PhotoData != null 
+                });
             
             }
             
@@ -502,12 +537,14 @@ namespace StorkDork.Controllers
         }
 
         // GET: BirdLog/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
+            
 
             var sighting = await _context.Sightings
                 .Include(s => s.Bird)
@@ -529,7 +566,7 @@ namespace StorkDork.Controllers
                 ? $"{sighting.Latitude},{sighting.Longitude}"
                 : null;
            
-            
+            ViewBag.HasPhoto = sighting.PhotoData != null;
             ViewBag.SelectedUserId = sighting.SdUserId;
             ViewBag.SelectedUserName = sighting.SdUser?.FirstName;
 
@@ -584,7 +621,7 @@ namespace StorkDork.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sighting)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sighting, IFormFile photoFile, bool removePhoto = false)
         {
             if (id != sighting.Id)
             {
@@ -622,6 +659,31 @@ namespace StorkDork.Controllers
             {
                 try
                 {
+                    if (removePhoto)
+                    {
+                        sighting.PhotoData = null;
+                        sighting.PhotoContentType = null;
+                    }
+                    else if (photoFile != null && photoFile.Length > 0)
+                    {
+                        if (photoFile.Length > 5 * 1024 * 1024) // 5MB
+                        {
+                            ModelState.AddModelError("photoFile", "File size exceeds 5MB limit");
+                            return View(sighting);
+                        }
+
+                        if (!photoFile.ContentType.StartsWith("image/"))
+                        {
+                            ModelState.AddModelError("photoFile", "Only image files are allowed");
+                            return View(sighting);
+                        }
+
+                        using var memoryStream = new MemoryStream();
+                        await photoFile.CopyToAsync(memoryStream);
+                        sighting.PhotoData = memoryStream.ToArray();
+                        sighting.PhotoContentType = photoFile.ContentType;
+                    }
+
                     _context.Update(sighting);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index), new { userId = sighting.SdUserId });
@@ -751,15 +813,17 @@ namespace StorkDork.Controllers
             return _context.Sightings.Any(e => e.Id == id);
         }
 
-        public IActionResult Confirmation(int userId)
+        public IActionResult Confirmation(int userId, bool hasPhoto)
         {
-            var user = _context.SdUsers.FirstOrDefault(u => u.Id == userId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-            ViewBag.UserName = user.FirstName;
-            return View(); // Ensure this view exists
+            var sighting = _context.Sightings.Find(userId);
+            
+            // Initialize HasPhoto as boolean
+            ViewBag.HasPhoto = sighting?.PhotoData != null; // This will be true or false, never null
+            
+            ViewBag.UserId = userId;
+            ViewBag.UserName = _context.SdUsers.Find(userId)?.FirstName;
+            
+            return View(sighting);
         }
 
         [HttpGet]
@@ -810,7 +874,16 @@ namespace StorkDork.Controllers
             return sightingsQuery.OrderBy(s => s.Date);
         }
         
-    
+        public IActionResult GetSightingImage(int id)
+        {
+            var sighting = _context.Sightings.Find(id);
+            if (sighting?.PhotoData != null)
+            {
+                return File(sighting.PhotoData, sighting.PhotoContentType);
+            }
+            return NotFound();
+        }
+            
 
 
     }
