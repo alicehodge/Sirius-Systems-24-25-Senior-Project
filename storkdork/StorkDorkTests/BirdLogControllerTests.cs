@@ -17,6 +17,7 @@ using StorkDorkMain.Data;
 using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.Models;
 using StorkDorkTests.Helpers;
+using Newtonsoft.Json;
 
 namespace StorkDorkTests
 {
@@ -144,7 +145,8 @@ namespace StorkDorkTests
             _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
 
             // Act
-            var result = await _controller.Create(sighting);
+            var sightingJson = JsonConvert.SerializeObject(sighting);
+            var result = await _controller.Create(sightingJson); // 
 
             // Assert
             Assert.IsInstanceOf<RedirectToActionResult>(result);
@@ -190,7 +192,8 @@ namespace StorkDorkTests
             _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
 
             // Act
-            var result = await _controller.Create(sighting);
+            var sightingJson = JsonConvert.SerializeObject(sighting);
+            var result = await _controller.Create(sightingJson);
 
             // Assert
             Assert.IsInstanceOf<ViewResult>(result);
@@ -240,7 +243,8 @@ namespace StorkDorkTests
             _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
 
             // Act
-            var result = await _controller.Create(sighting);
+            var sightingJson = JsonConvert.SerializeObject(sighting);
+            var result = await _controller.Create(sightingJson);
 
             // Assert
             Assert.IsInstanceOf<ViewResult>(result);
@@ -290,7 +294,8 @@ namespace StorkDorkTests
             _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
 
             // Act
-            var result = await _controller.Create(sighting);
+            var sightingJson = JsonConvert.SerializeObject(sighting);
+            var result = await _controller.Create(sightingJson);
 
             // Assert
             Assert.IsInstanceOf<ViewResult>(result);

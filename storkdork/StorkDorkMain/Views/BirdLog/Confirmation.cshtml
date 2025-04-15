@@ -1,5 +1,15 @@
 @{
     ViewData["Title"] = "Log Created Successfully";
+    bool hasPhoto = ViewBag.HasPhoto ?? false; // Default to false if null
+}
+
+@if (hasPhoto)
+{
+    <div class="mt-4">
+        <h4>Uploaded Photo</h4>
+        <img src="@Url.Action("GetSightingImage", "BirdLog", new { id = Model.Id })" 
+             class="img-thumbnail" style="max-height: 300px;" />
+    </div>
 }
 
 <div class="container mt-5">

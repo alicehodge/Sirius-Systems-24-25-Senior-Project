@@ -14,7 +14,7 @@
 
     <div class="row">
         <div class="col-md-8">
-            <form asp-action="Create" id="sightingForm">
+            <form asp-action="Create" id="sightingForm" enctype="multipart/form-data">
                 <input type="hidden" name="userId" value="@ViewBag.SelectedUserId" />
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -32,6 +32,7 @@
                     <input type="hidden" asp-for="BirdId" id="BirdId" value="" />
                     <span asp-validation-for="BirdId" id="birdError" class="text-danger"></span>
                 </div>
+                
 
 
                 <!-- Location Dropdown -->
@@ -97,6 +98,17 @@
                     </div>
                     <small class="text-muted">These are suggestions for your notes. Feel free to include them!</small>
                 </div>
+                
+                <div class="form-group">
+                    <label>Upload Bird Photo</label>
+                    <input type="file" id="photoFile" name="photoFile" class="form-control" accept="image/*" />
+                    <small class="text-muted">Max 5MB (JPEG/PNG)</small>
+                    <div id="photoPreviewContainer" class="mt-2" style="display:none;">
+                        <img id="photoPreview" class="img-thumbnail" style="max-height: 200px;" />
+                        <button type="button" id="removePhoto" class="btn btn-sm btn-danger mt-2">Remove Photo</button>
+                    </div>
+                </div>
+                
 
                 <!-- Submit Button -->
                 <div class="form-group">
@@ -136,4 +148,25 @@
 
 @section Scripts {
     <script src="~/js/birdlog/birdlog.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Image preview functionality
+            document.getElementById('photoFile').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        document.getElementById('photoPreview').src = e.target.result;
+                        document.getElementById('photoPreviewContainer').style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            document.getElementById('removePhoto').addEventListener('click', function() {
+                document.getElementById('photoFile').value = '';
+                document.getElementById('photoPreviewContainer').style.display = 'none';
+            });
+        });
+    </script>
 }

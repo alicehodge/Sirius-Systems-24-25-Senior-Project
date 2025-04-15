@@ -29,4 +29,11 @@ public partial class Sighting
     public string? Country { get; set; }
 
     public string? Subdivision { get; set; }
+
+    //for adding a photo to sightings
+    public byte[]? PhotoData { get; set; }
+    public string? PhotoContentType { get; set; }
+
+
+    
 }
