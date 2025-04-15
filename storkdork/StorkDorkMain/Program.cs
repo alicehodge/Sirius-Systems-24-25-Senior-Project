@@ -99,6 +99,7 @@ internal class Program
         builder.Services.AddScoped<ISightingService, SightingService>();
         builder.Services.AddScoped<ISDUserRepository, SDUserRepository>();
         builder.Services.AddScoped<IMilestoneRepository, MilestoneRepository>();
+        builder.Services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
 
         builder.Services.AddSwaggerGen();
 

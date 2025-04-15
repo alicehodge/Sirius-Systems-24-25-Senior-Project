@@ -27,7 +27,7 @@ CREATE TABLE [Sighting] (
   [Longitude] decimal(9,6),
   [Notes] nvarchar(3000),
   [Country] nvarchar(100),
-  [Subdivision] nvarshar(100)
+  [Subdivision] nvarchar(100)
 );
 
 CREATE TABLE [Checklist] (
@@ -75,4 +75,4 @@ ALTER TABLE [Milestone] ADD CONSTRAINT [FK_Milestone_SDUser]
     FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
 
 ALTER TABLE [UserSettings] ADD CONSTRAINT [FK_UserSettings_SDUser]
-    FOREIGN KEU ([SDUserID]) REFERENCES [SDUser] ([ID]);
+    FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);

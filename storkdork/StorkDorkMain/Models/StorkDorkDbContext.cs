@@ -27,6 +27,8 @@ public partial class StorkDorkDbContext : DbContext
 
     public virtual DbSet<Sighting> Sightings { get; set; }
 
+    public virtual DbSet<UserSettings> UserSettings {get;set;}
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
