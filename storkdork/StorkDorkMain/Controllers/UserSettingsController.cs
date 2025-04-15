@@ -42,6 +42,22 @@ public class UserSettingsController : Controller
         return View(settings);
     }
 
+    [HttpPost]
+    public async Task<IActionResult> UpdateSettings(UserSettings model)
+    {
+        var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+        if (sdUser == null)
+            return Unauthorized();
+
+        model.SdUserId = sdUser.Id;
+
+        var updated = await _userSettingsRepository.UpdateAsync(model);
+        if (updated == null)
+            return NotFound("Settings not found.");
+
+        return RedirectToAction("Settings");
+    }
+
     // public IActionResult Settings()
     // {
     //     return View();

@@ -14,6 +14,22 @@ public class UserSettingsRepository : IUserSettingsRepository
         _storkDorkDbContext = storkDorkDbContext;
     }
 
+    public async Task<UserSettings?> UpdateAsync(UserSettings updatedSettings)
+    {
+        var existingSettings = await _storkDorkDbContext.UserSettings
+            .FirstOrDefaultAsync(us => us.Id == updatedSettings.Id);
+
+        if (existingSettings == null)
+            return null;
+
+        // Update only the necessary fields
+        existingSettings.AnonymousSightings = updatedSettings.AnonymousSightings;
+        // Add more settings here if needed later
+
+        await _storkDorkDbContext.SaveChangesAsync();
+        return existingSettings;
+    }
+
     public async Task<UserSettings?> CreateAsync(UserSettings settings)
     {
         _storkDorkDbContext.UserSettings.Add(settings);
