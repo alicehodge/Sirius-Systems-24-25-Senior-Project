@@ -13,19 +13,23 @@ namespace StorkDorkTests.Steps
     [Binding]
     public class ChecklistStepDefinition : IDisposable
     {
-        // Private fields to store WebDriver and WebDriverWait
         private IWebDriver _driver;
-        private const string BaseUrl = "http://localhost:5208"; // Base URL of the application
+        private const string BaseUrl = "http://localhost:5208";
         private readonly WebDriverWait _wait;
 
         // Constructor initializes the Chrome WebDriver and WebDriverWait.
         public ChecklistStepDefinition()
         {
-            // Start a visible Chrome browser and maximize the window
+            // fix this so it doesnt start a new visible driver
+            // fix this later so it does headless to match with others
             _driver = new ChromeDriver();
             _driver.Manage().Window.Maximize();
             _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15)); // Wait timeout of 15 seconds
         }
+
+        /// -------------------------------------------------------------------
+        // First Test: Going to Checklist Page
+        // -------------------------------------------------------------------
 
         // Step definition for logging in with a test account
         [Scope(Tag = "@checklist")]
@@ -79,6 +83,10 @@ namespace StorkDorkTests.Steps
                 checklistCards.Should().NotBeEmpty("Expected either the no-data message or at least one checklist card");
             }
         }
+        /// -------------------------------------------------------------------
+        // END OF FIRST TEST
+        // -------------------------------------------------------------------
+
  
 
 
@@ -116,7 +124,7 @@ namespace StorkDorkTests.Steps
                 foreach (char c in birdName)
                 {
                     searchField.SendKeys(c.ToString());
-                    System.Threading.Thread.Sleep(100); // Small delay between keystrokes
+                    System.Threading.Thread.Sleep(100); 
                 }
                 
                 // Wait for dropdown to appear with longer timeout
@@ -197,13 +205,13 @@ namespace StorkDorkTests.Steps
         [Then(@"I should see ""(.*)"" in my checklist list")]
         public void ThenIShouldSeeInMyChecklistList(string checklistName)
         {
-            // This won't execute since we're ending the test after redirect
+            // ending test after redirect
         }
 
         [Then(@"I should see ""(.*)"" in the checklist summary")]
         public void ThenIShouldSeeInTheChecklistSummary(string summaryText)
         {
-            // This won't execute since we're ending the test after redirect
+            // ending test after redirect
         }
         // Dispose method to clean up the WebDriver instance after tests.
         public void Dispose()
