@@ -1,0 +1,45 @@
+@model StorkDorkMain.Models.RangeSubmissionViewModel
+
+<div class="card mt-3">
+    <div class="card-header">
+        <h4>Submit Range Information</h4>
+    </div>
+    <div class="card-body">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+        }
+
+        <form asp-controller="Bird" asp-action="SubmitRange" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="BirdId" />
+            
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="RangeDescription" class="form-label">Range Description</label>
+                <textarea asp-for="RangeDescription" class="form-control" rows="4" minlength="5"
+                          placeholder="Describe the bird's geographic range..."></textarea>
+                <span asp-validation-for="RangeDescription" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="SubmissionNotes" class="form-label">Additional Notes</label>
+                <textarea asp-for="SubmissionNotes" class="form-control" rows="2"
+                          placeholder="Any additional information or sources..."></textarea>
+                <span asp-validation-for="SubmissionNotes" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Range Information</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            $('form').validate();
+        });
+    </script>
+}

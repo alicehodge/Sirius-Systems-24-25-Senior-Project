@@ -1,0 +1,132 @@
+@model ModeratedContent
+
+<div class="container mt-4">
+    <h2>Content Moderation</h2>
+    
+    <div class="mb-3">
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+
+    <h2>Content Details</h2>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <span class="fw-bold">@Model.ContentType</span>
+                    @if (Model.Status == "Approved")
+                    {
+                        <span class="badge bg-success ms-2">Approved</span>
+                    }
+                    else if (Model.Status == "Rejected")
+                    {
+                        <span class="badge bg-danger ms-2">Rejected</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning ms-2">Pending</span>
+                    }
+                </div>
+                <div>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Back to Queue</a>
+                    <a asp-action="History" class="btn btn-sm btn-outline-secondary">History</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">Submission ID:</dt>
+                        <dd class="col-sm-8">@Model.Id</dd>
+
+                        <dt class="col-sm-4">Submitted By:</dt>
+                        <dd class="col-sm-8">@(Model.Submitter?.FirstName ?? "Unknown")</dd>
+
+                        <dt class="col-sm-4">Submitted Date:</dt>
+                        <dd class="col-sm-8">@Model.SubmittedDate</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    @if (Model.Status != "Pending")
+                    {
+                        <dl class="row">
+                            <dt class="col-sm-4">Moderated By:</dt>
+                            <dd class="col-sm-8">@(Model.Moderator?.FirstName ?? "Unknown")</dd>
+
+                            <dt class="col-sm-4">Moderated Date:</dt>
+                            <dd class="col-sm-8">@(Model.ModeratedDate?.ToString() ?? "-")</dd>
+
+                            @if (!string.IsNullOrEmpty(Model.ModeratorNotes))
+                            {
+                                <dt class="col-sm-4">Moderator Notes:</dt>
+                                <dd class="col-sm-8">@Model.ModeratorNotes</dd>
+                            }
+                        </dl>
+                    }
+                </div>
+            </div>
+
+            @if (Model is RangeSubmission rangeSubmission)
+            {
+                <hr />
+                <h4>Bird Range Submission</h4>
+                <dl class="row">
+                    <dt class="col-sm-2">Bird:</dt>
+                    <dd class="col-sm-10">@(rangeSubmission.Bird?.CommonName ?? $"Bird ID: {rangeSubmission.BirdId}")</dd>
+
+                    <dt class="col-sm-2">Range Description:</dt>
+                    <dd class="col-sm-10">@rangeSubmission.RangeDescription</dd>
+                </dl>
+            }
+
+            @if (Model.Status == "Pending")
+            {
+                <hr />
+                <div class="row">
+                    <div class="col-md-6">
+                        <form asp-controller="Moderation" asp-action="ApproveContent" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <div class="form-group mb-3">
+                                <label for="notes">Moderator Notes</label>
+                                <textarea name="notes" id="notes" class="form-control"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">Approve</button>
+                        </form>
+                    </div>
+                    <div class="col-md-6">
+                        <form asp-controller="Moderation" asp-action="RejectContent" method="post" id="rejectForm">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="Id" />
+                            <div class="form-group">
+                                <label for="notes" class="form-label">Rejection Reason</label>
+                                <textarea name="notes" id="notes" class="form-control" required 
+                                          data-val="true" 
+                                          data-val-required="Rejection reason is required"></textarea>
+                                <span class="text-danger field-validation-valid" 
+                                      data-valmsg-for="notes" 
+                                      data-valmsg-replace="true"></span>
+                            </div>
+                            <button type="submit" class="btn btn-danger mt-3">Reject Content</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            $("#rejectForm").validate({
+                submitHandler: function(form) {
+                    $(form).find("button[type='submit']").prop('disabled', true);
+                    form.submit();
+                }
+            });
+        });
+    </script>
+}

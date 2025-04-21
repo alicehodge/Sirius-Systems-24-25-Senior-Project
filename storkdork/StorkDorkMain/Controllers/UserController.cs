@@ -5,7 +5,8 @@ using StorkDorkMain.Models;
 using StorkDork.Areas.Identity.Pages.Account;
 using StorkDorkMain.DAL.Abstract;
 using NuGet.Protocol;
-
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace StorkDorkMain.Controllers;
 
@@ -16,13 +17,14 @@ public class UserController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
     private readonly StorkDorkDbContext _context;
     private readonly ISDUserRepository _sdUserRepository;
+    private readonly RoleManager<IdentityRole> _roleManager;
 
-    public UserController(UserManager<IdentityUser> userManager, StorkDorkDbContext context, ISDUserRepository sdUserRepository)
+    public UserController(UserManager<IdentityUser> userManager, StorkDorkDbContext context, ISDUserRepository sdUserRepository, RoleManager<IdentityRole> roleManager)
     {
         _userManager = userManager;
         _context = context;
         _sdUserRepository = sdUserRepository;
-
+        _roleManager = roleManager;
     }
 
     [HttpPost("create")]
@@ -72,5 +74,50 @@ public class UserController : ControllerBase
         {
             return StatusCode(500, $"Internal Server Error: {ex.Message}");
         }
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("assign-role")]
+    public async Task<IActionResult> AssignRole(string userId, string roleName)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+
+        if (!await _roleManager.RoleExistsAsync(roleName))
+        {
+            return BadRequest("Role does not exist");
+        }
+
+        var result = await _userManager.AddToRoleAsync(user, roleName);
+        if (result.Succeeded)
+        {
+            return Ok($"User assigned to role {roleName} successfully");
+        }
+
+        return BadRequest(result.Errors);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("users-with-roles")]
+    public async Task<IActionResult> GetUsersWithRoles()
+    {
+        var users = await _userManager.Users.ToListAsync();
+        var userRoles = new List<object>();
+
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            userRoles.Add(new
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                Roles = roles
+            });
+        }
+
+        return Ok(userRoles);
     }
 }

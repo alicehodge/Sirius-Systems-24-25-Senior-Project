@@ -1,0 +1,104 @@
+@model UserRoleManagementViewModel
+
+<div class="container mt-4">
+    <h2>User Role Management</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text">@Model.TotalUsers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Active Users</h5>
+                    <p class="card-text">@Model.ActiveUsers</p>
+                </div>
+            </div>
+        </div>
+        @foreach (var roleCount in Model.RoleCounts)
+        {
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">@roleCount.Key</h5>
+                        <p class="card-text">@roleCount.Value users</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Current Roles</th>
+                <th>Last Login</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>@user.Email</td>
+                    <td>@user.UserName</td>
+                    <td>@string.Join(", ", user.Roles)</td>
+                    <td>@(user.LastLogin?.ToString("g") ?? "Never")</td>
+                    <td>
+                        <span class="badge @(user.IsActive ? "bg-success" : "bg-danger")">
+                            @(user.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                Manage Roles
+                            </button>
+                            <div class="dropdown-menu">
+                                @foreach (var role in Model.AvailableRoles)
+                                {
+                                    <a class="dropdown-item" href="#" onclick="assignRole('@user.UserId', '@role')">
+                                        @role
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        async function assignRole(userId, roleName) {
+            try {
+                const response = await fetch('/api/user/assign-role', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userId, roleName })
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Failed to assign role');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error assigning role');
+            }
+        }
+    </script>
+}

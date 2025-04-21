@@ -28,7 +28,20 @@
                         <dt class="col-sm-3">Sightings Made:</dt>
                         @if (Model.Milestone.SightingsMade > 0)
                         {
-                            <dd class="col-sm-9">You've made @Model.Milestone.SightingsMade sightings so far!</dd>
+                            <dd class="col-sm-9">You've made @Model.Milestone.SightingsMade sightings so far!
+                                @if (Model.Milestone.SightingsMade < 25)
+                                {
+                                    <span class="text-secondary">@Model.Milestone.SightingsMade/25</span>
+                                }
+                                else if (Model.Milestone.SightingsMade >= 25 && Model.Milestone.SightingsMade < 50)
+                                {
+                                    <span class="text-secondary">@Model.Milestone.SightingsMade/50</span>
+                                }
+                                else if (Model.Milestone.SightingsMade >= 50 && Model.Milestone.SightingsMade < 100)
+                                {
+                                    <span class="text-secondary">@Model.Milestone.SightingsMade/100</span>
+                                }
+                            </dd>
                         }
                         @if (Model.Milestone.SightingsMade <= 0)
                         {
@@ -38,7 +51,20 @@
                         <dt class="col-sm-3">Photos Contributed:</dt>
                         @if (Model.Milestone.PhotosContributed > 0)
                         {
-                            <dd class="col-sm-9">You've uploaded @Model.Milestone.PhotosContributed verified photos!</dd>
+                            <dd class="col-sm-9">You've uploaded @Model.Milestone.PhotosContributed verified photos!
+                                @if (Model.Milestone.PhotosContributed < 25)
+                                {
+                                    <span class="text-secondary">@Model.Milestone.PhotosContributed/25</span>
+                                }
+                                else if (Model.Milestone.PhotosContributed >= 25 && Model.Milestone.PhotosContributed < 50)
+                                {
+                                    <span class="text-secondary">@Model.Milestone.PhotosContributed/50</span>
+                                }
+                                else if (Model.Milestone.PhotosContributed >= 50 && Model.Milestone.PhotosContributed < 100)
+                                {
+                                    <span class="text-secondary">@Model.Milestone.PhotosContributed/100</span>
+                                }
+                            </dd>
                         }
 
                         @if (Model.Milestone.PhotosContributed <= 0)
@@ -50,6 +76,13 @@
                         {
                             <dt class="col-sm-3">Most Spotted Bird:</dt>
                             <dd class="col-sm-9">Your most spotted bird is the @Model.MostSpottedBird.CommonName</dd>
+                        }
+                        @if (Model.MostSightingsInDay != null)
+                        {
+                            <dt class="col-sm-3">Most Spottings in a Day:</dt>
+                            <dd class="col-sm-9"> @Model.MostSightingsInDay.DayOfSightings?.ToString("MMMM dd, yyyy") <br>
+                                Number
+                                of Sightings: @Model.MostSightingsInDay.NumberOfSightings</dd>
                         }
                     </dl>
                 </div>

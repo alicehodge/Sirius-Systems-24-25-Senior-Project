@@ -1,0 +1,28 @@
+@model StorkDorkMain.Models.RangeSubmission
+
+<div class="card">
+    <div class="card-header">
+        <h5>Range Submission for @Model.Bird.CommonName</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Current Range</dt>
+            <dd class="col-sm-9">@(Model.Bird.Range ?? "No range information")</dd>
+
+            <dt class="col-sm-3">Submitted Range</dt>
+            <dd class="col-sm-9">@Model.RangeDescription</dd>
+
+            <dt class="col-sm-3">Submission Notes</dt>
+            <dd class="col-sm-9">@Model.SubmissionNotes</dd>
+        </dl>
+
+        @if (Model.Status == "Pending")
+        {
+            <input type="hidden" id="current-content-id" value="@Model.Id" />
+            <div class="mt-3">
+                <button class="btn btn-success" onclick="showApprovalModal(@Model.Id)">Approve</button>
+                <button class="btn btn-danger" onclick="showRejectionModal(@Model.Id)">Reject</button>
+            </div>
+        }
+    </div>
+</div>
