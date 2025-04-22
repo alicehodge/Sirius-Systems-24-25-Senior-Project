@@ -2,15 +2,15 @@
 Feature: Checklist Management
 
 Scenario: Verify checklist display
-    Given I am logged in
-    When I navigate to the Checklist page
+    Given I log in as "mcaldwell@a.com" with password "Mcaldwell_01"
+    When I navigate to "Checklists"
     Then I should see either "No checklists found. Create one?" or existing checklist data
 
 
 @checklist
 Scenario: Create a new checklist with selected birds
-    Given I am logged in
-    When I navigate to the Checklist page
+    Given I log in as "mcaldwell@a.com" with password "Mcaldwell_01"
+    When I navigate to "Checklists"
     And I click "Create New Checklist"
     And I enter "Spring Migration 2024" as the checklist name
     And I search for and select the following birds:
