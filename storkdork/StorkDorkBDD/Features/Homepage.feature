@@ -1,5 +1,5 @@
 Feature: Home page content
 
   Scenario: Home page shows welcome text
-    Given I open the home page
-    Then I should see homepage text "Welcome to StorkDork"
+    Given I navigate to Home
+    Then I should see text "Welcome to StorkDork"
