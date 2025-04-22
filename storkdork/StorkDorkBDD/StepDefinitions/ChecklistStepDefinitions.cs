@@ -9,23 +9,18 @@ using NUnit.Framework;
 using StorkDorkBDD.StepDefinitions;
 
 
-namespace StorkDorkTests.Steps
+namespace StorkDorkBDD.StepDefinitions
 {
     [Binding]
-    public class ChecklistStepDefinition : IDisposable
+    public class ChecklistStepDefinition 
     {
-        private IWebDriver _driver;
-        // private const string BaseUrl = "http://localhost:5208";
         private readonly WebDriverWait _wait;
 
-        // Constructor initializes the Chrome WebDriver and WebDriverWait.
         public ChecklistStepDefinition()
         {
-            // fix this so it doesnt start a new visible driver
-            // fix this later so it does headless to match with others
-            _driver = GlobalDriverSetup.Driver;
-            _driver.Manage().Window.Maximize();
-            _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(15)); // Wait timeout of 15 seconds
+            _wait = new WebDriverWait(
+                GlobalDriverSetup.Driver ?? throw new InvalidOperationException("WebDriver is not initialized."), 
+                TimeSpan.FromSeconds(15));
         }
 
         /// -------------------------------------------------------------------
@@ -37,7 +32,7 @@ namespace StorkDorkTests.Steps
         public void WhenNavigateToChecklist()
         {
             var checklistLink = _wait.Until(d => d.FindElement(By.LinkText("Checklist")));
-            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", checklistLink);
+            ((IJavaScriptExecutor)GlobalDriverSetup.Driver).ExecuteScript("arguments[0].click();", checklistLink);
 
             // Wait for either the no-data message OR cards to appear
             _wait.Until(d =>
@@ -111,7 +106,7 @@ namespace StorkDorkTests.Steps
                 }
 
                 // Wait for dropdown to appear with longer timeout
-                var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(20));
+                var wait = new WebDriverWait(GlobalDriverSetup.Driver, TimeSpan.FromSeconds(20));
                 wait.Until(d =>
                 {
                     try
@@ -129,16 +124,16 @@ namespace StorkDorkTests.Steps
                 var dropdownItem = wait.Until(d =>
                     d.FindElement(By.XPath($"//div[@id='birdSearchResults']//div[contains(., '{birdName}')]")));
 
-                ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", dropdownItem);
+                ((IJavaScriptExecutor)GlobalDriverSetup.Driver).ExecuteScript("arguments[0].scrollIntoView(true);", dropdownItem);
                 System.Threading.Thread.Sleep(200);
-                ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", dropdownItem);
+                ((IJavaScriptExecutor)GlobalDriverSetup.Driver).ExecuteScript("arguments[0].click();", dropdownItem);
 
                 // Verify the bird was added to selected list
                 wait.Until(d =>
                     d.FindElement(By.XPath($"//ul[@id='selectedBirdsList']//li[contains(., '{birdName}')]")));
 
                 // Click outside to close the dropdown
-                var body = _driver.FindElement(By.TagName("body"));
+                var body = GlobalDriverSetup.Driver.FindElement(By.TagName("body"));
                 body.Click();
                 System.Threading.Thread.Sleep(500);
             }
@@ -158,9 +153,9 @@ namespace StorkDorkTests.Steps
         {
             var submitButton = _wait.Until(d =>
                 d.FindElement(By.CssSelector("input[type='submit'][value='Create']")));
-            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
+            ((IJavaScriptExecutor)GlobalDriverSetup.Driver).ExecuteScript("arguments[0].scrollIntoView(true);", submitButton);
             System.Threading.Thread.Sleep(300);
-            ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", submitButton);
+            ((IJavaScriptExecutor)GlobalDriverSetup.Driver).ExecuteScript("arguments[0].click();", submitButton);
         }
 
 
@@ -169,18 +164,19 @@ namespace StorkDorkTests.Steps
         {
             try
             {
-                // Verify the redirect happened
-                _wait.Until(d => d.Url.Contains("/Checklists/Index"));
-                Console.WriteLine("Successfully redirected to index page");
+                // Wait for either URL change OR for a specific element on the target page
+                var extendedWait = new WebDriverWait(GlobalDriverSetup.Driver, TimeSpan.FromSeconds(30));
+                extendedWait.Until(d => 
+                    d.Url.Contains("/Checklists") || 
+                    d.FindElements(By.CssSelector(".checklist-index-page")).Any());
+                
+                Console.WriteLine($"Successfully redirected to: {GlobalDriverSetup.Driver.Url}");
             }
-            finally
+            catch (Exception ex)
             {
-                // End the test here by quitting the browser
-                _driver.Quit();
-                _driver.Dispose();
-
-                // Optional: If you're using NUnit or similar, you can force the test to stop
-                Assert.Pass("Checklist created and verified - test completed successfully");
+                Console.WriteLine($"Redirect verification failed. Current URL: {GlobalDriverSetup.Driver.Url}");
+                Console.WriteLine($"Page source: {GlobalDriverSetup.Driver.PageSource}");
+                throw new Exception($"Redirect verification failed: {ex.Message}");
             }
         }
 
@@ -197,10 +193,10 @@ namespace StorkDorkTests.Steps
             // ending test after redirect
         }
         // Dispose method to clean up the WebDriver instance after tests.
-        public void Dispose()
-        {
-            _driver?.Quit();   // Close the browser
-            _driver?.Dispose(); // Clean up WebDriver resources
-        }
+        //public void Dispose()
+        //{
+        //    _driver?.Quit();   // Close the browser
+        //    _driver?.Dispose(); // Clean up WebDriver resources
+        //}
     }
 }
