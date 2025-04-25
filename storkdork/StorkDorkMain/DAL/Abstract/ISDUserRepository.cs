@@ -9,4 +9,6 @@ public interface ISDUserRepository
     public Task<List<SdUser>> GetSdUsers();
 
     public Task<SdUser> GetSDUserByIdentity(ClaimsPrincipal user);
+
+    public Task UpdateAsync(SdUser user);
 }
