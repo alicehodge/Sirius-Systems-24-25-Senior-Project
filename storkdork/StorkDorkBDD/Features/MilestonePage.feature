@@ -1,7 +1,7 @@
 Feature: Milestone page content
 
   Scenario: Milestone page displays sightings made and photos contributed
-    Given I log in as "WingerHunter01@gmail.com" with password "676770Winger!"
+    Given I log in as "WingerHunter01@gmail.com" with password "Hw9152001Kuro!"
     When I navigate to "Milestone"
     Then I should see text "You've made 77 sightings so far!"
     And I should see text "You've uploaded 34 verified photos!"
