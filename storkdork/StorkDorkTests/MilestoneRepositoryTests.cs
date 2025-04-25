@@ -77,7 +77,7 @@ namespace StorkDorkMain.Tests.DAL
             var mockUser = new SdUser
             {
                 Id = 1,
-                FirstName = "Test",
+                DisplayName = "Test",
                 LastName = "User"
             };
 
@@ -114,7 +114,7 @@ namespace StorkDorkMain.Tests.DAL
             Assert.That(viewResult.Model, Is.TypeOf<MilestoneViewModel>());
 
             var model = (MilestoneViewModel)viewResult.Model;
-            Assert.That(model.FirstName, Is.EqualTo(mockUser.FirstName));
+            Assert.That(model.DisplayName, Is.EqualTo(mockUser.DisplayName));
             Assert.That(model.Milestone.SightingsMade, Is.EqualTo(mockMilestone.SightingsMade));
             Assert.That(model.Milestone.PhotosContributed, Is.EqualTo(mockMilestone.PhotosContributed));
             Assert.That(model.SightingsTier, Is.EqualTo(2));
