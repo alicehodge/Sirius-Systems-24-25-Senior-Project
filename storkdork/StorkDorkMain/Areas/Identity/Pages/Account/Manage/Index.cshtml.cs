@@ -28,6 +28,11 @@ namespace StorkDorkMain.Areas.Identity.Pages.Account.Manage
         public int PhotosContributed { get; set; }
         public string MilestoneTier { get; set; }
 
+        public string? ProfileImagePath { get; set; }
+
+        [BindProperty]
+        public IFormFile? ProfileImage { get; set; }
+
         [BindProperty]
         public InputModel Input { get; set; }
 
@@ -64,10 +69,96 @@ namespace StorkDorkMain.Areas.Identity.Pages.Account.Manage
                 // Milestone Tier based on achievements
                 int tier = _milestoneRepository.GetMilestoneTier(SightingsMade);
                 MilestoneTier = GetTierName(tier);
+                ProfileImagePath = sdUser?.ProfileImagePath;
             }
 
             return Page();
         }
+
+        public async Task<IActionResult> OnPostUploadImageAsync()
+        {
+            if (ProfileImage == null || ProfileImage.Length == 0)
+            {
+                ModelState.AddModelError(string.Empty, "Please select an image file.");
+                return await OnGetAsync();
+            }
+
+            if (ProfileImage.Length > 2 * 1024 * 1024) // 2MB max
+            {
+                ModelState.AddModelError(string.Empty, "File size exceeds 2MB limit.");
+                return await OnGetAsync();
+            }
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+            var extension = Path.GetExtension(ProfileImage.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid file format. Only JPG, JPEG, and PNG are allowed.");
+                return await OnGetAsync();
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+
+            if (sdUser == null)
+            {
+                return NotFound("User profile not found.");
+            }
+
+            // Delete old file if exists
+            if (!string.IsNullOrEmpty(sdUser.ProfileImagePath))
+            {
+                var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", sdUser.ProfileImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(oldPath))
+                {
+                    System.IO.File.Delete(oldPath);
+                }
+            }
+
+            // Save new file
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine("wwwroot/images/profiles", fileName);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+
+            using (var stream = System.IO.File.Create(filePath))
+            {
+                await ProfileImage.CopyToAsync(stream);
+            }
+
+            // Save path in DB
+            sdUser.ProfileImagePath = $"/images/profiles/{fileName}";
+            await _sdUserRepository.UpdateAsync(sdUser);
+
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostRemoveImageAsync()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+
+            if (sdUser == null)
+            {
+                return NotFound("User profile not found.");
+            }
+
+            if (!string.IsNullOrEmpty(sdUser.ProfileImagePath))
+            {
+                var oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", sdUser.ProfileImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(oldPath))
+                {
+                    System.IO.File.Delete(oldPath);
+                }
+                sdUser.ProfileImagePath = null;
+                await _sdUserRepository.UpdateAsync(sdUser);
+            }
+
+            return RedirectToPage();
+        }
+
+
 
         private string GetTierName(int tier)
         {
