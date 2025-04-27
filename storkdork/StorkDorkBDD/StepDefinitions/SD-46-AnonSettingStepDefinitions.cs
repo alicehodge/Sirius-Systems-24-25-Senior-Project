@@ -2,8 +2,10 @@ using Microsoft.Identity.Client;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using Reqnroll;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Runtime.CompilerServices;
+using System.Linq;
 
 /* If the way that markers are displayed is changed, 
    then the steps + feature file will need updating.
@@ -87,8 +89,18 @@ public class AnonymousSettingSteps
     [Then(@"I should see my sightings and click on a sighting marker")]
     public void IShouldSeeMySightingsAndClick()
     {
-        var sightings = _driver.FindElements(By.ClassName("leaflet-marker-icon"));
-        sightings[0].Click();
+        var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(5));
+
+        var sightings = wait.Until(d => d.FindElements(By.ClassName("leaflet-marker-icon"))
+                                        .Where(e => e.Displayed && e.Enabled)
+                                        .ToList());
+
+        Console.WriteLine($"found {sightings.Count} markers");
+
+        if (sightings.Count == 0)
+            throw new Exception("No sighting markers found on the map.");
+
+        sightings[0].Click(); 
     }
 
     [Then(@"I should see on popup {string}")]

@@ -1,7 +1,7 @@
 Feature: Anonymous Birder/Settings
 
     Scenario: Settings page keeps previous choice, and birder is properly anonymous
-        Given I log in as user "privers@b.com" with password "Privers_02"
+        Given I log in as user "mcaldwell@a.com" with password "Mcaldwell_01"
         When I navigate to settings "/UserSettings/Settings"
         Then I should see the text "I want my sightings to be anonymous"
         When I confirm the checkbox
