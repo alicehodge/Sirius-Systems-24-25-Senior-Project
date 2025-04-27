@@ -1,10 +1,12 @@
-@model UserSettings;
+@using StorkDorkMain.Models;
+@model UserSettings
 
 <form id="settings-form" method="post">
-    <input type="hidden" asp-formaction="Id" />
+    <input type="hidden" asp-for="Id">
+    <input type="hidden" asp-for="SdUserId">
 
-    <input type="checkbox" asp-for="AnonymousSightings">
-    <label asp-for="AnonymousSightings" >&nbsp; I want my sightings to be anonymous</label>
+    <input type="checkbox" asp-for="AnonymousSightings" id="anonymous-birder">
+    <label asp-for="AnonymousSightings">&nbsp;I want my sightings to be anonymous</label>
 
-    <button type="submit">Save</button>
+    <button type="submit" id="settings-submit">Save</button>
 </form>
