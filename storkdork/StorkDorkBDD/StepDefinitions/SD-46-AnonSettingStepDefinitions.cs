@@ -1,8 +1,17 @@
+using Microsoft.Identity.Client;
 using NUnit.Framework;
 using OpenQA.Selenium;
 using Reqnroll;
 using System;
 using System.Runtime.CompilerServices;
+
+/* If the way that markers are displayed is changed, 
+   then the steps + feature file will need updating.
+   Likely case that the map will show all user's sightings
+   so logging in a picking the first marker may not
+   guarantee it is from the logged in user, 
+   meaning no guarantee of it being anonymous.
+   This will probably just be a reoute change now that I think about it... or not */
 
 namespace StorkDorkBDD.StepDefinitions;
 
@@ -29,8 +38,8 @@ public class AnonymousSettingSteps
         _driver.FindElement(By.Id("login-submit")).Click();
     }
 
-    [When(@"I navigate to route {string}")]
-    public void INavigateToRoute(string route)
+    [When(@"I navigate to settings {string}")]
+    public void INavigateToRouteSettings(string route)
     {
         _driver.Navigate().GoToUrl($"http://localhost:5208{route}");
     }
@@ -69,6 +78,24 @@ public class AnonymousSettingSteps
         Assert.That(checkbox.Selected);
     }
 
-    /* ----- Scenario: Sightings on the map show anonymous instead of Patricia Rivers ----- */
+    [When(@"I navigate to map {string}")]
+    public void WhenINavigateToRouteMap(string route)
+    {
+        _driver.Navigate().GoToUrl($"http://localhost:5208{route}");
+    }
+
+    [Then(@"I should see my sightings and click on a sighting marker")]
+    public void IShouldSeeMySightingsAndClick()
+    {
+        var sightings = _driver.FindElements(By.ClassName("leaflet-marker-icon"));
+        sightings[0].Click();
+    }
+
+    [Then(@"I should see on popup {string}")]
+    public void IShouldSeeOnPopUp(string spottedBy)
+    {
+        var popup = _driver.FindElement(By.ClassName("leaflet-popup-content"));
+        Assert.That(popup.Text, Does.Contain(spottedBy));
+    }
 
 }
