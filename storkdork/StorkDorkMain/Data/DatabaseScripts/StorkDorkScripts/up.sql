@@ -15,7 +15,9 @@ CREATE TABLE [SDUser] (
   [ID] int PRIMARY KEY IDENTITY(1, 1),
   [AspNetIdentityID] nvarchar(450),
   [FirstName] nvarchar(50),
-  [LastName] nvarchar(50)
+  [LastName] nvarchar(50),
+  [DisplayName] nvarchar(25),
+  [ProfileImagePath] nvarchar(100)
 );
 
 CREATE TABLE [Sighting] (

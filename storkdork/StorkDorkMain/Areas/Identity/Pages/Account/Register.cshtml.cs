@@ -100,7 +100,7 @@ namespace StorkDork.Areas.Identity.Pages.Account
             /// </summary>
             [Required]
             [StringLength(50)]
-            [Display(Name = "FirstName")]
+            [Display(Name = "LastName")]
             public string LastName { get; set; }
 
             /// <summary>
@@ -154,7 +154,8 @@ namespace StorkDork.Areas.Identity.Pages.Account
                         {
                             AspNetIdentityId = user.Id, // Associate with the Identity user
                             FirstName = Input.FirstName,
-                            LastName = Input.LastName
+                            LastName = Input.LastName,
+                            DisplayName = Input.FirstName
                         };
 
                         _context.SdUsers.Add(sdUser);
