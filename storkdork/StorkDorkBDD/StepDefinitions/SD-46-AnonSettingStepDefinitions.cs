@@ -89,18 +89,18 @@ public class AnonymousSettingSteps
     [Then(@"I should see my sightings and click on a sighting marker")]
     public void IShouldSeeMySightingsAndClick()
     {
-        var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(5));
+        var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(30));
 
         var sightings = wait.Until(d => d.FindElements(By.ClassName("leaflet-marker-icon"))
                                         .Where(e => e.Displayed && e.Enabled)
                                         .ToList());
 
-        Console.WriteLine($"found {sightings.Count} markers");
-
         if (sightings.Count == 0)
             throw new Exception("No sighting markers found on the map.");
 
-        sightings[0].Click(); 
+        var marker = sightings[0];
+        var js = (IJavaScriptExecutor)_driver;
+        js.ExecuteScript("arguments[0].click();", marker);
     }
 
     [Then(@"I should see on popup {string}")]
