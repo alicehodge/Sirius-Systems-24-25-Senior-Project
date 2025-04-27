@@ -8,5 +8,5 @@ public class UserSettings
     public int SdUserId {get;set;}
     public bool AnonymousSightings {get;set;}
 
-    public virtual SdUser SdUser {get;set;} = null;
+    public virtual SdUser? SdUser {get;set;}
 }
