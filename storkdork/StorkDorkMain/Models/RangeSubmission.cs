@@ -15,6 +15,6 @@ namespace StorkDorkMain.Models
         public string RangeDescription { get; set; }
 
         [MaxLength(500, ErrorMessage = "Notes cannot exceed 500 characters")]
-        public string SubmissionNotes { get; set; }
+        public string? SubmissionNotes { get; set; }
     }
 }

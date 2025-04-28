@@ -1,0 +1,92 @@
+@model IEnumerable<ModeratedContent>
+@{
+    ViewData["Title"] = "My Submissions";
+}
+
+<div class="container mt-4">
+    <h2>My Content Submissions</h2>
+
+    <div class="row mb-3">
+        <div class="col">
+            <div class="btn-group filter-buttons">
+                <button class="btn btn-outline-primary active" data-filter="all">All</button>
+                <button class="btn btn-outline-warning" data-filter="Pending">Pending</button>
+                <button class="btn btn-outline-success" data-filter="Approved">Approved</button>
+                <button class="btn btn-outline-danger" data-filter="Rejected">Rejected</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Moderated By</th>
+                    <th>Moderator Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var submission in Model)
+                {
+                    <tr class="submission-row" data-status="@submission.Status">
+                        <td>@submission.ContentType</td>
+                        <td>@submission.SubmittedDate.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</td>
+                        <td>
+                            @switch (submission.Status)
+                            {
+                                case "Pending":
+                                    <span class="badge bg-warning">Pending</span>
+                                    break;
+                                case "Approved":
+                                    <span class="badge bg-success">Approved</span>
+                                    break;
+                                case "Rejected":
+                                    <span class="badge bg-danger">Rejected</span>
+                                    break;
+                            }
+                        </td>
+                        <td>@(submission.Moderator?.FirstName ?? "-")</td>
+                        <td>@(submission.ModeratorNotes ?? "-")</td>
+                        <td>
+                            <a asp-action="SubmissionDetails" 
+                               asp-route-id="@submission.Id" 
+                               class="btn btn-sm btn-outline-primary">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterButtons = document.querySelectorAll('.filter-buttons button');
+            const submissionRows = document.querySelectorAll('.submission-row');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const filter = this.dataset.filter;
+                    
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+
+                    submissionRows.forEach(row => {
+                        if (filter === 'all' || row.dataset.status === filter) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

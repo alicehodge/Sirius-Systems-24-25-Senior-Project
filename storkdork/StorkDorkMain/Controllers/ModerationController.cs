@@ -68,10 +68,15 @@ namespace StorkDorkMain.Controllers
             if (content is RangeSubmission)
             {
                 success = await _moderationService.ApproveRangeSubmission(id, User, notes);
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Range information has been approved successfully";
+                }
             }
             else
             {
                 success = await _moderationService.ApproveContentAsync(id, User, notes);
+                TempData["SuccessMessage"] = "Content has been approved successfully";
             }
 
             if (success)

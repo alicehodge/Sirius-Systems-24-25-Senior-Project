@@ -1,12 +1,12 @@
-function showApprovalModal(contentId) {
-    $('#approvalModal').modal('show');
-    $('#submit-approval').data('content-id', contentId);
-}
+// function showApprovalModal(contentId) {
+//     $('#approvalModal').modal('show');
+//     $('#submit-approval').data('content-id', contentId);
+// }
 
-function showRejectionModal(contentId) {
-    $('#rejectionModal').modal('show');
-    $('#submit-rejection').data('content-id', contentId);
-}
+// function showRejectionModal(contentId) {
+//     $('#rejectionModal').modal('show');
+//     $('#submit-rejection').data('content-id', contentId);
+// }
 
 $(document).ready(function() {
     // Get the antiforgery token
@@ -52,14 +52,6 @@ $(document).ready(function() {
 
     function handleModeration(action) {
         const contentId = $('#current-content-id').val();
-        const notes = action === 'approve' ? 
-            $('#moderator-notes').val() :
-            $('#rejection-reason').val();
-        
-        if (!notes) {
-            alert(`Please enter ${action === 'approve' ? 'moderator notes' : 'rejection reason'}`);
-            return;
-        }
 
         $.ajax({
             url: `/Moderation/${action === 'approve' ? 'ApproveContent' : 'RejectContent'}`,
@@ -83,10 +75,6 @@ $(document).ready(function() {
     }
 
     function resetForm(action) {
-        if (action === 'approve') {
-            $('#moderator-notes').val('');
-        } else {
-            $('#rejection-reason').val('');
-        }
+        $('#notes').val('');
     }
 });
