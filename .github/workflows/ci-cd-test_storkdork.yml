@@ -9,7 +9,7 @@ env:
 on:
   push:
     branches:
-      - ci-cd-test
+      - main
   workflow_dispatch:
 
 jobs:
