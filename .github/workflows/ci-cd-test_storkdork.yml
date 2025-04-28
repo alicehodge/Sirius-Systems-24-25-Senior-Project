@@ -4,8 +4,8 @@
 name: Build and deploy ASP.Net Core app to Azure Web App - storkdork
 
 env:
-  AZURE_WEBAPP_PACKAGE_PATH: './StorkDorkMain'
-
+  AZURE_WEBAPP_PACKAGE_PATH: 'StorkDorkMain' # Path to the project file or folder to publish
+  DOTNET_VERSION: '8.0' # Version of .NET Core to use
 on:
   push:
     branches:
@@ -24,13 +24,13 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '3.1'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/StorkDorkMain.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/StorkDorkMain.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -68,4 +68,3 @@ jobs:
           app-name: 'storkdork'
           slot-name: 'Production'
           package: .
-          
