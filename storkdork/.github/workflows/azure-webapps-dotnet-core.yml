@@ -7,9 +7,10 @@
 name: Build and deploy ASP.Net Core app to an Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: storkdork   
+  AZURE_WEBAPP_NAME: storkdork
   AZURE_WEBAPP_PACKAGE_PATH: './StorkDorkMain'
   DOTNET_VERSION: '8.0'
+
 on:
   push:
     branches: [ "ci-cd-test" ]
@@ -55,9 +56,6 @@ jobs:
       contents: none
     runs-on: ubuntu-latest
     needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
       - name: Download artifact from build job
