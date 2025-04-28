@@ -4,7 +4,7 @@
 name: Build and deploy ASP.Net Core app to Azure Web App - storkdork
 
 env:
-  AZURE_WEBAPP_PACKAGE_PATH: 'StorkDorkMain' # Path to the project file or folder to publish
+  AZURE_WEBAPP_PACKAGE_PATH: 'storkdork/StorkDorkMain'
   DOTNET_VERSION: '8.0' # Version of .NET Core to use
 on:
   push:
