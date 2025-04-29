@@ -11,6 +11,10 @@ ALTER TABLE [Sighting] DROP CONSTRAINT FK_Sighting_SDUser;
 
 ALTER TABLE [Milestone] DROP CONSTRAINT FK_Milestone_SDUser;
 
+-- Drop foreign keys for notifications
+ALTER TABLE [Notification] DROP CONSTRAINT [FK_Notification_SDUser];
+ALTER TABLE [Notification] DROP CONSTRAINT [CK_Notification_Type];
+
 -- Drop foreign keys for moderation tables
 ALTER TABLE [ModeratedContent] DROP CONSTRAINT [FK_ModeratedContent_Bird];
 ALTER TABLE [ModeratedContent] DROP CONSTRAINT [FK_ModeratedContent_Submitter];
@@ -39,6 +43,6 @@ DROP TABLE [Milestone];
 
 DROP TABLE [UserSettings];
 
--- Drop moderation tables
-DROP TABLE [RangeSubmission];
 DROP TABLE [ModeratedContent];
+
+DROP TABLE [Notification];

@@ -30,6 +30,8 @@ public partial class StorkDorkContext : DbContext
     
     public DbSet<ModeratedContent> ModeratedContent { get; set; }
 
+    public DbSet<Notification> Notifications { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Name=ConnectionStrings:StorkDorkDB");
 
@@ -183,6 +185,15 @@ public partial class StorkDorkContext : DbContext
             entity.Property(e => e.SubmissionNotes)
                 .IsRequired(false)
                 .HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.ToTable("Notification");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Message).IsRequired();
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.IsRead).HasDefaultValue(false);
         });
 
         OnModelCreatingPartial(modelBuilder);

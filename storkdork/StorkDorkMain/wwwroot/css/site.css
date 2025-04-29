@@ -22,3 +22,37 @@ body {
 }
 
 #map { height: 40lh; }
+
+/* Style the notification button and bell icon */
+#notificationsDropdown {
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.nav-item .bi-bell {
+    font-size: 1.2rem;
+    color: #212529;
+    position: relative;
+}
+
+/* Position the badge relative to the bell icon */
+.notification-badge {
+    font-size: 0.75rem;
+    transform: translate(40%, -50%);
+    position: absolute;
+    padding: 0.25rem 0.5rem;
+    min-width: 1rem;
+    height: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Remove Bootstrap's default positioning for this case */
+.position-absolute.top-0.start-100 {
+    top: 2px !important;
+    right: -25px !important;
+    left: auto !important;
+}
