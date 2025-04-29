@@ -37,11 +37,12 @@ namespace StorkDorkMain.Controllers
             try
             {
                 await _notificationService.ToggleReadStatusAsync(id);
-                return Json(new { success = true });
+                return new JsonResult(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Json(new { success = false });
+                _logger.LogError(ex, "Error toggling notification read status");
+                return new JsonResult(new { success = false, message = "Failed to toggle notification status" });
             }
         }
 
