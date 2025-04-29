@@ -30,7 +30,7 @@ public class MapApiController : ControllerBase
     // Expectations: returns a list of sightings to javascript
     [HttpGet]
     [Route("GetSightings")]
-    public async Task<IActionResult> GetSightings()
+    public async Task<IActionResult> GetAllSightings()
     {
         try
         {

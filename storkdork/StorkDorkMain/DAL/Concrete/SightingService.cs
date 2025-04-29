@@ -32,6 +32,7 @@ public class SightingService : ISightingService
             .Select(s => new SightMarker
             {
                 SightingId = s.Id,
+                userId = s.SdUserId,
                 CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
                 Longitude = s.Longitude,
@@ -54,6 +55,7 @@ public class SightingService : ISightingService
             .Select(s => new SightMarker
             {
                 SightingId = s.Id,
+                userId = s.SdUserId,
                 CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
                 Longitude = s.Longitude,
