@@ -7,6 +7,7 @@ using StorkDorkMain.DAL.Abstract;
 using NuGet.Protocol;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using OpenQA.Selenium.Internal;
 
 namespace StorkDorkMain.Controllers;
 
@@ -52,6 +53,12 @@ public class UserController : ControllerBase
         }
 
         return BadRequest(result.Errors);
+    }
+
+    [HttpGet("is-user-logged-in")]
+    public bool isUserLoggedIn()
+    {
+        return User?.Identity?.IsAuthenticated ?? false;
     }
 
     // Gets the sdUser for use in javascript

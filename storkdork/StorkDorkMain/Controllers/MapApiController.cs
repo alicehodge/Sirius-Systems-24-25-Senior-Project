@@ -30,7 +30,7 @@ public class MapApiController : ControllerBase
     // Expectations: returns a list of sightings to javascript
     [HttpGet]
     [Route("GetSightings")]
-    public async Task<IActionResult> GetSightings()
+    public async Task<IActionResult> GetAllSightings()
     {
         try
         {
@@ -62,6 +62,15 @@ public class MapApiController : ControllerBase
         {
             return StatusCode(500, $"Internal Server Error: {ex.Message}");
         }
+    }
+
+    [HttpGet]
+    [Route("GetOtherSightings/{userId}")]
+    public async Task<IActionResult> GetOtherSightings(int userId)
+    {
+        var allsightings = await _sightingService.GetSightingsAsync();
+        var otherSightings = allsightings.Where(s => s.userId != userId);
+        return Ok(otherSightings);
     }
 
     [HttpGet]

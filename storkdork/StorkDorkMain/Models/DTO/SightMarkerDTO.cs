@@ -5,6 +5,7 @@ namespace StorkDorkMain.Models.DTO;
 public class SightMarker 
 {
     public int SightingId {get;set;}
+    public int? userId {get;set;}
     public string? CommonName {get;set;}
     public string? SciName {get;set;}
     public decimal? Longitude {get;set;}
