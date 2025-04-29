@@ -12,5 +12,10 @@ namespace StorkDorkMain.DAL.Abstract
             string? categoryFilter = null,
             int page = 1, 
             int pageSize = 10);
+
+        IEnumerable<string> GetAllOrders();
+        IEnumerable<(string ScientificName, string CommonName)> GetAllFamilies();
+        Task<IEnumerable<Bird>> GetBirdsByOrder(string order);
+        Task<IEnumerable<Bird>> GetBirdsByFamily(string familyScientificName);
     }
 }

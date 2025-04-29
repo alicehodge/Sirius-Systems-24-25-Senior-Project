@@ -1,0 +1,60 @@
+@model TaxonomyListViewModel
+
+<div class="container mt-4">
+    <h1>@Model.Title</h1>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    Found @Model.Birds.Count() birds
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                        Sort by
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item @(Model.CurrentSort == "name" ? "active" : "")" 
+                               href="@Url.Action(ViewContext.RouteData.Values["action"].ToString(), 
+                                               new { taxonomicGroup = Model.TaxonomicGroup, sortOrder = "name" })">
+                                Common Name (A-Z)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item @(Model.CurrentSort == "name_desc" ? "active" : "")" 
+                               href="@Url.Action(ViewContext.RouteData.Values["action"].ToString(), 
+                                               new { taxonomicGroup = Model.TaxonomicGroup, sortOrder = "name_desc" })">
+                                Common Name (Z-A)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item @(Model.CurrentSort == "scientific" ? "active" : "")" 
+                               href="@Url.Action(ViewContext.RouteData.Values["action"].ToString(), 
+                                               new { taxonomicGroup = Model.TaxonomicGroup, sortOrder = "scientific" })">
+                                Scientific Name (A-Z)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                @foreach (var bird in Model.Birds)
+                {
+                    <a href="@Url.Action("Details", "Bird", new { id = bird.Id })" 
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>@bird.CommonName</strong>
+                                <br />
+                                <small class="text-muted">@bird.ScientificName</small>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -93,5 +93,63 @@ namespace StorkDorkMain.DAL.Concrete
 
             return (paginatedBirds, totalCount);
         }
+
+        private static IEnumerable<string>? _cachedOrders;
+        private static IEnumerable<(string ScientificName, string CommonName)>? _cachedFamilies;
+        private static readonly object _cacheLock = new object();
+
+        public IEnumerable<string> GetAllOrders()
+        {
+            if (_cachedOrders == null)
+            {
+                lock (_cacheLock)
+                {
+                    if (_cachedOrders == null)
+                    {
+                        _cachedOrders = _birds
+                            .Where(b => b.Order != null)
+                            .Select(b => b.Order ?? string.Empty)
+                            .Distinct()
+                            .OrderBy(o => o)
+                            .ToList();
+                    }
+                }
+            }
+            return _cachedOrders;
+        }
+
+        public IEnumerable<(string ScientificName, string CommonName)> GetAllFamilies()
+        {
+            return _birds
+                .Select(b => new { b.FamilyScientificName, b.FamilyCommonName })
+                .Distinct()
+                .OrderBy(f => f.FamilyCommonName)
+                .AsEnumerable()
+                .Select(f => (ScientificName: f.FamilyScientificName ?? string.Empty, 
+                            CommonName: f.FamilyCommonName ?? string.Empty))
+                .ToList();
+        }
+
+        public async Task<IEnumerable<Bird>> GetBirdsByOrder(string order)
+        {
+            if (string.IsNullOrEmpty(order))
+                return Enumerable.Empty<Bird>();
+
+            return await _birds
+                .Where(b => b.Order.ToLower() == order.ToLower())
+                .OrderBy(b => b.CommonName)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Bird>> GetBirdsByFamily(string familyScientificName)
+        {
+            if (string.IsNullOrEmpty(familyScientificName))
+                return Enumerable.Empty<Bird>();
+
+            return await _birds
+                .Where(b => b.FamilyScientificName.ToLower() == familyScientificName.ToLower())
+                .OrderBy(b => b.CommonName)
+                .ToListAsync();
+        }
     }
 }
