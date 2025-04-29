@@ -73,6 +73,16 @@ CREATE TABLE [UserSettings] (
   [AnonymousSightings] bit NOT NULL DEFAULT 0,
 );
 
+CREATE TABLE [Notification] (
+    [ID] int PRIMARY KEY IDENTITY(1,1),
+    [UserId] int NOT NULL,
+    [Message] nvarchar(500) NOT NULL,
+    [Type] nvarchar(20) NOT NULL,
+    [IsRead] bit NOT NULL DEFAULT 0,
+    [CreatedAt] datetime2 NOT NULL,
+    [RelatedUrl] nvarchar(200) NULL
+);
+
 ALTER TABLE [Sighting] ADD CONSTRAINT [FK_Sighting_SDUser] 
     FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
 
@@ -105,4 +115,10 @@ ALTER TABLE [ModeratedContent] ADD CONSTRAINT [FK_ModeratedContent_Bird]
 
 ALTER TABLE [ModeratedContent] ADD CONSTRAINT [CK_ModeratedContent_Status]
     CHECK ([Status] IN ('Pending', 'Approved', 'Rejected'));
+
+ALTER TABLE [Notification] ADD CONSTRAINT [FK_Notification_SDUser]
+    FOREIGN KEY ([UserId]) REFERENCES [SDUser] ([ID]) ON DELETE CASCADE;
+
+ALTER TABLE [Notification] ADD CONSTRAINT [CK_Notification_Type]
+    CHECK ([Type] IN ('Success', 'Warning', 'Info'));
 

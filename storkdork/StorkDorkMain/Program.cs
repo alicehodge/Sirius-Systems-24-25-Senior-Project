@@ -96,6 +96,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
         builder.Services.AddScoped<IModerationService, ModerationService>();
         builder.Services.AddScoped<IModeratedContentRepository, ModeratedContentRepository>();
         builder.Services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
+        builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddSwaggerGen();
 
