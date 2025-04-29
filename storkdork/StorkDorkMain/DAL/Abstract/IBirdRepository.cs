@@ -15,7 +15,7 @@ namespace StorkDorkMain.DAL.Abstract
 
         IEnumerable<string> GetAllOrders();
         IEnumerable<(string ScientificName, string CommonName)> GetAllFamilies();
-        Task<IEnumerable<Bird>> GetBirdsByOrder(string order);
-        Task<IEnumerable<Bird>> GetBirdsByFamily(string familyScientificName);
+        Task<IEnumerable<Bird>> GetBirdsByOrder(string order, string sortOrder = "name");
+        Task<IEnumerable<Bird>> GetBirdsByFamily(string familyScientificName, string sortOrder = "name");
     }
 }
