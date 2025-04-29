@@ -43,12 +43,7 @@ else
                         <td>@(content.Moderator?.FirstName ?? "-")</td>
                         <td>@(content.ModeratedDate?.ToShortDateString() ?? "-")</td>
                         <td>
-                            <a asp-action="Details" asp-route-id="@content.Id" class="btn btn-sm btn-primary">Details</a>
-                            @if (content.Status == "Pending")
-                            {
-                                <button class="btn btn-sm btn-success" onclick="showApprovalModal(@content.Id)">Approve</button>
-                                <button class="btn btn-sm btn-danger" onclick="showRejectionModal(@content.Id)">Reject</button>
-                            }
+                            <a asp-action="Details" asp-route-id="@content.Id" class="btn btn-sm btn-outline-primary">View Details</a>
                         </td>
                     </tr>
                 }

@@ -75,9 +75,18 @@ namespace StorkDork.Controllers
             {
                 _logger.LogInformation($"Processing range submission for BirdId: {viewModel.BirdId}");
 
+                // Check authentication first
+                var submitter = await _sdUserRepository.GetSDUserByIdentity(User);
+                if (submitter == null)
+                {
+                    _logger.LogWarning("Unauthorized access attempt - no valid user found");
+                    return new UnauthorizedResult();
+                }
+
+                ModelState.Remove("SubmissionNotes");
+
                 if (!ModelState.IsValid)
                 {
-                    // Log validation errors
                     foreach (var state in ModelState)
                     {
                         foreach (var error in state.Value.Errors)
@@ -85,7 +94,6 @@ namespace StorkDork.Controllers
                             _logger.LogWarning($"ModelState error for {state.Key}: {error.ErrorMessage}");
                         }
                     }
-                    
                     return await ReloadDetailsView(viewModel.BirdId, "Please check the form values.");
                 }
 
@@ -93,13 +101,6 @@ namespace StorkDork.Controllers
                 if (existingBird == null)
                 {
                     return NotFound($"Bird with ID {viewModel.BirdId} not found");
-                }
-
-                var submitter = await _sdUserRepository.GetSDUserByIdentity(User);
-                if (submitter == null)
-                {
-                    _logger.LogError("Failed to retrieve SdUser for the current user");
-                    return await ReloadDetailsView(viewModel.BirdId, "User account error. Please try again later.");
                 }
 
                 // Create moderated content from view model
@@ -121,7 +122,7 @@ namespace StorkDork.Controllers
                     _moderatedContentRepository.AddOrUpdate(submission);
                     await _moderatedContentRepository.SaveChangesAsync();
 
-                    TempData["Message"] = "Your range information has been submitted for review.";
+                    TempData["SuccessMessage"] = "Your range information has been submitted for review. Thank you for contributing!";
                     return RedirectToAction(nameof(Details), new { id = viewModel.BirdId });
                 }
                 catch (Exception ex)
