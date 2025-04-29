@@ -93,5 +93,94 @@ namespace StorkDorkMain.DAL.Concrete
 
             return (paginatedBirds, totalCount);
         }
+
+        private static IEnumerable<string>? _cachedOrders;
+
+        private static IEnumerable<(string ScientificName, string CommonName)>? _cachedFamilies;
+        private static readonly object _cacheLock = new object();
+
+        public IEnumerable<string> GetAllOrders()
+        {
+            if (_cachedOrders == null)
+            {
+                lock (_cacheLock)
+                {
+                    if (_cachedOrders == null)
+                    {
+                        _cachedOrders = _birds
+                            .Where(b => b.Order != null)
+                            .Select(b => b.Order ?? string.Empty)
+                            .Distinct()
+                            .OrderBy(o => o)
+                            .ToList();
+                    }
+                }
+            }
+            return _cachedOrders;
+        }
+
+        public IEnumerable<(string ScientificName, string CommonName)> GetAllFamilies()
+        {
+            if (_cachedFamilies == null)
+            {
+                lock (_cacheLock)
+                {
+                    if (_cachedFamilies == null)
+                    {
+                        _cachedFamilies = _birds
+                            .Select(b => new { b.FamilyScientificName, b.FamilyCommonName })
+                            .Distinct()
+                            .OrderBy(f => f.FamilyCommonName)
+                            .AsEnumerable()
+                            .Select(f => (ScientificName: f.FamilyScientificName ?? string.Empty, 
+                                        CommonName: f.FamilyCommonName ?? string.Empty))
+                            .ToList();
+                    }
+                }
+            }
+            return _cachedFamilies;
+        }
+
+        public async Task<IEnumerable<Bird>> GetBirdsByOrder(string order, string sortOrder = "name")
+        {
+            if (string.IsNullOrEmpty(order))
+                return Enumerable.Empty<Bird>();
+
+            var query = _birds.Where(b => b.Order.ToLower() == order.ToLower());
+            
+            query = sortOrder switch
+            {
+                "name" => query.OrderBy(b => b.CommonName),
+                "name_desc" => query.OrderByDescending(b => b.CommonName),
+                "scientific" => query.OrderBy(b => b.ScientificName),
+                "scientific_desc" => query.OrderByDescending(b => b.ScientificName),
+                _ => query.OrderBy(b => b.CommonName)
+            };
+            
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Bird>> GetBirdsByFamily(string familyScientificName, string sortOrder)
+        {
+            if (string.IsNullOrEmpty(familyScientificName))
+                return Enumerable.Empty<Bird>();
+
+            var query = _birds.Where(b => b.FamilyScientificName.ToLower() == familyScientificName.ToLower());
+            
+            query = ApplySort(query, sortOrder);
+            
+            return await query.ToListAsync();
+        }
+
+        private IQueryable<Bird> ApplySort(IQueryable<Bird> query, string sortOrder)
+        {
+            return sortOrder switch
+            {
+                "name_desc" => query.OrderByDescending(b => b.CommonName),
+                "scientific" => query.OrderBy(b => b.ScientificName),
+                "scientific_desc" => query.OrderByDescending(b => b.ScientificName),
+                _ => query.OrderBy(b => b.CommonName) // default sort by name ascending
+            };
+        }
     }
 }

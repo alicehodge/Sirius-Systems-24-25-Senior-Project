@@ -1,0 +1,117 @@
+@model TaxonomyListViewModel
+
+<div class="container mt-4">
+    <h1>@Model.Title</h1>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Taxonomy")">Taxonomy</a></li>
+            <li class="breadcrumb-item active">@Model.TaxonomicGroup</li>
+        </ol>
+    </nav>
+
+    <div class="card mt-4" id="@(Model.Title.Contains("Order") ? "OrderCard" : "FamilyCard")">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    Found @Model.Birds.Count() birds
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                        Sort by: @(Model.CurrentSort switch {
+                            "name" => "Common Name (A-Z)",
+                            "name_desc" => "Common Name (Z-A)",
+                            "scientific" => "Scientific Name",
+                            "scientific_desc" => "Scientific Name (Z-A)",
+                            _ => "Common Name (A-Z)"
+                        })
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item @(Model.CurrentSort == "name" ? "active" : "")" 
+                               href="@Url.Action(ViewContext.RouteData.Values["action"].ToString(), 
+                                               new { order = Model.TaxonomicGroup, sortOrder = "name" })">
+                                Common Name (A-Z)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item @(Model.CurrentSort == "name_desc" ? "active" : "")" 
+                               href="@Url.Action(ViewContext.RouteData.Values["action"].ToString(), 
+                                               new { order = Model.TaxonomicGroup, sortOrder = "name_desc" })">
+                                Common Name (Z-A)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item @(Model.CurrentSort == "scientific" ? "active" : "")" 
+                               href="@Url.Action(ViewContext.RouteData.Values["action"].ToString(), 
+                                               new { order = Model.TaxonomicGroup, sortOrder = "scientific" })">
+                                Scientific Name (A-Z)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item @(Model.CurrentSort == "scientific_desc" ? "active" : "")" 
+                               href="@Url.Action(ViewContext.RouteData.Values["action"].ToString(), 
+                                               new { order = Model.TaxonomicGroup, sortOrder = "scientific_desc" })">
+                                Scientific Name (Z-A)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Birds != null && Model.Birds.Any())
+            {
+                <div class="list-group">
+                    @foreach (var bird in Model.Birds)
+                    {
+                        <a href="@Url.Action("Details", "Bird", new { id = bird.Id })" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="bird-name">
+                                        <strong class="common-name">@bird.CommonName</strong>
+                                        <br />
+                                        <small class="text-muted scientific-name">@bird.ScientificName</small>
+                                    </div>
+                                    <div class="taxonomy-info">
+                                        <small class="text-muted">
+                                            <span class="bird-order">@bird.Order</span> |
+                                            <span class="bird-family">@bird.FamilyCommonName</span>
+                                        </small>
+                                    </div>
+                                </div>
+                                <i class="fas fa-chevron-right text-muted"></i>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    No birds found in this @(Model.TaxonomicGroup.Contains("Family") ? "family" : "order").
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="@Url.Action("Index", "Taxonomy")" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Taxonomy Browser
+        </a>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+        .taxonomy-info {
+            margin-top: 0.25rem;
+        }
+        .bird-name {
+            margin-bottom: 0.25rem;
+        }
+    </style>
+}

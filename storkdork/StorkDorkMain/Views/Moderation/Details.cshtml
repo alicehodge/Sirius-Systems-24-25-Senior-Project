@@ -2,9 +2,9 @@
 
 <div class="container mt-4">
     <h2>Content Moderation</h2>
-    
+
     <div class="mb-3">
-        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        <a asp-action="Index" class="btn btn-secondary">← Back to List</a>
     </div>
 
     <h2>Content Details</h2>
@@ -73,42 +73,56 @@
                 <h4>Bird Range Submission</h4>
                 <dl class="row">
                     <dt class="col-sm-2">Bird:</dt>
-                    <dd class="col-sm-10">@(rangeSubmission.Bird?.CommonName ?? $"Bird ID: {rangeSubmission.BirdId}")</dd>
+                    <dd class="col-sm-10">
+                        <a asp-controller="Bird" asp-action="Details" asp-route-id="@rangeSubmission.BirdId"
+                            class="text-decoration-none">
+                            @(rangeSubmission.Bird?.CommonName ?? $"Bird ID: {rangeSubmission.BirdId}")
+                        </a>
+                    </dd>
 
-                    <dt class="col-sm-2">Range Description:</dt>
+                    <dt class="col-sm-2">Current Range:</dt>
+                    <dd class="col-sm-10">@(rangeSubmission.Bird?.Range ?? "No range information")</dd>
+
+                    <dt class="col-sm-2">Submitted Range:</dt>
                     <dd class="col-sm-10">@rangeSubmission.RangeDescription</dd>
+
+                    <dt class="col-sm-2">Submission Notes:</dt>
+                    <dd class="col-sm-10">@rangeSubmission.SubmissionNotes</dd>
                 </dl>
+                <div>
+                    
+                </div>
             }
 
             @if (Model.Status == "Pending")
             {
                 <hr />
                 <div class="row">
-                    <div class="col-md-6">
-                        <form asp-controller="Moderation" asp-action="ApproveContent" method="post">
+                    <div class="col-12">
+                        <form asp-controller="Moderation" method="post" id="moderationForm">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.Id" />
+
                             <div class="form-group mb-3">
-                                <label for="notes">Moderator Notes</label>
-                                <textarea name="notes" id="notes" class="form-control"></textarea>
+                                <label for="notes" class="form-label">Moderator Notes</label>
+                                <textarea name="notes" id="notes" class="form-control" rows="3"
+                                placeholder="Enter any notes about your decision..."></textarea>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="notes"
+                                    data-valmsg-replace="true"></span>
                             </div>
-                            <button type="submit" class="btn btn-success">Approve</button>
-                        </form>
-                    </div>
-                    <div class="col-md-6">
-                        <form asp-controller="Moderation" asp-action="RejectContent" method="post" id="rejectForm">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" asp-for="Id" />
-                            <div class="form-group">
-                                <label for="notes" class="form-label">Rejection Reason</label>
-                                <textarea name="notes" id="notes" class="form-control" required 
-                                          data-val="true" 
-                                          data-val-required="Rejection reason is required"></textarea>
-                                <span class="text-danger field-validation-valid" 
-                                      data-valmsg-for="notes" 
-                                      data-valmsg-replace="true"></span>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success"
+                                    formaction="@Url.Action("ApproveContent", "Moderation")"
+                                    onclick="return validateNotes(false)">
+                                    Approve Content
+                                </button>
+                                <button type="submit" class="btn btn-danger"
+                                    formaction="@Url.Action("RejectContent", "Moderation")"
+                                    onclick="return validateNotes(true)">
+                                    Reject Content
+                                </button>
                             </div>
-                            <button type="submit" class="btn btn-danger mt-3">Reject Content</button>
                         </form>
                     </div>
                 </div>
@@ -120,13 +134,16 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function() {
-            $("#rejectForm").validate({
-                submitHandler: function(form) {
-                    $(form).find("button[type='submit']").prop('disabled', true);
-                    form.submit();
-                }
-            });
-        });
+        function validateNotes(isRejection) {
+            const notes = document.getElementById('notes').value.trim();
+            if (isRejection && !notes) {
+                alert('Please provide a reason for rejection');
+                return false;
+            }
+            const form = document.getElementById('moderationForm');
+            const submitButton = event.submitter;
+            submitButton.disabled = true;
+            return true;
+        }
     </script>
 }

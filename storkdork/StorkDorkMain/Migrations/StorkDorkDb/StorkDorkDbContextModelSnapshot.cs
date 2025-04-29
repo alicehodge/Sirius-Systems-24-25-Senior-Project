@@ -76,7 +76,7 @@ namespace StorkDork.Migrations.StorkDorkDb
                     b.HasKey("Id")
                         .HasName("PK__Bird__3214EC27152FA685");
 
-                    b.ToTable("Birds", (string)null);
+                    b.ToTable("Birds");
                 });
 
             modelBuilder.Entity("StorkDorkMain.Models.Checklist", b =>
@@ -98,7 +98,7 @@ namespace StorkDork.Migrations.StorkDorkDb
 
                     b.HasIndex("SdUserId");
 
-                    b.ToTable("Checklist", (string)null);
+                    b.ToTable("Checklists");
                 });
 
             modelBuilder.Entity("StorkDorkMain.Models.ChecklistItem", b =>
@@ -125,7 +125,50 @@ namespace StorkDork.Migrations.StorkDorkDb
 
                     b.HasIndex("ChecklistId");
 
-                    b.ToTable("ChecklistItems", (string)null);
+                    b.ToTable("ChecklistItems");
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RelatedUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__Notification__3214EC27D4DAB424");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("StorkDorkMain.Models.SdUser", b =>
@@ -139,10 +182,16 @@ namespace StorkDork.Migrations.StorkDorkDb
                     b.Property<string>("AspNetIdentityId")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileImagePath")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id")
@@ -162,6 +211,9 @@ namespace StorkDork.Migrations.StorkDorkDb
                     b.Property<int?>("BirdId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("Date")
                         .HasColumnType("datetime2");
 
@@ -174,8 +226,17 @@ namespace StorkDork.Migrations.StorkDorkDb
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PhotoContentType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("PhotoData")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<int?>("SdUserId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Subdivision")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id")
                         .HasName("PK__Sighting__3214EC27BEAC21ED");
@@ -184,15 +245,39 @@ namespace StorkDork.Migrations.StorkDorkDb
 
                     b.HasIndex("SdUserId");
 
-                    b.ToTable("Sightings", (string)null);
+                    b.ToTable("Sightings");
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.UserSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AnonymousSightings")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("SdUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK_UserSettings_3214EC27");
+
+                    b.HasIndex("SdUserId")
+                        .IsUnique();
+
+                    b.ToTable("UserSettings");
                 });
 
             modelBuilder.Entity("StorkDorkMain.Models.Checklist", b =>
                 {
                     b.HasOne("StorkDorkMain.Models.SdUser", "SdUser")
-                        .WithMany("Checklists")
-                        .HasForeignKey("SdUserId")
-                        .HasConstraintName("FK_Checklist_SDUser");
+                        .WithMany()
+                        .HasForeignKey("SdUserId");
 
                     b.Navigation("SdUser");
                 });
@@ -214,6 +299,18 @@ namespace StorkDork.Migrations.StorkDorkDb
                     b.Navigation("Checklist");
                 });
 
+            modelBuilder.Entity("StorkDorkMain.Models.Notification", b =>
+                {
+                    b.HasOne("StorkDorkMain.Models.SdUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Notification_SDUser");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("StorkDorkMain.Models.Sighting", b =>
                 {
                     b.HasOne("StorkDorkMain.Models.Bird", "Bird")
@@ -222,13 +319,21 @@ namespace StorkDork.Migrations.StorkDorkDb
                         .HasConstraintName("FK_Sighting_Bird");
 
                     b.HasOne("StorkDorkMain.Models.SdUser", "SdUser")
-                        .WithMany("Sightings")
-                        .HasForeignKey("SdUserId")
-                        .HasConstraintName("FK_Sighting_SDUser");
+                        .WithMany()
+                        .HasForeignKey("SdUserId");
 
                     b.Navigation("Bird");
 
                     b.Navigation("SdUser");
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.UserSettings", b =>
+                {
+                    b.HasOne("StorkDorkMain.Models.SdUser", null)
+                        .WithOne("UserSettings")
+                        .HasForeignKey("StorkDorkMain.Models.UserSettings", "SdUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("StorkDorkMain.Models.Bird", b =>
@@ -245,9 +350,7 @@ namespace StorkDork.Migrations.StorkDorkDb
 
             modelBuilder.Entity("StorkDorkMain.Models.SdUser", b =>
                 {
-                    b.Navigation("Checklists");
-
-                    b.Navigation("Sightings");
+                    b.Navigation("UserSettings");
                 });
 #pragma warning restore 612, 618
         }

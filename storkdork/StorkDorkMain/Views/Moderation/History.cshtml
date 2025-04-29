@@ -4,10 +4,10 @@
 
 <div class="row mb-3">
     <div class="col">
-        <div class="btn-group">
-            <a class="btn btn-outline-primary" href="@Url.Action("Index")">Pending Queue</a>
-            <button class="btn btn-outline-success" onclick="filterContent('Approved')">Approved</button>
-            <button class="btn btn-outline-danger" onclick="filterContent('Rejected')">Rejected</button>
+        <div class="btn-group filter-buttons">
+            <button class="btn btn-outline-primary" data-filter="Pending">Pending</button>
+            <button class="btn btn-outline-success" data-filter="Approved">Approved</button>
+            <button class="btn btn-outline-danger" data-filter="Rejected">Rejected</button>
         </div>
     </div>
 </div>
@@ -17,11 +17,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        function filterContent(status) {
-            $.get('/Moderation/FilterByStatus', { status: status }, function(data) {
-                $('#contentList').html(data);
-            });
-        }
-    </script>
+    <script src="~/js/moderation.js"></script>
 }
