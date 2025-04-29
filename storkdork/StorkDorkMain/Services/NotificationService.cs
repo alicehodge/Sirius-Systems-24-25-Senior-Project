@@ -8,7 +8,7 @@ namespace StorkDorkMain.Services
     {
         Task CreateNotificationAsync(int userId, string message, string type, string? relatedUrl = null);
         Task<List<Notification>> GetUserNotificationsAsync(int userId);
-        Task MarkAsReadAsync(int notificationId);
+        Task ToggleReadStatusAsync(int notificationId);
         Task<int> GetUnreadCountAsync(int userId);
     }
 
@@ -64,22 +64,22 @@ namespace StorkDorkMain.Services
             }
         }
 
-        public async Task MarkAsReadAsync(int notificationId)
+        public async Task ToggleReadStatusAsync(int notificationId)
         {
             try
             {
                 var notification = _notificationRepository.FindById(notificationId);
                 if (notification != null)
                 {
-                    notification.IsRead = true;
+                    notification.IsRead = !notification.IsRead;
                     _notificationRepository.AddOrUpdate(notification);
                     await _notificationRepository.SaveChangesAsync();
-                    _logger.LogInformation($"Marked notification {notificationId} as read");
+                    _logger.LogInformation($"Toggled read status for notification {notificationId}");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error marking notification {notificationId} as read");
+                _logger.LogError(ex, $"Error toggling read status for notification {notificationId}");
                 throw;
             }
         }

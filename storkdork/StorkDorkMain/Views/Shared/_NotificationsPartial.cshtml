@@ -1,11 +1,12 @@
 @model List<Notification>
 
 <div class="dropdown">
+    @Html.AntiForgeryToken()
     <button class="btn btn-link nav-link dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="bi bi-bell"></i>
         @if (ViewBag.UnreadCount > 0)
         {
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
                 @ViewBag.UnreadCount
             </span>
         }
@@ -16,24 +17,21 @@
         {
             <div class="dropdown-item text-muted">No notifications</div>
         }
-        else
+        @foreach (var notification in Model)
         {
-            foreach (var notification in Model)
-            {
-                <a class="dropdown-item @(!notification.IsRead ? "fw-bold" : "")" 
-                   href="@notification.RelatedUrl"
-                   data-notification-id="@notification.Id">
-                    <div class="d-flex align-items-center">
-                        <i class="bi @(notification.Type == "Success" ? "bi-check-circle text-success" : 
-                                      notification.Type == "Warning" ? "bi-exclamation-circle text-warning" : 
-                                      "bi-info-circle text-info") me-2"></i>
-                        <div>
-                            <div>@notification.Message</div>
-                            <small class="text-muted">@notification.CreatedAt.ToLocalTime().ToString("MMM dd, HH:mm")</small>
-                        </div>
+            <a class="dropdown-item @(!notification.IsRead ? "fw-bold" : "")" 
+               href="@notification.RelatedUrl"
+               data-notification-id="@notification.Id">
+                <div class="d-flex align-items-center">
+                    <i class="bi @(notification.Type == "Success" ? "bi-check-circle text-success" : 
+                                  notification.Type == "Warning" ? "bi-exclamation-circle text-warning" : 
+                                  "bi-info-circle text-info") me-2"></i>
+                    <div>
+                        <div>@notification.Message</div>
+                        <small class="text-muted">@notification.CreatedAt.ToLocalTime().ToString("MMM dd, HH:mm")</small>
                     </div>
-                </a>
-            }
+                </div>
+            </a>
         }
     </div>
 </div>
