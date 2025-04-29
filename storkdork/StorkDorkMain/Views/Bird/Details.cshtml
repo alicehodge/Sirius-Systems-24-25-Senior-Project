@@ -23,10 +23,16 @@
                 <div class="card-body">
                     <dl class="row">
                         <dt class="col-sm-3">Order</dt>
-                        <dd class="col-sm-9">@Model.Bird.Order</dd>
+                        <dd class="col-sm-9">
+                            <a href="@Url.Action("Order", "Taxonomy", new { order = Model.Bird.Order })">@Model.Bird.Order</a>
+                        </dd>
                         
                         <dt class="col-sm-3">Family</dt>
-                        <dd class="col-sm-9">@Model.Bird.FamilyCommonName (@Model.Bird.FamilyScientificName)</dd>
+                        <dd class="col-sm-9">
+                            <a href="@Url.Action("Family", "Taxonomy", new { family = Model.Bird.FamilyScientificName })">
+                                @Model.Bird.FamilyCommonName (@Model.Bird.FamilyScientificName)
+                            </a>
+                        </dd>
                     </dl>
                 </div>
             </div>
