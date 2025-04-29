@@ -5,14 +5,12 @@
 const map = L.map('map').setView([44.8485, -123.2340], 14);
 
 const allSightingsGroup = L.layerGroup().addTo(map);
-const usersSightingsGroup = L.layerGroup();
+const usersSightingsGroup = L.layerGroup().addTo(map);
 
 const overlayMaps ={
     "All Sightings": allSightingsGroup,
     "My Sightings": usersSightingsGroup,
 };
-
-L.control.layers(null, overlayMaps).addTo(map);
 
 // Add tile layer
 const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -55,6 +53,20 @@ async function fetchSightingsByUser(user) {
     usersSightingsGroup.clearLayers();
 
     makeSightingMarkers(sightings, user.id);
+}
+
+async function fetchOtherSightings(userId) {
+    let url = `/api/map/GetOtherSightings/${userId}`;
+    let response = await fetch(url);
+
+    if (!response.ok) {
+        console.error("Failed to fetch other sightings:", response.statusText);
+        return;
+    }
+
+    let sightings = await response.json();
+    allSightingsGroup.clearLayers();
+    makeSightingMarkers(sightings, null);
 }
 
 async function fetchUser() {
@@ -191,6 +203,7 @@ window.onload = async function() {
         const user = await fetchUser(); // still get full info
         if (user && typeof user.id === "number") {
             await fetchSightingsByUser(user);
+            await fetchOtherSightings(user.id);
         } else {
             console.warn("User check passed but couldn't fetch full user info.");
             await fetchAllSightings();
@@ -198,4 +211,6 @@ window.onload = async function() {
     } else {
         await fetchAllSightings();
     }
+
+    L.control.layers(null, overlayMaps).addTo(map);
 }

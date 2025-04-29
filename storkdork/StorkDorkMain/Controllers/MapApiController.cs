@@ -65,6 +65,15 @@ public class MapApiController : ControllerBase
     }
 
     [HttpGet]
+    [Route("GetOtherSightings/{userId}")]
+    public async Task<IActionResult> GetOtherSightings(int userId)
+    {
+        var allsightings = await _sightingService.GetSightingsAsync();
+        var otherSightings = allsightings.Where(s => s.userId != userId);
+        return Ok(otherSightings);
+    }
+
+    [HttpGet]
     [Route("GetNearestSightings")]
     public async Task<IActionResult> GetNearestSightings(
         int birdId, 
