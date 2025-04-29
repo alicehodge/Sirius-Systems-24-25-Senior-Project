@@ -48,5 +48,12 @@ namespace StorkDorkMain.DAL.Concrete
             return await _context.SdUsers
                 .FirstOrDefaultAsync(s => s.AspNetIdentityId == identityId);
         }
+
+        public async Task UpdateAsync(SdUser user)
+        {
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

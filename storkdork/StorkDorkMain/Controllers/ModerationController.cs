@@ -11,17 +11,19 @@ namespace StorkDorkMain.Controllers
     [Authorize(Roles = "Admin,Moderator")]
     public class ModerationController : Controller
     {
+        private readonly INotificationService _notificationService;
         private readonly IModerationService _moderationService;
         private readonly UserManager<IdentityUser> _userManager;
         private IBirdRepository _birdRepository;
         private readonly ILogger<ModerationController> _logger;
 
-        public ModerationController(IModerationService moderationService, UserManager<IdentityUser> userManager, IBirdRepository birdRepository, ILogger<ModerationController> logger)
+        public ModerationController(IModerationService moderationService, UserManager<IdentityUser> userManager, IBirdRepository birdRepository, ILogger<ModerationController> logger, INotificationService notificationService)
         {
             _moderationService = moderationService;
             _userManager = userManager;
             _birdRepository = birdRepository;
             _logger = logger;
+            _notificationService = notificationService;
         }
 
         public async Task<IActionResult> Index()
@@ -68,14 +70,26 @@ namespace StorkDorkMain.Controllers
             if (content is RangeSubmission)
             {
                 success = await _moderationService.ApproveRangeSubmission(id, User, notes);
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Range information has been approved successfully";
+                }
             }
             else
             {
                 success = await _moderationService.ApproveContentAsync(id, User, notes);
+                TempData["SuccessMessage"] = "Content has been approved successfully";
             }
 
             if (success)
             {
+                var submitterId = content.SubmitterId;
+                await _notificationService.CreateNotificationAsync(
+                    submitterId,
+                    $"Your {content.ContentType} submission has been approved!",
+                    "Success",
+                    $"/UserContent/SubmissionDetails/{id}"
+                );
                 return RedirectToAction(nameof(Index));
             }
             return NotFound();
@@ -109,6 +123,15 @@ namespace StorkDorkMain.Controllers
                 {
                     _logger.LogInformation($"Successfully rejected content ID {id}");
                     TempData["SuccessMessage"] = "Content has been rejected successfully";
+
+                    var submitterId = content.SubmitterId;
+                    await _notificationService.CreateNotificationAsync(
+                        submitterId,
+                        $"Your {content.ContentType} submission has been rejected. Please check the moderator notes for more information.",
+                        "Warning",
+                        $"/UserContent/SubmissionDetails/{id}"
+                    );
+
                     return RedirectToAction(nameof(Index));
                 }
 

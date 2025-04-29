@@ -21,6 +21,7 @@ public class UserSettingsController : Controller
         _userSettingsRepository = userSettingsRepository;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Settings()
     {
         var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
@@ -36,15 +37,24 @@ public class UserSettingsController : Controller
                 AnonymousSightings = false
             });
 
-            await _userSettingsRepository.CreateAsync(settings);
+            settings = await _userSettingsRepository.CreateAsync(settings);
         }
+
+        if (settings.SdUserId != sdUser.Id)
+            settings.SdUserId = sdUser.Id;
 
         return View(settings);
     }
 
     [HttpPost]
-    public async Task<IActionResult> UpdateSettings(UserSettings model)
+    public async Task<IActionResult> Settings(UserSettings model)
     {
+        if(!ModelState.IsValid)
+        {
+            _logger.LogError("Invalid Model State");
+            return View(model);
+        }
+
         var sdUser = await _sdUserRepository.GetSDUserByIdentity(User);
         if (sdUser == null)
             return Unauthorized();

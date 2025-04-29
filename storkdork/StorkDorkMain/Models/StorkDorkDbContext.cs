@@ -29,6 +29,7 @@ public partial class StorkDorkDbContext : DbContext
 
     public virtual DbSet<UserSettings> UserSettings {get;set;}
 
+    public virtual DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,7 +77,35 @@ public partial class StorkDorkDbContext : DbContext
             entity.Property(e => e.AnonymousSightings).HasDefaultValue(false);
         });
 
-            OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Notification__3214EC27D4DAB424");
+
+            entity.Property(e => e.Message)
+                .IsRequired()
+                .HasMaxLength(500);
+                
+            entity.Property(e => e.Type)
+                .IsRequired()
+                .HasMaxLength(20);
+                
+            entity.Property(e => e.IsRead)
+                .HasDefaultValue(false);
+                
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                
+            entity.Property(e => e.RelatedUrl)
+                .HasMaxLength(200);
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK_Notification_SDUser");
+        });
+        
+        OnModelCreatingPartial(modelBuilder);
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);

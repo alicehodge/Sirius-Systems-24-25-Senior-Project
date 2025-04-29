@@ -28,7 +28,7 @@ public class MilestoneController : Controller
         Milestone ms = new Milestone();
         ms.SightingsMade = await _milestoneRepo.GetSightingsMade(user.Id);
         ms.PhotosContributed = await _milestoneRepo.GetPhotosContributed(user.Id);
-        vm.FirstName = user.FirstName;
+        vm.DisplayName = user.DisplayName;
         vm.Milestone = ms;
         vm.SightingsTier = MilestoneHelper.GetMilestoneTier(ms.SightingsMade);
         vm.PhotosTier = MilestoneHelper.GetMilestoneTier(ms.PhotosContributed);

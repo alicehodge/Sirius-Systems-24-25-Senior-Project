@@ -1,0 +1,46 @@
+@using StorkDorkMain.Models
+@model TaxonomyViewModel
+
+<div class="container mt-4">
+    <h1>Bird Taxonomy Browser</h1>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card" id="OrderCard">
+                <div class="card-header">
+                    <h4>Browse by Order</h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @foreach (var order in Model.Orders)
+                        {
+                            <a href="@Url.Action("Order", new { order = order })" 
+                               class="list-group-item list-group-item-action">
+                                @order
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card" id="FamilyCard">
+                <div class="card-header">
+                    <h4>Browse by Family</h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @foreach (var family in Model.Families)
+                        {
+                            <a href="@Url.Action("Family", new { family = family.ScientificName })" 
+                               class="list-group-item list-group-item-action">
+                                @family.CommonName (@family.ScientificName)
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

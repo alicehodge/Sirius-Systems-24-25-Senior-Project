@@ -28,9 +28,11 @@ public class SightingService : ISightingService
     {
         return await _storkDorkContext.Sightings
             .Include(s => s.Bird)
+            .Include(s => s.SdUser.UserSettings)
             .Select(s => new SightMarker
             {
                 SightingId = s.Id,
+                userId = s.SdUserId,
                 CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
                 Longitude = s.Longitude,
@@ -39,7 +41,7 @@ public class SightingService : ISightingService
                 Date = s.Date,
                 Country = s.Country,
                 Subdivision = s. Subdivision,
-                Birder = $"{s.SdUser.FirstName}, {s.SdUser.LastName}"
+                Birder = s.SdUser.UserSettings.AnonymousSightings ? "Anonymous" : $"{s.SdUser.FirstName}, {s.SdUser.LastName}"
             })
             .ToListAsync();
     }
@@ -49,9 +51,11 @@ public class SightingService : ISightingService
         return await _storkDorkContext.Sightings
             .Where(s => s.SdUserId == userId)
             .Include(s => s.Bird)
+            .Include(s => s.SdUser.UserSettings)
             .Select(s => new SightMarker
             {
                 SightingId = s.Id,
+                userId = s.SdUserId,
                 CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
                 Longitude = s.Longitude,
@@ -60,7 +64,7 @@ public class SightingService : ISightingService
                 Date = s.Date,
                 Country = s.Country,
                 Subdivision = s.Subdivision,
-                Birder = $"{s.SdUser.FirstName}, {s.SdUser.LastName}"
+                Birder = s.SdUser.UserSettings.AnonymousSightings ? "Anonymous" : $"{s.SdUser.FirstName}, {s.SdUser.LastName}"
             })
             .ToListAsync();
     }

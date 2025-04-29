@@ -13,6 +13,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using StorkDorkMain.DAL.Abstract;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using StorkDorkMain.DAL.Concrete;
 
 //commenting here because apparently
 namespace StorkDork.Controllers
@@ -21,16 +22,18 @@ namespace StorkDork.Controllers
 
     public class BirdLogController : Controller
     {
+        private readonly IMilestoneRepository _milestoneRepo; //for SD-71-Milestone-Update
         private readonly StorkDorkContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ISDUserRepository _sdUserRepository;
         
 
-        public BirdLogController(StorkDorkContext context, UserManager<IdentityUser> userManager, ISDUserRepository sdUserRepository)
+        public BirdLogController(StorkDorkContext context, UserManager<IdentityUser> userManager, ISDUserRepository sdUserRepository, IMilestoneRepository milestoneRepo)
         {
             _context = context;
             _userManager = userManager;
             _sdUserRepository = sdUserRepository;
+            _milestoneRepo = milestoneRepo;
 
             
         }
@@ -412,11 +415,12 @@ namespace StorkDork.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sightings, IFormFile photoFile)
+        public async Task<IActionResult> Create([Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sightings) //IFormFile photoFile)
         {
-            var selectedLocation = Request.Form["PnwLocation"];
+
 
             var currentSdUser = await _sdUserRepository.GetSDUserByIdentity(User);
+
 
             if (currentSdUser == null)
 
@@ -427,7 +431,7 @@ namespace StorkDork.Controllers
 
             sightings.SdUserId = currentSdUser.Id;
 
-
+            var selectedLocation = Request.Form["PnwLocation"];
             if (selectedLocation == "0")
             {
                 sightings.Latitude = null;
@@ -452,57 +456,101 @@ namespace StorkDork.Controllers
                 ModelState.AddModelError("PnwLocation", "Please select a location or choose N/A.");
             }
 
-            if (photoFile != null && photoFile.Length > 0)
+            if (!sightings.Date.HasValue)
             {
-                // Validate file
-                if (photoFile.Length > 5 * 1024 * 1024) // 5MB
-                {
-                    ModelState.AddModelError("", "File size exceeds 5MB limit");
-                }
-                else if (!photoFile.ContentType.StartsWith("image/")) 
-                {
-                    ModelState.AddModelError("", "Only image files are allowed");
-                }
-                else
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        await photoFile.CopyToAsync(memoryStream);
-                        sightings.PhotoData = memoryStream.ToArray();
-                        sightings.PhotoContentType = photoFile.ContentType;
-     
-                    }
-                }
+                sightings.Date = DateTime.UtcNow;
             }
+
+           //if (photoFile != null && photoFile.Length > 0)
+           //{
+                // Validate file
+            //   if (photoFile.Length > 5 * 1024 * 1024) // 5MB
+           //     {
+              //     ModelState.AddModelError("", "File size exceeds 5MB limit");
+            //    }
+            //    else if (!photoFile.ContentType.StartsWith("image/")) 
+            //    {
+            //        ModelState.AddModelError("", "Only image files are allowed");
+             //   }
+
+           // }
 
 
             if (ModelState.IsValid)
             {
-                if (photoFile != null && photoFile.Length > 0)
+                bool hasPhoto = false;
+             
+                try
                 {
-                    using var memoryStream = new MemoryStream();
-                    await photoFile.CopyToAsync(memoryStream);
-                    sightings.PhotoData = memoryStream.ToArray();
-                }
 
-                 _context.Add(sightings);
-                await _context.SaveChangesAsync();
+                    //if (photoFile != null && photoFile.Length > 0)
+                  //  {
+                 //       using var memoryStream = new MemoryStream();
+                //        await photoFile.CopyToAsync(memoryStream);
+                 //       sightings.PhotoData = memoryStream.ToArray();
+                 //       sightings.PhotoContentType = photoFile.ContentType;
+                 //       hasPhoto = true;
+                 //   }   
+                   // else
+                  //  {
+                 ////       sightings.PhotoData = Array.Empty<byte>();
+                   //     sightings.PhotoContentType = string.Empty;
+                  //      Console.WriteLine("No photo file uploaded.");
 
-                return RedirectToAction(nameof(Confirmation), new { 
+                   // }
+
+
+
+
+                    _context.Add(sightings);
+                    await _context.SaveChangesAsync();
+
+                    var milestone = await _context.Milestone
+                        .FirstOrDefaultAsync(m => m.SDUserId == currentSdUser.Id);
+
+                    if (milestone == null)
+                    {
+                        // Create new milestone if none exists
+                        milestone = new Milestone 
+                        { 
+                            SDUserId = currentSdUser.Id,
+                            SightingsMade = 1,
+                            //PhotosContributed = hasPhoto ? 1 : 0
+                        };
+                        _context.Add(milestone);
+                    }
+                    else
+                    {
+                        // Increment existing milestone
+                        milestone.SightingsMade++;
+                    }
+
+                    // Save the milestone changes
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(Confirmation), new { 
                     userId = sightings.SdUserId,
-                    hasPhoto = sightings.PhotoData != null 
+                    //hasPhoto = hasPhoto
+
                 });
             
+
+
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "An error occurred while saving.");
+                    Console.WriteLine($"Error saving sighting: {ex.Message}");
+                }
+
             }
             
+            
                 
-                // Debugging: Log success
+            // Debugging: Log success
             Console.WriteLine("Sighting saved successfully.");
 
-                // Redirect to the confirmation page
 
-            
-             // Debugging: Log ModelState errors
 
             // If the model state is invalid, repopulate the ViewBag and return the view
             ViewBag.Birds = new SelectList(_context.Birds, "Id", "CommonName", sightings.BirdId);
@@ -813,7 +861,7 @@ namespace StorkDork.Controllers
             return _context.Sightings.Any(e => e.Id == id);
         }
 
-        public IActionResult Confirmation(int userId, bool hasPhoto)
+        public IActionResult Confirmation(int? userId, bool hasPhoto)
         {
             var sighting = _context.Sightings.Find(userId);
             

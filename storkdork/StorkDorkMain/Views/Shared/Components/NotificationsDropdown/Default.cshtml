@@ -1,0 +1,46 @@
+@model List<Notification>
+
+<div class="dropdown">
+    <button class="btn btn-link nav-link dropdown-toggle" type="button" 
+            id="notificationsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="position-relative">
+            <i class="bi bi-bell"></i>
+            @if (ViewBag.UnreadCount > 0)
+            {
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+                    @ViewBag.UnreadCount
+                </span>
+            }
+        </span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationsDropdown">
+        <h6 class="dropdown-header">Notifications</h6>
+        @if (!Model.Any())
+        {
+            <div class="dropdown-item text-muted">No notifications</div>
+        }
+        else
+        {
+            foreach (var notification in Model)
+            {
+                <a class="dropdown-item @(!notification.IsRead ? "fw-bold" : "")" 
+                   href="@notification.RelatedUrl"
+                   data-notification-id="@notification.Id">
+                    <div class="d-flex align-items-center">
+                        <i class="bi @(notification.Type == "Success" ? "bi-check-circle text-success" : 
+                                      notification.Type == "Warning" ? "bi-exclamation-circle text-warning" : 
+                                      "bi-info-circle text-info") me-2"></i>
+                        <div>
+                            <div>@notification.Message</div>
+                            <small class="text-muted">@notification.CreatedAt.ToLocalTime().ToString("MMM dd, HH:mm")</small>
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item text-primary" asp-controller="Notifications" asp-action="Index">
+            View All Notifications
+        </a>
+    </div>
+</div>
