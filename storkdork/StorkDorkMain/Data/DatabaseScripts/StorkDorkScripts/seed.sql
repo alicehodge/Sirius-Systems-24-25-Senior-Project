@@ -1,6 +1,6 @@
 -- Run bird_seed.sql first to populate the Bird table
 
-INSERT INTO [SDUser] ([AspNetIdentityID], [FirstName], [LastName]) VALUES
+INSERT INTO [SDUser] ([AspNetIdentityID], [FirstName], [LastName], [DisplayName]) VALUES
 ('17c420c9-e12c-44fd-b3c1-208881e92fb9', 'Marjorie', 'Caldwell', 'Marjorie'),
 ('99e94994-3dce-4577-b4ee-0f7e2775eedc', 'Patricia', 'Rivers', 'Patricia'),
 ('1948774a-9e90-4f21-8aed-df02b7a57ee5', 'Emily', 'Carter', 'Emily')

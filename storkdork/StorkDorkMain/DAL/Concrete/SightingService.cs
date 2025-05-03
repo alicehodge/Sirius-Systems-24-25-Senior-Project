@@ -11,27 +11,28 @@ namespace StorkDorkMain.DAL.Concrete;
 
 public class SightingService : ISightingService
 {
-    private readonly StorkDorkContext _storkDorkContext;
+    private readonly StorkDorkDbContext _context;
     private readonly UserManager<IdentityUser> _usermanager;
     private readonly IEBirdService _eBirdService;
     private const double DEFAULT_LAT = 44.8485; // Monmouth, OR
     private const double DEFAULT_LNG = -123.2340;
 
-    public SightingService(StorkDorkContext storkDorkContext, UserManager<IdentityUser> userManager, IEBirdService eBirdService)
+    public SightingService(StorkDorkDbContext context, UserManager<IdentityUser> userManager, IEBirdService eBirdService)
     {
-        _storkDorkContext = storkDorkContext;
+        _context = context;
         _usermanager = userManager;
         _eBirdService = eBirdService;
     }
 
     public async Task<List<SightMarker>> GetSightingsAsync()
     {
-        return await _storkDorkContext.Sightings
+        return await _context.Sightings
             .Include(s => s.Bird)
             .Include(s => s.SdUser.UserSettings)
             .Select(s => new SightMarker
             {
                 SightingId = s.Id,
+                userId = s.SdUserId,
                 CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
                 Longitude = s.Longitude,
@@ -47,13 +48,14 @@ public class SightingService : ISightingService
 
     public async Task<List<SightMarker>> GetSightingsByUserIdAsync(int userId)
     {
-        return await _storkDorkContext.Sightings
+        return await _context.Sightings
             .Where(s => s.SdUserId == userId)
             .Include(s => s.Bird)
             .Include(s => s.SdUser.UserSettings)
             .Select(s => new SightMarker
             {
                 SightingId = s.Id,
+                userId = s.SdUserId,
                 CommonName = s.Bird.CommonName ?? "Unkown Name",
                 SciName = s.Bird.ScientificName,
                 Longitude = s.Longitude,
@@ -79,7 +81,7 @@ public class SightingService : ISightingService
     
     public async Task UpdateSightingLocationAsync(int sightingId, string country, string subdivision)
     {
-        var sighting = await _storkDorkContext.Sightings.FindAsync(sightingId);
+        var sighting = await _context.Sightings.FindAsync(sightingId);
         if (sighting == null)
         {
             throw new KeyNotFoundException("Sighting not found.");
@@ -87,7 +89,7 @@ public class SightingService : ISightingService
 
         sighting.Country = country;
         sighting.Subdivision = subdivision;
-        await _storkDorkContext.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 
     // public async Task<List<SightMarker>> GetSightingsByCurrentUserAsync(int userId)

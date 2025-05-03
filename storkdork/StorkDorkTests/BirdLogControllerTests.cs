@@ -25,7 +25,7 @@ namespace StorkDorkTests
     public class BirdLogControllerTests
     {
         private BirdLogController _controller;
-        private Mock<StorkDorkContext> _mockContext;
+        private Mock<StorkDorkDbContext> _mockContext;
         private Mock<UserManager<IdentityUser>> _mockUserManager;
         private Mock<ISDUserRepository> _mockSdUserRepository;
         private Mock<IMilestoneRepository> _mockMilestoneRepo;
@@ -37,7 +37,7 @@ namespace StorkDorkTests
         public void Setup()
         {
             // Initialize mock dependencies
-            _mockContext = new Mock<StorkDorkContext>();
+            _mockContext = new Mock<StorkDorkDbContext>();
             _mockUserManager = UserManagerHelper.GetMockUserManager(); // Helper-based initialization
             _mockSdUserRepository = new Mock<ISDUserRepository>();
 
