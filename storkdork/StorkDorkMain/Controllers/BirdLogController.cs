@@ -23,12 +23,12 @@ namespace StorkDork.Controllers
     public class BirdLogController : Controller
     {
         private readonly IMilestoneRepository _milestoneRepo; //for SD-71-Milestone-Update
-        private readonly StorkDorkContext _context;
+        private readonly StorkDorkDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ISDUserRepository _sdUserRepository;
         
 
-        public BirdLogController(StorkDorkContext context, UserManager<IdentityUser> userManager, ISDUserRepository sdUserRepository, IMilestoneRepository milestoneRepo)
+        public BirdLogController(StorkDorkDbContext context, UserManager<IdentityUser> userManager, ISDUserRepository sdUserRepository, IMilestoneRepository milestoneRepo)
         {
             _context = context;
             _userManager = userManager;

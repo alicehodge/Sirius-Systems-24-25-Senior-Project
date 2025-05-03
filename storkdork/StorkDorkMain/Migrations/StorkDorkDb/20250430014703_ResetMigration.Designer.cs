@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StorkDorkMain.Data;
 
 #nullable disable
 
-namespace StorkDork.Migrations.StorkDork
+namespace StorkDork.Migrations.StorkDorkDb
 {
-    [DbContext(typeof(StorkDorkContext))]
-    partial class StorkDorkContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(StorkDorkDbContext))]
+    [Migration("20250430014703_ResetMigration")]
+    partial class ResetMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,16 +48,17 @@ namespace StorkDork.Migrations.StorkDork
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FamilyCommonName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FamilyScientificName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Order")
-                        .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Range")
                         .HasMaxLength(1000)
@@ -75,7 +79,7 @@ namespace StorkDork.Migrations.StorkDork
                         .HasColumnType("nvarchar(10)");
 
                     b.HasKey("Id")
-                        .HasName("PK__Bird__3214EC27B23D066D");
+                        .HasName("PK__Bird__3214EC27152FA685");
 
                     b.ToTable("Bird", (string)null);
                 });
@@ -144,17 +148,115 @@ namespace StorkDork.Migrations.StorkDork
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("PhotosContributed")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
                     b.Property<int>("SDUserId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("SDUserID");
 
                     b.Property<int>("SightingsMade")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id")
+                        .HasName("PK__Milestone__3214EC27");
+
+                    b.ToTable("Milestone");
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.ModeratedContent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ContentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("ModeratedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ModeratorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModeratorNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("SubmittedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SubmitterId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Milestone");
+                    b.HasIndex("ModeratorId");
+
+                    b.HasIndex("SubmitterId");
+
+                    b.ToTable("ModeratedContent", (string)null);
+
+                    b.HasDiscriminator<string>("ContentType").HasValue("Base");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RelatedUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK_Notifications");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Notification", (string)null);
                 });
 
             modelBuilder.Entity("StorkDorkMain.Models.SdUser", b =>
@@ -171,10 +273,16 @@ namespace StorkDork.Migrations.StorkDork
                         .HasColumnType("nvarchar(450)")
                         .HasColumnName("AspNetIdentityID");
 
+                    b.Property<string>("DisplayName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProfileImagePath")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id")
@@ -213,11 +321,9 @@ namespace StorkDork.Migrations.StorkDork
                         .HasColumnType("nvarchar(3000)");
 
                     b.Property<string>("PhotoContentType")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("PhotoData")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<int?>("SdUserId")
@@ -237,10 +343,56 @@ namespace StorkDork.Migrations.StorkDork
                     b.ToTable("Sighting", (string)null);
                 });
 
+            modelBuilder.Entity("StorkDorkMain.Models.UserSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AnonymousSightings")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("SdUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK_UserSettings_3214EC27");
+
+                    b.HasIndex("SdUserId")
+                        .IsUnique();
+
+                    b.ToTable("UserSettings");
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.RangeSubmission", b =>
+                {
+                    b.HasBaseType("StorkDorkMain.Models.ModeratedContent");
+
+                    b.Property<int>("BirdId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RangeDescription")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("SubmissionNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasIndex("BirdId");
+
+                    b.HasDiscriminator().HasValue("BirdRange");
+                });
+
             modelBuilder.Entity("StorkDorkMain.Models.Checklist", b =>
                 {
                     b.HasOne("StorkDorkMain.Models.SdUser", "SdUser")
-                        .WithMany()
+                        .WithMany("Checklists")
                         .HasForeignKey("SdUserId");
 
                     b.Navigation("SdUser");
@@ -263,6 +415,35 @@ namespace StorkDork.Migrations.StorkDork
                     b.Navigation("Checklist");
                 });
 
+            modelBuilder.Entity("StorkDorkMain.Models.ModeratedContent", b =>
+                {
+                    b.HasOne("StorkDorkMain.Models.SdUser", "Moderator")
+                        .WithMany()
+                        .HasForeignKey("ModeratorId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("StorkDorkMain.Models.SdUser", "Submitter")
+                        .WithMany()
+                        .HasForeignKey("SubmitterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Moderator");
+
+                    b.Navigation("Submitter");
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.Notification", b =>
+                {
+                    b.HasOne("StorkDorkMain.Models.SdUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("StorkDorkMain.Models.Sighting", b =>
                 {
                     b.HasOne("StorkDorkMain.Models.Bird", "Bird")
@@ -271,12 +452,33 @@ namespace StorkDork.Migrations.StorkDork
                         .HasConstraintName("FK_Sighting_Bird");
 
                     b.HasOne("StorkDorkMain.Models.SdUser", "SdUser")
-                        .WithMany()
-                        .HasForeignKey("SdUserId");
+                        .WithMany("Sightings")
+                        .HasForeignKey("SdUserId")
+                        .HasConstraintName("FK_Sighting_SDUser");
 
                     b.Navigation("Bird");
 
                     b.Navigation("SdUser");
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.UserSettings", b =>
+                {
+                    b.HasOne("StorkDorkMain.Models.SdUser", null)
+                        .WithOne("UserSettings")
+                        .HasForeignKey("StorkDorkMain.Models.UserSettings", "SdUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.RangeSubmission", b =>
+                {
+                    b.HasOne("StorkDorkMain.Models.Bird", "Bird")
+                        .WithMany()
+                        .HasForeignKey("BirdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bird");
                 });
 
             modelBuilder.Entity("StorkDorkMain.Models.Bird", b =>
@@ -289,6 +491,15 @@ namespace StorkDork.Migrations.StorkDork
             modelBuilder.Entity("StorkDorkMain.Models.Checklist", b =>
                 {
                     b.Navigation("ChecklistItems");
+                });
+
+            modelBuilder.Entity("StorkDorkMain.Models.SdUser", b =>
+                {
+                    b.Navigation("Checklists");
+
+                    b.Navigation("Sightings");
+
+                    b.Navigation("UserSettings");
                 });
 #pragma warning restore 612, 618
         }

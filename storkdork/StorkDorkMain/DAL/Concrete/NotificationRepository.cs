@@ -7,10 +7,10 @@ namespace StorkDorkMain.DAL.Concrete
 {
     public class NotificationRepository : Repository<Notification>, INotificationRepository
     {
-        private readonly StorkDorkContext _context;
+        private readonly StorkDorkDbContext _context;
         private DbSet<Notification> _notifications;
 
-        public NotificationRepository(StorkDorkContext context) : base(context)
+        public NotificationRepository(StorkDorkDbContext context) : base(context)
         {
             _context = context;
             _notifications = context.Notifications;
@@ -19,6 +19,7 @@ namespace StorkDorkMain.DAL.Concrete
         public async Task<List<Notification>> GetRecentByUserIdAsync(int userId, int take = 20)
         {
             return await _notifications
+                .Include(n => n.User)
                 .Where(n => n.UserId == userId)
                 .OrderByDescending(n => n.CreatedAt)
                 .Take(take)
