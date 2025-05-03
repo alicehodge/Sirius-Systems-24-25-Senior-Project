@@ -1,39 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using StorkDorkMain.Models;
 
 namespace StorkDorkMain.Data;
 
-public partial class StorkDorkContext : DbContext
+public class StorkDorkDbContext : DbContext
 {
-    public StorkDorkContext()
-    {
-    }
+    private readonly IConfiguration _configuration;
 
-    public StorkDorkContext(DbContextOptions<StorkDorkContext> options)
+    public StorkDorkDbContext(DbContextOptions<StorkDorkDbContext> options, IConfiguration configuration)
         : base(options)
     {
+        _configuration = configuration;
     }
 
+    // Entity Sets
     public virtual DbSet<Bird> Birds { get; set; }
-
     public virtual DbSet<Checklist> Checklists { get; set; }
-
     public virtual DbSet<ChecklistItem> ChecklistItems { get; set; }
-
     public virtual DbSet<SdUser> SdUsers { get; set; }
-
     public virtual DbSet<Sighting> Sightings { get; set; }
-
-    public virtual DbSet<Milestone> Milestone { get; set; }
-    
-    public DbSet<ModeratedContent> ModeratedContent { get; set; }
-
-    public DbSet<Notification> Notifications { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:StorkDorkDB");
+    public virtual DbSet<Milestone> Milestones { get; set; }
+    public virtual DbSet<ModeratedContent> ModeratedContent { get; set; }
+    public virtual DbSet<Notification> Notifications { get; set; }
+    public virtual DbSet<UserSettings> UserSettings { get; set; }
+    public DbSet<Milestone>? Milestone { get; internal set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,18 +31,16 @@ public partial class StorkDorkContext : DbContext
 
         modelBuilder.Entity<Bird>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Bird__3214EC27B23D066D");
-
             entity.ToTable("Bird");
-
+            entity.HasKey(e => e.Id).HasName("PK__Bird__3214EC27152FA685");
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.ScientificName).HasMaxLength(100);
-            entity.Property(e => e.CommonName).HasMaxLength(100);
+            entity.Property(e => e.CommonName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.ScientificName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Order).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.FamilyCommonName).HasMaxLength(100);
+            entity.Property(e => e.FamilyScientificName).HasMaxLength(100);
             entity.Property(e => e.SpeciesCode).HasMaxLength(10);
             entity.Property(e => e.Category).HasMaxLength(10);
-            entity.Property(e => e.Order).HasMaxLength(25);
-            entity.Property(e => e.FamilyCommonName).HasMaxLength(50);
-            entity.Property(e => e.FamilyScientificName).HasMaxLength(50);
             entity.Property(e => e.ReportAs).HasMaxLength(10);
             entity.Property(e => e.Range).HasMaxLength(1000);
         });
@@ -66,10 +54,6 @@ public partial class StorkDorkContext : DbContext
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.ChecklistName).HasMaxLength(100);
             entity.Property(e => e.SdUserId).HasColumnName("SDUserID");
-
-            // entity.HasOne(d => d.SdUser).WithMany(p => p.Checklists)
-            //     .HasForeignKey(d => d.SdUserId)
-            //     .HasConstraintName("FK_Checklist_SDUser");
         });
 
         modelBuilder.Entity<ChecklistItem>(entity =>
@@ -120,9 +104,58 @@ public partial class StorkDorkContext : DbContext
                 .HasForeignKey(d => d.BirdId)
                 .HasConstraintName("FK_Sighting_Bird");
 
-            // entity.HasOne(d => d.SdUser).WithMany(p => p.Sightings)
-            //     .HasForeignKey(d => d.SdUserId)
-            //     .HasConstraintName("FK_Sighting_SDUser");
+            entity.HasOne(d => d.SdUser).WithMany(p => p.Sightings)
+                .HasForeignKey(d => d.SdUserId)
+                .HasConstraintName("FK_Sighting_SDUser");
+        });
+
+        modelBuilder.Entity<UserSettings>(entity => 
+        {
+            entity.HasKey(e => e.Id).HasName("PK_UserSettings_3214EC27");
+            entity.Property(e => e.AnonymousSightings).HasDefaultValue(false);
+        });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.ToTable("Notification");
+            entity.HasKey(e => e.Id).HasName("PK_Notifications");
+            
+            entity.Property(e => e.Message)
+                .IsRequired()
+                .HasMaxLength(500);
+                
+            entity.Property(e => e.Type)
+                .IsRequired()
+                .HasMaxLength(20);
+                
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                
+            entity.Property(e => e.IsRead)
+                .HasDefaultValue(false);
+                
+            entity.Property(e => e.RelatedUrl)
+                .HasMaxLength(200);
+
+            entity.HasOne(d => d.User)
+                .WithMany()
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Milestone>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Milestone__3214EC27");
+            
+            entity.Property(e => e.SDUserId)
+                .IsRequired()
+                .HasColumnName("SDUserID");
+            entity.Property(e => e.SightingsMade)
+                .IsRequired()
+                .HasDefaultValue(0);
+            entity.Property(e => e.PhotosContributed)
+                .IsRequired()
+                .HasDefaultValue(0);
         });
 
         modelBuilder.Entity<ModeratedContent>(entity =>
@@ -170,34 +203,5 @@ public partial class StorkDorkContext : DbContext
                 .HasForeignKey(e => e.ModeratorId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
-
-        // Configure RangeSubmission specifically
-        modelBuilder.Entity<RangeSubmission>(entity =>
-        {
-            entity.HasOne(r => r.Bird)
-                .WithMany()
-                .HasForeignKey(r => r.BirdId);
-            
-            entity.Property(e => e.RangeDescription)
-                .IsRequired()
-                .HasMaxLength(2000);
-            
-            entity.Property(e => e.SubmissionNotes)
-                .IsRequired(false)
-                .HasMaxLength(500);
-        });
-
-        modelBuilder.Entity<Notification>(entity =>
-        {
-            entity.ToTable("Notification");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Message).IsRequired();
-            entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETDATE()");
-            entity.Property(e => e.IsRead).HasDefaultValue(false);
-        });
-
-        OnModelCreatingPartial(modelBuilder);
     }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }

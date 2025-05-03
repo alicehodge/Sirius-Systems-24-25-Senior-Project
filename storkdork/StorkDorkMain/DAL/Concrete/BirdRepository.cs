@@ -8,7 +8,7 @@ namespace StorkDorkMain.DAL.Concrete
     public class BirdRepository : Repository<Bird>, IBirdRepository
     {
         private DbSet<Bird> _birds;
-        public BirdRepository(StorkDorkContext context) : base(context)
+        public BirdRepository(StorkDorkDbContext context) : base(context)
         {
             _birds = context.Birds;
         }

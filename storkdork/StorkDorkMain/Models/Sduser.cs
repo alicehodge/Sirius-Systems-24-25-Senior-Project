@@ -21,7 +21,7 @@ public partial class SdUser
 
     public virtual UserSettings? UserSettings { get; set; }
 
-    // public virtual ICollection<Checklist> Checklists { get; set; } = new List<Checklist>();
+    public virtual ICollection<Checklist> Checklists { get; set; } = new List<Checklist>();
 
-    // public virtual ICollection<Sighting> Sightings { get; set; } = new List<Sighting>();
+    public virtual ICollection<Sighting> Sightings { get; set; } = new List<Sighting>();
 }

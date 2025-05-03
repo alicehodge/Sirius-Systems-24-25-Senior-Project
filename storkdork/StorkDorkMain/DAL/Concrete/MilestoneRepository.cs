@@ -11,14 +11,14 @@ public class MilestoneRepository : Repository<Milestone>, IMilestoneRepository
     private DbSet<Milestone> _milestones;
     private DbSet<Sighting> _sightings;
     private DbSet<Bird> _birds;
-    private readonly StorkDorkContext _context;
+    private readonly StorkDorkDbContext _context;
 
     public const int GoldTier = 1;
     public const int SilverTier = 2;
     public const int BronzeTier = 3;
     public const int NoTier = 0;
     public DateTime sqlMinDate = new DateTime(1753, 1, 1);
-    public MilestoneRepository(StorkDorkContext context) : base(context)
+    public MilestoneRepository(StorkDorkDbContext context) : base(context)
     {
         _context = context;
         _milestones = context.Milestone;

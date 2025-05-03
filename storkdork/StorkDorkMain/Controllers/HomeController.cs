@@ -10,10 +10,10 @@ namespace StorkDorkMain.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly StorkDorkContext _context;
+    private readonly StorkDorkDbContext _context;
     private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ILogger<HomeController> logger, StorkDorkContext context)
+    public HomeController(ILogger<HomeController> logger, StorkDorkDbContext context)
     {
         _logger = logger;
         _context = context;
