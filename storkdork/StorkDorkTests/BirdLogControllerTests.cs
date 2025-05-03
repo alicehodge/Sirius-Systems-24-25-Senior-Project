@@ -28,6 +28,7 @@ namespace StorkDorkTests
         private Mock<StorkDorkContext> _mockContext;
         private Mock<UserManager<IdentityUser>> _mockUserManager;
         private Mock<ISDUserRepository> _mockSdUserRepository;
+        private Mock<IMilestoneRepository> _mockMilestoneRepo;
 
         // ===================================================================
         // Setup & Teardown
@@ -44,7 +45,8 @@ namespace StorkDorkTests
             _controller = new BirdLogController(
                 _mockContext.Object,
                 _mockUserManager.Object,
-                _mockSdUserRepository.Object
+                _mockSdUserRepository.Object,
+                _mockMilestoneRepo.Object
             );
         }
 
