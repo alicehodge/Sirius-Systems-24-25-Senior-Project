@@ -17,6 +17,9 @@ using Azure.Security.KeyVault.Secrets;
 using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString;
+var connectionStringIdentity;
+
 
 if (builder.Environment.IsDevelopment())
 {
@@ -29,21 +32,21 @@ if (builder.Environment.IsDevelopment())
     builder.Services.AddSingleton(new SendGridService(sendGridApiKey));
 
     // dev storkdorkapp database setup
-    var conStrBuilder = new SqlConnectionStringBuilder(
+    conStrBuilder = new SqlConnectionStringBuilder(
         builder.Configuration.GetConnectionString("StorkDorkDB"));
-    var connectionString = conStrBuilder.ConnectionString;
+    connectionString = conStrBuilder.ConnectionString;
     
     // dev storkdorkidentity database setup
-    var conStrBuilderTwo = new SqlConnectionStringBuilder(
+    conStrBuilderTwo = new SqlConnectionStringBuilder(
         builder.Configuration.GetConnectionString("IdentityDB"));
-    var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
+    connectionStringIdentity = conStrBuilderTwo.ConnectionString;
 }
 
 if (builder.Environment.IsProduction()) // Use the Azure key vault during development
 {
-    var keyVaultUrl = builder.Configuration["KeyVault:KeyVaultURL"];
+    keyVaultUrl = builder.Configuration["KeyVault:KeyVaultURL"];
 
-    var credential = new DefaultAzureCredential();  // Uses Managed Identity
+    credential = new DefaultAzureCredential();  // Uses Managed Identity
     builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), credential);
 
     // Development SendGrid setup
@@ -54,14 +57,14 @@ if (builder.Environment.IsProduction()) // Use the Azure key vault during develo
     });
 
     // prod storkdorkapp database setup 
-    var conStrBuilder = new SqlConnectionStringBuilder(
+    conStrBuilder = new SqlConnectionStringBuilder(
     builder.Configuration.GetConnectionString("SQLCONNSTR_StorkDorkDB"));
-    var connectionString = conStrBuilder.ConnectionString;
+    connectionString = conStrBuilder.ConnectionString;
     
     // prod storkdorkidentity database setup
-    var conStrBuilderTwo = new SqlConnectionStringBuilder(
+    conStrBuilderTwo = new SqlConnectionStringBuilder(
         builder.Configuration.GetConnectionString("SQLCONNSTR_IdentityDB"));
-    var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
+    connectionStringIdentity = conStrBuilderTwo.ConnectionString;
 }
 
 // Add services to the container.
