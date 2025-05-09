@@ -17,10 +17,10 @@ namespace StorkDorkMain.Controllers
 {
     public class ChecklistsController : Controller
     {
-        private readonly StorkDorkContext _context;
+        private readonly StorkDorkDbContext _context;
         private readonly ISDUserRepository _sdUserRepository;
 
-        public ChecklistsController(StorkDorkContext context, ISDUserRepository sdUserRepository)
+        public ChecklistsController(StorkDorkDbContext context, ISDUserRepository sdUserRepository)
         {
             _context = context;
             _sdUserRepository = sdUserRepository;

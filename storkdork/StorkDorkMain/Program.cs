@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.DAL.Concrete;
 using StorkDorkMain.Data;
+using StorkDorkMain.Services;
 using Microsoft.AspNetCore.Identity;
 using StorkDork.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Azure.Identity;
 using StorkDorkMain.Models;
-using StorkDorkMain.Services;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 using Azure.Security.KeyVault.Secrets;
@@ -58,10 +58,6 @@ var conStrBuilder = new SqlConnectionStringBuilder(
     builder.Configuration.GetConnectionString("StorkDorkDB"));
 var connectionString = conStrBuilder.ConnectionString;
 
-builder.Services.AddDbContext<StorkDorkContext>(options => options
-    .UseLazyLoadingProxies()
-    .UseSqlServer(connectionString));
-
 //Identity database setup
 var conStrBuilderTwo = new SqlConnectionStringBuilder(
     builder.Configuration.GetConnectionString("IdentityDB"));
@@ -74,30 +70,30 @@ builder.Services.AddDbContext<StorkDorkIdentityDbContext>(options => options
 
 builder.Services.AddDbContext<StorkDorkDbContext>(options => options
     .UseLazyLoadingProxies()
-    .UseSqlServer(builder.Configuration.GetConnectionString("StorkDorkDB"))
+    .UseSqlServer(connectionString)
 );
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
 .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
 .AddDefaultTokenProviders();
 
-        builder.Services.ConfigureApplicationCookie(options =>
-        {
-            options.LoginPath = "/Identity/Account/Login";
-            options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-        });
-        builder.Services.AddScoped<UserManager<IdentityUser>>();
-        builder.Services.AddScoped<DbContext, StorkDorkContext>();
-        builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        builder.Services.AddScoped<IBirdRepository, BirdRepository>();
-        builder.Services.AddScoped<ISightingService, SightingService>();
-        builder.Services.AddScoped<ISDUserRepository, SDUserRepository>();
-        builder.Services.AddScoped<IMilestoneRepository, MilestoneRepository>();
-        builder.Services.AddScoped<IModerationService, ModerationService>();
-        builder.Services.AddScoped<IModeratedContentRepository, ModeratedContentRepository>();
-        builder.Services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
-        builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-        builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+});
+builder.Services.AddScoped<UserManager<IdentityUser>>();
+builder.Services.AddScoped<DbContext, StorkDorkDbContext>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IBirdRepository, BirdRepository>();
+builder.Services.AddScoped<ISightingService, SightingService>();
+builder.Services.AddScoped<ISDUserRepository, SDUserRepository>();
+builder.Services.AddScoped<IMilestoneRepository, MilestoneRepository>();
+builder.Services.AddScoped<IModerationService, ModerationService>();
+builder.Services.AddScoped<IModeratedContentRepository, ModeratedContentRepository>();
+builder.Services.AddScoped<IUserSettingsRepository, UserSettingsRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddSwaggerGen();
 
@@ -110,6 +106,11 @@ builder.Services.AddScoped<RoleInitializerService>();
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
 var app = builder.Build();
+
+var identityConn = builder.Configuration.GetConnectionString("IdentityDB");
+var mainConn = builder.Configuration.GetConnectionString("StorkDorkDB");
+Console.WriteLine("IDENTITY DB: " + identityConn);
+Console.WriteLine("STORK DORK DB: " + mainConn);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

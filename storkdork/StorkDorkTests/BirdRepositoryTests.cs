@@ -12,7 +12,7 @@ namespace StorkDorkTests
     [TestFixture]
     public class BirdRepositoryTests
     {
-        private Mock<StorkDorkContext> _mockContext;
+        private Mock<StorkDorkDbContext> _mockContext;
         private Mock<DbSet<Bird>> _mockBirdSet;
         private BirdRepository _repository;
         private List<Bird> _birds;
@@ -23,7 +23,7 @@ namespace StorkDorkTests
             _birds = new List<Bird>();
             _mockBirdSet = CreateMockDbSet(_birds);
             
-            _mockContext = new Mock<StorkDorkContext>(new DbContextOptions<StorkDorkContext>());
+            _mockContext = new Mock<StorkDorkDbContext>(new DbContextOptions<StorkDorkDbContext>());
             _mockContext.Setup(c => c.Birds).Returns(_mockBirdSet.Object);
             
             _repository = new BirdRepository(_mockContext.Object);

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using StorkDorkMain.DAL.Abstract;
 using StorkDorkMain.Models;
+using StorkDorkMain.Data;
 
 namespace StorkDorkMain.DAL.Concrete
 {

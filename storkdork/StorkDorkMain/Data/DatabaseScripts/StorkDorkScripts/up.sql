@@ -29,7 +29,10 @@ CREATE TABLE [Sighting] (
   [Longitude] decimal(9,6),
   [Notes] nvarchar(3000),
   [Country] nvarchar(100),
-  [Subdivision] nvarchar(100)
+  [Subdivision] nvarchar(100),
+  [PhotoData] VARBINARY(MAX) NULL,
+  [PhotoContentType] NVARCHAR(MAX) NULL
+
 );
 
 CREATE TABLE [Checklist] (
