@@ -32,7 +32,7 @@ namespace StorkDork.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
-        private readonly StorkDorkContext _context;
+        private readonly StorkDorkDbContext _context;
         private readonly SendGridService _sendGridService;
 
         public RegisterModel(
@@ -41,7 +41,7 @@ namespace StorkDork.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            StorkDorkContext context, SendGridService sendGridService)
+            StorkDorkDbContext context, SendGridService sendGridService)
         {
             _userManager = userManager;
             _userStore = userStore;

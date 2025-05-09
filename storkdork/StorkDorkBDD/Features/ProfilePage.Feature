@@ -1,7 +1,7 @@
 Feature: Profile Page Content Check
 
 Scenario: Profile Page displays correct statistics, email and display name
-    Given I log in as "WingerHunter01@gmail.com" with password "Hw9152001Kuro!"
+    Given I log in as "WingerHunter01@gmail.com" with password "676770Winger!"
     When I navigate to "Identity/Account/Manage"
     Then I should see text "77"
     And I should see text "34"

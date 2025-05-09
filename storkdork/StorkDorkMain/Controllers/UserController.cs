@@ -2,6 +2,7 @@ using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using StorkDorkMain.Models;
+using StorkDorkMain.Data;
 using StorkDork.Areas.Identity.Pages.Account;
 using StorkDorkMain.DAL.Abstract;
 using NuGet.Protocol;
@@ -20,12 +21,16 @@ public class UserController : ControllerBase
     private readonly ISDUserRepository _sdUserRepository;
     private readonly RoleManager<IdentityRole> _roleManager;
 
-    public UserController(UserManager<IdentityUser> userManager, StorkDorkDbContext context, ISDUserRepository sdUserRepository, RoleManager<IdentityRole> roleManager)
+    public UserController(
+        UserManager<IdentityUser> userManager, 
+        StorkDorkDbContext context, 
+        ISDUserRepository sdUserRepository, 
+        RoleManager<IdentityRole> roleManager)
     {
-        _userManager = userManager;
-        _context = context;
-        _sdUserRepository = sdUserRepository;
-        _roleManager = roleManager;
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _sdUserRepository = sdUserRepository ?? throw new ArgumentNullException(nameof(sdUserRepository));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
     }
 
     [HttpPost("create")]

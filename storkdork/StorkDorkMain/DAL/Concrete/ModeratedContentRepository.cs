@@ -7,9 +7,9 @@ namespace StorkDorkMain.DAL.Concrete
 {
     public class ModeratedContentRepository : Repository<ModeratedContent>, IModeratedContentRepository
     {
-        private readonly StorkDorkContext _context;
+        private readonly StorkDorkDbContext _context;
 
-        public ModeratedContentRepository(StorkDorkContext context) : base(context)
+        public ModeratedContentRepository(StorkDorkDbContext context) : base(context)
         {
             _context = context;
         }
