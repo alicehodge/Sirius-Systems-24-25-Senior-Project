@@ -17,84 +17,71 @@ using Azure.Security.KeyVault.Secrets;
 using System.Threading.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString;
-var connectionStringIdentity;
 
+string? connectionString = null;
+string? connectionStringIdentity = null;
 
+// Setup configuration based on environment
 if (builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddUserSecrets<Program>();
 
-    // Access the SendGrid API Key from User Secrets in Development
     var sendGridApiKey = builder.Configuration["SendGrid:ApiKey"];
-
-    // Add SendGrid to Dependency Injection
     builder.Services.AddSingleton(new SendGridService(sendGridApiKey));
 
-    // dev storkdorkapp database setup
-    conStrBuilder = new SqlConnectionStringBuilder(
+    // dev connection strings
+    var conStrBuilder = new SqlConnectionStringBuilder(
         builder.Configuration.GetConnectionString("StorkDorkDB"));
     connectionString = conStrBuilder.ConnectionString;
-    
-    // dev storkdorkidentity database setup
-    conStrBuilderTwo = new SqlConnectionStringBuilder(
+
+    var conStrBuilderTwo = new SqlConnectionStringBuilder(
         builder.Configuration.GetConnectionString("IdentityDB"));
     connectionStringIdentity = conStrBuilderTwo.ConnectionString;
 }
-
-if (builder.Environment.IsProduction()) // Use the Azure key vault during development
+else if (builder.Environment.IsProduction())
 {
-    keyVaultUrl = builder.Configuration["KeyVault:KeyVaultURL"];
-
-    credential = new DefaultAzureCredential();  // Uses Managed Identity
+    var keyVaultUrl = builder.Configuration["KeyVault:KeyVaultURL"];
+    var credential = new DefaultAzureCredential();
     builder.Configuration.AddAzureKeyVault(new Uri(keyVaultUrl), credential);
 
-    // Development SendGrid setup
     builder.Services.AddSingleton<SendGridService>(serviceProvider =>
     {
-        var apiKey = builder.Configuration["SendGridApiKey"];  // This will get the key from Azure Key Vault now
+        var apiKey = builder.Configuration["SendGridApiKey"];
         return new SendGridService(apiKey);
     });
 
-    // prod storkdorkapp database setup 
-    conStrBuilder = new SqlConnectionStringBuilder(
-    builder.Configuration.GetConnectionString("SQLCONNSTR_StorkDorkDB"));
+    // Use environment variables for connection strings
+    var prodStorkDorkConn = Environment.GetEnvironmentVariable("SQLCONNSTR_StorkDorkDB");
+    var prodIdentityConn = Environment.GetEnvironmentVariable("SQLCONNSTR_IdentityDB");
+
+    if (string.IsNullOrEmpty(prodStorkDorkConn) || string.IsNullOrEmpty(prodIdentityConn))
+    {
+        throw new Exception("One or more required SQL connection strings are missing from environment variables.");
+    }
+
+    var conStrBuilder = new SqlConnectionStringBuilder(prodStorkDorkConn);
     connectionString = conStrBuilder.ConnectionString;
-    
-    // prod storkdorkidentity database setup
-    conStrBuilderTwo = new SqlConnectionStringBuilder(
-        builder.Configuration.GetConnectionString("SQLCONNSTR_IdentityDB"));
+
+    var conStrBuilderTwo = new SqlConnectionStringBuilder(prodIdentityConn);
     connectionStringIdentity = conStrBuilderTwo.ConnectionString;
 }
 
-// Add services to the container.
+// Add services
 builder.Services.AddControllersWithViews();
-
-// Needed for identity ui to route properly
 builder.Services.AddRazorPages();
-
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
-
-//StorkDork database setup
-// var conStrBuilder = new SqlConnectionStringBuilder(
-//     builder.Configuration.GetConnectionString("StorkDorkDB"));
-// var connectionString = conStrBuilder.ConnectionString;
-
-//Identity database setup
-// var conStrBuilderTwo = new SqlConnectionStringBuilder(
-//     builder.Configuration.GetConnectionString("IdentityDB"));
-// var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
-
+// Add DbContexts
 builder.Services.AddDbContext<StorkDorkIdentityDbContext>(options => options
     .UseLazyLoadingProxies()
-    .UseSqlServer(connectionStringIdentity)
+    .UseSqlServer(connectionString!)
 );
 
 builder.Services.AddDbContext<StorkDorkDbContext>(options => options
     .UseLazyLoadingProxies()
-    .UseSqlServer(connectionString)
+    .UseSqlServer(connectionString!)
 );
+
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
 .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
