@@ -74,7 +74,7 @@ builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 // Add DbContexts
 builder.Services.AddDbContext<StorkDorkIdentityDbContext>(options => options
     .UseLazyLoadingProxies()
-    .UseSqlServer(connectionString!)
+    .UseSqlServer(connectionStringIdentity!)
 );
 
 builder.Services.AddDbContext<StorkDorkDbContext>(options => options
