@@ -93,7 +93,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
 });
 builder.Services.AddScoped<UserManager<IdentityUser>>();
-builder.Services.AddScoped<DbContext, StorkDorkDbContext>();
+// builder.Services.AddScoped<DbContext, StorkDorkDbContext>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IBirdRepository, BirdRepository>();
 builder.Services.AddScoped<ISightingService, SightingService>();
@@ -113,7 +113,7 @@ builder.Services.AddHttpClient<IEBirdService, EBirdService>();
 
 // Add after existing Identity configuration
 builder.Services.AddScoped<RoleInitializerService>();
-builder.Services.AddScoped<RoleManager<IdentityRole>>();
+// builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
 var app = builder.Build();
 
