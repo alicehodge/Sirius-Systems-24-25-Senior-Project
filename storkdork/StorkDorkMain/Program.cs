@@ -27,6 +27,16 @@ if (builder.Environment.IsDevelopment())
 
     // Add SendGrid to Dependency Injection
     builder.Services.AddSingleton(new SendGridService(sendGridApiKey));
+
+    // dev storkdorkapp database setup
+    var conStrBuilder = new SqlConnectionStringBuilder(
+        builder.Configuration.GetConnectionString("StorkDorkDB"));
+    var connectionString = conStrBuilder.ConnectionString;
+    
+    // dev storkdorkidentity database setup
+    var conStrBuilderTwo = new SqlConnectionStringBuilder(
+        builder.Configuration.GetConnectionString("IdentityDB"));
+    var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
 }
 
 if (builder.Environment.IsProduction()) // Use the Azure key vault during development
@@ -42,6 +52,16 @@ if (builder.Environment.IsProduction()) // Use the Azure key vault during develo
         var apiKey = builder.Configuration["SendGridApiKey"];  // This will get the key from Azure Key Vault now
         return new SendGridService(apiKey);
     });
+
+    // prod storkdorkapp database setup 
+    var conStrBuilder = new SqlConnectionStringBuilder(
+    builder.Configuration.GetConnectionString("SQLCONNSTR_StorkDorkDB"));
+    var connectionString = conStrBuilder.ConnectionString;
+    
+    // prod storkdorkidentity database setup
+    var conStrBuilderTwo = new SqlConnectionStringBuilder(
+        builder.Configuration.GetConnectionString("SQLCONNSTR_IdentityDB"));
+    var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
 }
 
 // Add services to the container.
@@ -54,14 +74,14 @@ builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 
 //StorkDork database setup
-var conStrBuilder = new SqlConnectionStringBuilder(
-    builder.Configuration.GetConnectionString("StorkDorkDB"));
-var connectionString = conStrBuilder.ConnectionString;
+// var conStrBuilder = new SqlConnectionStringBuilder(
+//     builder.Configuration.GetConnectionString("StorkDorkDB"));
+// var connectionString = conStrBuilder.ConnectionString;
 
 //Identity database setup
-var conStrBuilderTwo = new SqlConnectionStringBuilder(
-    builder.Configuration.GetConnectionString("IdentityDB"));
-var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
+// var conStrBuilderTwo = new SqlConnectionStringBuilder(
+//     builder.Configuration.GetConnectionString("IdentityDB"));
+// var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
 
 builder.Services.AddDbContext<StorkDorkIdentityDbContext>(options => options
     .UseLazyLoadingProxies()
