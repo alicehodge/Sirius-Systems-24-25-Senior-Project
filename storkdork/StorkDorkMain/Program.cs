@@ -53,37 +53,26 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
 
-// //StorkDork database setup
-// var conStrBuilder = new SqlConnectionStringBuilder(
-//     builder.Configuration.GetConnectionString("StorkDorkDB"));
-// var connectionString = conStrBuilder.ConnectionString;
-
-// //Identity database setup
-// var conStrBuilderTwo = new SqlConnectionStringBuilder(
-//     builder.Configuration.GetConnectionString("IdentityDB"));
-// var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
-
-// builder.Services.AddDbContext<StorkDorkIdentityDbContext>(options => options
-//     .UseLazyLoadingProxies()
-//     .UseSqlServer(connectionStringIdentity)
-// );
-
-// builder.Services.AddDbContext<StorkDorkDbContext>(options => options
-//     .UseLazyLoadingProxies()
-//     .UseSqlServer(connectionString)
-// );
-
-var identityRaw = builder.Configuration.GetConnectionString("IdentityDB");
-var appRaw = builder.Configuration.GetConnectionString("StorkDorkDB");
-
-Console.WriteLine("Raw IdentityDB connection: " + identityRaw);
-Console.WriteLine("Raw StorkDorkDB connection: " + appRaw);
-
-var conStrBuilder = new SqlConnectionStringBuilder(appRaw ?? throw new Exception("Missing StorkDorkDB connection string"));
+//StorkDork database setup
+var conStrBuilder = new SqlConnectionStringBuilder(
+    builder.Configuration.GetConnectionString("StorkDorkDB"));
 var connectionString = conStrBuilder.ConnectionString;
 
-var conStrBuilderTwo = new SqlConnectionStringBuilder(identityRaw ?? throw new Exception("Missing IdentityDB connection string"));
+//Identity database setup
+var conStrBuilderTwo = new SqlConnectionStringBuilder(
+    builder.Configuration.GetConnectionString("IdentityDB"));
 var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
+
+builder.Services.AddDbContext<StorkDorkIdentityDbContext>(options => options
+    .UseLazyLoadingProxies()
+    .UseSqlServer(connectionStringIdentity)
+);
+
+builder.Services.AddDbContext<StorkDorkDbContext>(options => options
+    .UseLazyLoadingProxies()
+    .UseSqlServer(connectionString)
+);
+
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
 .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
