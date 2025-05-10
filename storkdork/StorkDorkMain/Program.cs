@@ -85,6 +85,7 @@ var connectionString = conStrBuilder.ConnectionString;
 var conStrBuilderTwo = new SqlConnectionStringBuilder(identityRaw ?? throw new Exception("Missing IdentityDB connection string"));
 var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
 
+
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
 .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
 .AddDefaultTokenProviders();
