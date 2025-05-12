@@ -19,6 +19,9 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-color: #F2F8DB;
+  background-image: url("https://transparenttextures.com/patterns/nice-snow.png");
+
 }
 
 #map { height: 40lh; }
@@ -97,4 +100,10 @@ body {
 .notification-item.border-primary {
     opacity: 1;
     background-color: white;
+}
+
+
+h1 {
+  font-family: 'Darumadrop One', sans-serif; 
+  color: #381D2A;
 }

@@ -38,6 +38,7 @@ namespace StorkDork.Controllers
             
         }
 
+        //a method to search for birds in the bird log.
         [HttpGet("birds/search")]
         public async Task<IActionResult> GetBirdSpecies(string term)
         {
@@ -74,7 +75,9 @@ namespace StorkDork.Controllers
         }
 
         // GET: BirdLog
-        public async Task<IActionResult> Index(string sortOrder, int? birdId, int? locationId, string filterBird, string[] selectedBirds)
+        //This is the main for a user to view their sightings.
+        // Index.cshtml
+        public async Task<IActionResult> Index(string sortOrder, int? birdId, string filterBird, string[] selectedBirds)
         {
             //This is to check if the user is authenticated
             if (!User.Identity.IsAuthenticated)
@@ -88,8 +91,6 @@ namespace StorkDork.Controllers
             {
                 return NotFound("User not found");
             }
-
-
 
             //To get sightings based on the logged on user
             var sightingsQuery = _context.Sightings
@@ -113,33 +114,14 @@ namespace StorkDork.Controllers
 
 
             ViewBag.UserName = sdUser.FirstName;
-            // Predefined dictionary of PNW locations with their coordinates and names
-            ViewBag.PnwLocations = new Dictionary<string, string>
-            {
-                { "48.4244,-122.3358", "Skagit Valley, WA" },
-                { "46.8797,-121.7269", "Mount Rainier National Park, WA" },
-                { "47.6573,-122.4057", "Discovery Park, Seattle, WA" },
-                { "47.0726,-122.7175", "Nisqually National Wildlife Refuge, WA" },
-                { "47.8601,-123.9343", "Olympic National Park (Hoh Rainforest), WA" },
-                { "45.7156,-122.7745", "Sauvie Island, OR" },
-                { "42.9778,-118.9097", "Malheur National Wildlife Refuge, OR" },
-                { "42.8684,-122.1685", "Crater Lake National Park, OR" },
-                { "45.9190,-123.9740", "Ecola State Park, OR" },
-                { "42.1561,-121.7381", "Klamath Basin, OR" },
-                { "49.0456,-123.0586", "Boundary Bay, BC" },
-                { "49.3043,-123.1443", "Stanley Park, Vancouver, BC" },
-                { "49.1167,-123.1500", "Reifel Migratory Bird Sanctuary, BC" },
-                { "48.7500,-125.5000", "Pacific Rim National Park, BC" },
-                { "49.5000,-119.5833", "Okanagan Valley, BC" },
-                { "47.5000,-116.8000", "Lake Coeur d’Alene, ID" },
-                { "43.3000,-112.0000", "Camas National Wildlife Refuge, ID" },
-                { "44.3611,-111.4550", "Harriman State Park, ID" }
-            };
 
             ViewBag.SortOrder = sortOrder;
-            ViewBag.Birds = await _context.Birds.ToListAsync();
-            
-            
+            // In the Index action
+            ViewBag.FamilyCommonNames = await _context.Birds
+                .Select(b => b.FamilyCommonName)
+                .Distinct()
+                .ToListAsync();
+       
 
             ViewBag.FamilyCommonNames = await _context.Birds
                 .Where(b => b.FamilyCommonName != null) // Ensure no null values
@@ -179,7 +161,6 @@ namespace StorkDork.Controllers
 
                 // Sort by null dates first, then by date (newest to oldest)
                 { "date-null", q => q.OrderBy(s => s.Date == null ? 0 : 1).ThenByDescending(s => s.Date) },
-
                 
                 // Sort by bird name (A-Z), nulls at the bottom
                 { "bird", q => q.OrderBy(s => s.Bird == null)
@@ -194,80 +175,18 @@ namespace StorkDork.Controllers
                                     .ThenBy(s => s.Bird != null ? s.Bird.CommonName : string.Empty) },
 
                 // Sort by location (A-Z), nulls at the bottom
-                { "location", q => q.OrderBy(s => GetLocationName(s.Latitude, s.Longitude) == null).ThenBy(s => GetLocationName(s.Latitude, s.Longitude)) },
+                { "location", q => q.OrderBy(s => s.Latitude).ThenBy(s => s.Latitude) },
 
                 // Sort by location (Z-A), nulls at the bottom
-                { "location-desc", q => q.OrderBy(s => GetLocationName(s.Latitude, s.Longitude) == null).ThenByDescending(s => GetLocationName(s.Latitude, s.Longitude)) },
+                { "location-desc", q => q.OrderByDescending(s => s.Latitude).ThenByDescending(s => s.Longitude) },
 
                 // Sort by null locations first, then by location (A-Z)
-                { "location-null", q => q.OrderBy(s => GetLocationName(s.Latitude, s.Longitude) == null ? 0 : 1).ThenBy(s => GetLocationName(s.Latitude, s.Longitude)) }
+                { "location-null", q => q.OrderBy(s => s.Latitude == null ? 0 : 1).ThenBy(s => s.Longitude == null ? 0 : 1) }
 
             };
             
 
-            // Apply sorting if a valid sortOrder is provided
-            if (!string.IsNullOrEmpty(sortOrder) && sortOptions.ContainsKey(sortOrder))
-            {
-    
-                if (sortOrder.StartsWith("location"))
-                {
-                    var sightingsList = await sightingsQuery.ToListAsync();
 
-                    switch (sortOrder)
-                    {
-                        case "location":
-                        sightingsList = sightingsList
-                            .OrderBy(s => GetLocationName(s.Latitude, s.Longitude) == null)
-                            .ThenBy(s => GetLocationName(s.Latitude, s.Longitude))
-                            .ToList();
-                        break;
-
-                        case "location-desc":
-                            sightingsList = sightingsList
-                                .OrderBy(s => GetLocationName(s.Latitude, s.Longitude) == null)
-                                .ThenByDescending(s => GetLocationName(s.Latitude, s.Longitude))
-                                .ToList();
-                            break;
-
-                        case "location-null":
-                            sightingsList = sightingsList
-                                .OrderBy(s => GetLocationName(s.Latitude, s.Longitude) == null ? 0 : 1)
-                                .ThenBy(s => GetLocationName(s.Latitude, s.Longitude))
-                                .ToList();
-                            break;
-                    }
-                    return View(sightingsList);
-                }
-                else
-                {
-                    sightingsQuery = sortOptions[sortOrder](sightingsQuery); // Apply the selected sorting option
-                }
-    
-            }
-
-            // A predefined list of common PNW bird sighting locations with longitude and latitde coordinates
-            ViewBag.PnwLocations = new Dictionary<string, string>
-            {
-                { "48.4244,-122.3358", "Skagit Valley, WA" },
-                { "46.8797,-121.7269", "Mount Rainier National Park, WA" },
-                { "47.6573,-122.4057", "Discovery Park, Seattle, WA" },
-                { "47.0726,-122.7175", "Nisqually National Wildlife Refuge, WA" },
-                { "47.8601,-123.9343", "Olympic National Park (Hoh Rainforest), WA" },
-                { "45.7156,-122.7745", "Sauvie Island, OR" },
-                { "42.9778,-118.9097", "Malheur National Wildlife Refuge, OR" },
-                { "42.8684,-122.1685", "Crater Lake National Park, OR" },
-                { "45.9190,-123.9740", "Ecola State Park, OR" },
-                { "42.1561,-121.7381", "Klamath Basin, OR" },
-                { "49.0456,-123.0586", "Boundary Bay, BC" },
-                { "49.3043,-123.1443", "Stanley Park, Vancouver, BC" },
-                { "49.1167,-123.1500", "Reifel Migratory Bird Sanctuary, BC" },
-                { "48.7500,-125.5000", "Pacific Rim National Park, BC" },
-                { "49.5000,-119.5833", "Okanagan Valley, BC" },
-                { "47.5000,-116.8000", "Lake Coeur d’Alene, ID" },
-                { "43.3000,-112.0000", "Camas National Wildlife Refuge, ID" },
-                { "44.3611,-111.4550", "Harriman State Park, ID" }
-            };
-            
 
            
             var sightings = await sightingsQuery.ToListAsync();
@@ -275,19 +194,7 @@ namespace StorkDork.Controllers
 
            
         }
-        // Helper method to get location name from latitude and longitude
-        private string? GetLocationName(decimal? latitude, decimal? longitude)
-        {
-            if (latitude == null || longitude == null)
-            {
-                return null;
-            }
-            
-            // Return the location name if the key exists in ViewBag.PnwLocations, otherwise return null
-            string key = $"{latitude.Value:0.0000},{longitude.Value:0.0000}";
-            return ViewBag.PnwLocations.ContainsKey(key) ? ViewBag.PnwLocations[key] : null;
-        }
-        
+
         
 
         // GET: BirdLog/Details/5
@@ -309,27 +216,7 @@ namespace StorkDork.Controllers
             }
 
               // A predefined list of common PNW bird sighting locations with longitude and latitde coordinates
-            ViewBag.PnwLocations = new Dictionary<string, string>
-            {
-                { "48.4244,-122.3358", "Skagit Valley, WA" },
-                { "46.8797,-121.7269", "Mount Rainier National Park, WA" },
-                { "47.6573,-122.4057", "Discovery Park, Seattle, WA" },
-                { "47.0726,-122.7175", "Nisqually National Wildlife Refuge, WA" },
-                { "47.8601,-123.9343", "Olympic National Park (Hoh Rainforest), WA" },
-                { "45.7156,-122.7745", "Sauvie Island, OR" },
-                { "42.9778,-118.9097", "Malheur National Wildlife Refuge, OR" },
-                { "42.8684,-122.1685", "Crater Lake National Park, OR" },
-                { "45.9190,-123.9740", "Ecola State Park, OR" },
-                { "42.1561,-121.7381", "Klamath Basin, OR" },
-                { "49.0456,-123.0586", "Boundary Bay, BC" },
-                { "49.3043,-123.1443", "Stanley Park, Vancouver, BC" },
-                { "49.1167,-123.1500", "Reifel Migratory Bird Sanctuary, BC" },
-                { "48.7500,-125.5000", "Pacific Rim National Park, BC" },
-                { "49.5000,-119.5833", "Okanagan Valley, BC" },
-                { "47.5000,-116.8000", "Lake Coeur d’Alene, ID" },
-                { "43.3000,-112.0000", "Camas National Wildlife Refuge, ID" },
-                { "44.3611,-111.4550", "Harriman State Park, ID" }
-            };
+              // pnw locations are being removed
 
             return View(sighting);
         }
@@ -337,7 +224,9 @@ namespace StorkDork.Controllers
 
 
 
-          // GET: BirdLog/Create
+        // GET: BirdLog/Create
+        [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Create(string? searchTerm = null, string? commonName = null)
         {
             if (!string.IsNullOrWhiteSpace(commonName))
@@ -361,7 +250,7 @@ namespace StorkDork.Controllers
 
                 ViewBag.SearchResults = birds; // Pass the search results to the view
                 ViewBag.SearchTerm = searchTerm; // Pass the search term to the view
-                ViewBag.PnwLocations = GetPnwLocations();
+                //removed pnw locations. using map instead
             }
 
             var currentSdUser = await _sdUserRepository.GetSDUserByIdentity(User);
@@ -372,43 +261,20 @@ namespace StorkDork.Controllers
 
             }
 
-
-
            //get the current user id
             ViewBag.SdUserId = currentSdUser.Id;
 
             // Populate ViewBag with birds
             ViewBag.Birds = new SelectList(_context.Birds, "Id", "CommonName");
 
-            
-            ViewBag.PnwLocations = new List<SelectListItem>
-            {
-                new SelectListItem { Text = "Skagit Valley, WA", Value = "48.4244,-122.3358" },
-                new SelectListItem { Text = "Mount Rainier National Park, WA", Value = "46.8797,-121.7269" },
-                new SelectListItem { Text = "Discovery Park, Seattle, WA", Value = "47.6573,-122.4057" },
-                new SelectListItem { Text = "Nisqually National Wildlife Refuge, WA", Value = "47.0726,-122.7175" },
-                new SelectListItem { Text = "Olympic National Park (Hoh Rainforest), WA", Value = "47.8601,-123.9343" },
-                new SelectListItem { Text = "Sauvie Island, OR", Value = "45.7156,-122.7745" },
-                new SelectListItem { Text = "Malheur National Wildlife Refuge, OR", Value = "42.9778,-118.9097" },
-                new SelectListItem { Text = "Crater Lake National Park, OR", Value = "42.8684,-122.1685" },
-                new SelectListItem { Text = "Ecola State Park, OR", Value = "45.9190,-123.9740" },
-                new SelectListItem { Text = "Klamath Basin, OR", Value = "42.1561,-121.7381" },
-                new SelectListItem { Text = "Boundary Bay, BC", Value = "49.0456,-123.0586" },
-                new SelectListItem { Text = "Stanley Park, Vancouver, BC", Value = "49.3043,-123.1443" },
-                new SelectListItem { Text = "Reifel Migratory Bird Sanctuary, BC", Value = "49.1167,-123.1500" },
-                new SelectListItem { Text = "Pacific Rim National Park, BC", Value = "48.7500,-125.5000" },
-                new SelectListItem { Text = "Okanagan Valley, BC", Value = "49.5000,-119.5833" },
-                new SelectListItem { Text = "Lake Coeur d’Alene, ID", Value = "47.5000,-116.8000" },
-                new SelectListItem { Text = "Camas National Wildlife Refuge, ID", Value = "43.3000,-112.0000" },
-                new SelectListItem { Text = "Harriman State Park, ID", Value = "44.3611,-111.4550" }
-
-            };
-
-
-
-            
+            ViewBag.DefaultLat = 45.5231; // Example default coordinates
+            ViewBag.DefaultLng = -122.6765;
+            ViewBag.DefaultZoom = 7;
+   
             return View();
         }
+
+
 
         // POST: BirdLog/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -418,12 +284,8 @@ namespace StorkDork.Controllers
         public async Task<IActionResult> Create([Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sightings) //IFormFile photoFile)
         {
 
-
             var currentSdUser = await _sdUserRepository.GetSDUserByIdentity(User);
-
-
             if (currentSdUser == null)
-
             {
                 ModelState.AddModelError("", "User not found");
                 return RedirectToAction("Index");
@@ -431,34 +293,35 @@ namespace StorkDork.Controllers
 
             sightings.SdUserId = currentSdUser.Id;
 
-            var selectedLocation = Request.Form["PnwLocation"];
-            if (selectedLocation == "0")
+            if ((sightings.Latitude.HasValue || sightings.Longitude.HasValue) &&
+                (!sightings.Latitude.HasValue || !sightings.Longitude.HasValue))
             {
-                sightings.Latitude = null;
-                sightings.Longitude = null;
+                ModelState.AddModelError("", "Both coordinates must be provided");
             }
-            else if (string.IsNullOrEmpty(selectedLocation))
-            {
 
-                ModelState.AddModelError("PnwLocation", "Please select a location or select N/A");
-            }
-             // Validate bird (always check, even if location is provided)
             if (sightings.BirdId == null)
             {
-                ModelState.AddModelError("BirdId", "Please select a bird or choose N/A.");
+                ModelState.AddModelError("BirdId", "Please select a bird.");
             }
 
-   
-            // Check if both Bird and Location are left blank (not even N/A)
-            if (sightings.BirdId == null && string.IsNullOrEmpty(selectedLocation))
-            {
-                ModelState.AddModelError("BirdId", "Please select a bird or choose N/A.");
-                ModelState.AddModelError("PnwLocation", "Please select a location or choose N/A.");
-            }
 
             if (!sightings.Date.HasValue)
             {
                 sightings.Date = DateTime.UtcNow;
+            }
+
+            if (!ModelState.IsValid)
+            {
+                // Repopulate necessary view data
+                ViewBag.Birds = new SelectList(_context.Birds, "Id", "CommonName", sightings.BirdId);
+                ViewBag.DefaultLat = sightings.Latitude ?? 45.5231m;
+                ViewBag.DefaultLng = sightings.Longitude ?? -122.6765m;
+                ViewBag.DefaultZoom = sightings.Latitude != null ? 12 : 7;
+                
+                // Preserve search term if needed
+                ViewBag.PrefilledBirdName = Request.Form["birdSearch"];
+                
+                return View(sightings);
             }
 
            //if (photoFile != null && photoFile.Length > 0)
@@ -554,35 +417,14 @@ namespace StorkDork.Controllers
 
             // If the model state is invalid, repopulate the ViewBag and return the view
             ViewBag.Birds = new SelectList(_context.Birds, "Id", "CommonName", sightings.BirdId);
-                    
-            
-            ViewBag.PnwLocations = new List<SelectListItem>
-            {
-                new SelectListItem { Text = "Skagit Valley, WA", Value = "48.4244,-122.3358" },
-                new SelectListItem { Text = "Mount Rainier National Park, WA", Value = "46.8797,-121.7269" },
-                new SelectListItem { Text = "Discovery Park, Seattle, WA", Value = "47.6573,-122.4057" },
-                new SelectListItem { Text = "Nisqually National Wildlife Refuge, WA", Value = "47.0726,-122.7175" },
-                new SelectListItem { Text = "Olympic National Park (Hoh Rainforest), WA", Value = "47.8601,-123.9343" },
-                new SelectListItem { Text = "Sauvie Island, OR", Value = "45.7156,-122.7745" },
-                new SelectListItem { Text = "Malheur National Wildlife Refuge, OR", Value = "42.9778,-118.9097" },
-                new SelectListItem { Text = "Crater Lake National Park, OR", Value = "42.8684,-122.1685" },
-                new SelectListItem { Text = "Ecola State Park, OR", Value = "45.9190,-123.9740" },
-                new SelectListItem { Text = "Klamath Basin, OR", Value = "42.1561,-121.7381" },
-                new SelectListItem { Text = "Boundary Bay, BC", Value = "49.0456,-123.0586" },
-                new SelectListItem { Text = "Stanley Park, Vancouver, BC", Value = "49.3043,-123.1443" },
-                new SelectListItem { Text = "Reifel Migratory Bird Sanctuary, BC", Value = "49.1167,-123.1500" },
-                new SelectListItem { Text = "Pacific Rim National Park, BC", Value = "48.7500,-125.5000" },
-                new SelectListItem { Text = "Okanagan Valley, BC", Value = "49.5000,-119.5833" },
-                new SelectListItem { Text = "Lake Coeur d’Alene, ID", Value = "47.5000,-116.8000" },
-                new SelectListItem { Text = "Camas National Wildlife Refuge, ID", Value = "43.3000,-112.0000" },
-                new SelectListItem { Text = "Harriman State Park, ID", Value = "44.3611,-111.4550" }
-
-            };
-            
-
-            
+            ViewBag.DefaultLat  = sightings.Latitude  ?? 45.5231m;
+            ViewBag.DefaultLng = sightings.Longitude ?? -122.6765m;
+            ViewBag.DefaultZoom = sightings.Latitude != null ? 12 : 7;
+                          
             return View(sightings);
         }
+
+
 
         // GET: BirdLog/Edit/5
         [HttpGet]
@@ -593,13 +435,10 @@ namespace StorkDork.Controllers
                 return NotFound();
             }
             
-
             var sighting = await _context.Sightings
                 .Include(s => s.Bird)
                 .Include(s => s.SdUser)
                 .FirstOrDefaultAsync(m => m.Id == id);
-
-         
 
             if (sighting == null)
             {
@@ -632,34 +471,6 @@ namespace StorkDork.Controllers
                 ViewBag.SelectedBirdName = "N/A";
                 ViewBag.SelectedBirdId = null;
             }
-
-     
-
-            ViewBag.PnwLocations = new List<SelectListItem>
-            {
-                new SelectListItem { Text = "Skagit Valley, WA", Value = "48.4244,-122.3358" },
-                new SelectListItem { Text = "Mount Rainier National Park, WA", Value = "46.8797,-121.7269" },
-                new SelectListItem { Text = "Discovery Park, Seattle, WA", Value = "47.6573,-122.4057" },
-                new SelectListItem { Text = "Nisqually National Wildlife Refuge, WA", Value = "47.0726,-122.7175" },
-                new SelectListItem { Text = "Olympic National Park (Hoh Rainforest), WA", Value = "47.8601,-123.9343" },
-                new SelectListItem { Text = "Sauvie Island, OR", Value = "45.7156,-122.7745" },
-                new SelectListItem { Text = "Malheur National Wildlife Refuge, OR", Value = "42.9778,-118.9097" },
-                new SelectListItem { Text = "Crater Lake National Park, OR", Value = "42.8684,-122.1685" },
-                new SelectListItem { Text = "Ecola State Park, OR", Value = "45.9190,-123.9740" },
-                new SelectListItem { Text = "Klamath Basin, OR", Value = "42.1561,-121.7381" },
-                new SelectListItem { Text = "Boundary Bay, BC", Value = "49.0456,-123.0586" },
-                new SelectListItem { Text = "Stanley Park, Vancouver, BC", Value = "49.3043,-123.1443" },
-                new SelectListItem { Text = "Reifel Migratory Bird Sanctuary, BC", Value = "49.1167,-123.1500" },
-                new SelectListItem { Text = "Pacific Rim National Park, BC", Value = "48.7500,-125.5000" },
-                new SelectListItem { Text = "Okanagan Valley, BC", Value = "49.5000,-119.5833" },
-                new SelectListItem { Text = "Lake Coeur d’Alene, ID", Value = "47.5000,-116.8000" },
-                new SelectListItem { Text = "Camas National Wildlife Refuge, ID", Value = "43.3000,-112.0000" },
-                new SelectListItem { Text = "Harriman State Park, ID", Value = "44.3611,-111.4550" }
-
-            };
-        
-            
-            Console.WriteLine($"Selected Location: {ViewBag.SelectedLatLong}");
 
             return View(sighting);
         }
@@ -765,29 +576,6 @@ namespace StorkDork.Controllers
                 ViewBag.SelectedBirdId = null;
             }
 
-            ViewBag.PnwLocations = new List<SelectListItem>
-            {
-                new SelectListItem { Text = "Skagit Valley, WA", Value = "48.4244,-122.3358" },
-                new SelectListItem { Text = "Mount Rainier National Park, WA", Value = "46.8797,-121.7269" },
-                new SelectListItem { Text = "Discovery Park, Seattle, WA", Value = "47.6573,-122.4057" },
-                new SelectListItem { Text = "Nisqually National Wildlife Refuge, WA", Value = "47.0726,-122.7175" },
-                new SelectListItem { Text = "Olympic National Park (Hoh Rainforest), WA", Value = "47.8601,-123.9343" },
-                new SelectListItem { Text = "Sauvie Island, OR", Value = "45.7156,-122.7745" },
-                new SelectListItem { Text = "Malheur National Wildlife Refuge, OR", Value = "42.9778,-118.9097" },
-                new SelectListItem { Text = "Crater Lake National Park, OR", Value = "42.8684,-122.1685" },
-                new SelectListItem { Text = "Ecola State Park, OR", Value = "45.9190,-123.9740" },
-                new SelectListItem { Text = "Klamath Basin, OR", Value = "42.1561,-121.7381" },
-                new SelectListItem { Text = "Boundary Bay, BC", Value = "49.0456,-123.0586" },
-                new SelectListItem { Text = "Stanley Park, Vancouver, BC", Value = "49.3043,-123.1443" },
-                new SelectListItem { Text = "Reifel Migratory Bird Sanctuary, BC", Value = "49.1167,-123.1500" },
-                new SelectListItem { Text = "Pacific Rim National Park, BC", Value = "48.7500,-125.5000" },
-                new SelectListItem { Text = "Okanagan Valley, BC", Value = "49.5000,-119.5833" },
-                new SelectListItem { Text = "Lake Coeur d’Alene, ID", Value = "47.5000,-116.8000" },
-                new SelectListItem { Text = "Camas National Wildlife Refuge, ID", Value = "43.3000,-112.0000" },
-                new SelectListItem { Text = "Harriman State Park, ID", Value = "44.3611,-111.4550" }
-
-            };
-
             return View(sighting);
         }
 
@@ -808,36 +596,11 @@ namespace StorkDork.Controllers
                 return NotFound();
             }
 
-            ViewBag.PnwLocations =  GetPnwLocations();
 
-            
-
+        
             return View(sighting);
         }
-            private Dictionary<string, string> GetPnwLocations()
-            {
-                return new Dictionary<string, string>
-                {
-                    { "48.4244,-122.3358", "Skagit Valley, WA" },
-                    { "46.8797,-121.7269", "Mount Rainier National Park, WA" },
-                    { "47.6573,-122.4057", "Discovery Park, Seattle, WA" },
-                    { "47.0726,-122.7175", "Nisqually National Wildlife Refuge, WA" },
-                    { "47.8601,-123.9343", "Olympic National Park (Hoh Rainforest), WA" },
-                    { "45.7156,-122.7745", "Sauvie Island, OR" },
-                    { "42.9778,-118.9097", "Malheur National Wildlife Refuge, OR" },
-                    { "42.8684,-122.1685", "Crater Lake National Park, OR" },
-                    { "45.9190,-123.9740", "Ecola State Park, OR" },
-                    { "42.1561,-121.7381", "Klamath Basin, OR" },
-                    { "49.0456,-123.0586", "Boundary Bay, BC" },
-                    { "49.3043,-123.1443", "Stanley Park, Vancouver, BC" },
-                    { "49.1167,-123.1500", "Reifel Migratory Bird Sanctuary, BC" },
-                    { "48.7500,-125.5000", "Pacific Rim National Park, BC" },
-                    { "49.5000,-119.5833", "Okanagan Valley, BC" },
-                    { "47.5000,-116.8000", "Lake Coeur d’Alene, ID" },
-                    { "43.3000,-112.0000", "Camas National Wildlife Refuge, ID" },
-                    { "44.3611,-111.4550", "Harriman State Park, ID" }
-                };
-            }
+            
             
         
 
@@ -860,7 +623,9 @@ namespace StorkDork.Controllers
         {
             return _context.Sightings.Any(e => e.Id == id);
         }
+        
 
+        // this is the confirmation page so when a user successfully creates a logged sighting, they will be taken here
         public IActionResult Confirmation(int? userId, bool hasPhoto)
         {
             var sighting = _context.Sightings.Find(userId);
