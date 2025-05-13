@@ -1,0 +1,20 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.map-page {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.map-page #map {
+    height: 98%;
+    width: 100%;
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip  {
+    background-color: #E9E3B4 !important;
+}

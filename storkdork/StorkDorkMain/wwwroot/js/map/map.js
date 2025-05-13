@@ -20,6 +20,11 @@ const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let markers = {};
 
+var storkDorkIcon = L.icon({
+    iconUrl: '../images/map/StorkMarkerIcon.png',
+    iconSize: [64, 64]
+})
+
 async function fetchAllSightings() {
     let url = `/api/map/GetSightings`;
     let response = await fetch(url);
@@ -109,7 +114,7 @@ async function makeSightingMarkers(data, userId = null) {
     data.forEach(async sighting => {
 
         if (sighting.latitude && sighting.longitude) {
-            const marker = L.marker([sighting.latitude, sighting.longitude]);
+            const marker = L.marker([sighting.latitude, sighting.longitude], {icon: storkDorkIcon});
 
             allSightingsGroup.addLayer(marker);
 
