@@ -115,5 +115,49 @@ namespace StorkDorkMain.Services
                 return false;
             }
         }
+
+        public async Task<bool> ApprovePhotoSubmission(int id, ClaimsPrincipal moderatorUser, string notes)
+        {
+            var submission = await _moderatedContentRepository.GetContentWithDetailsAsync(id) as BirdPhotoSubmission;
+            if (submission == null) return false;
+
+            var bird = _birdRepository.FindById(submission.BirdId);
+            if (bird == null) return false;
+
+            var moderator = await _sdUserRepository.GetSDUserByIdentity(moderatorUser);
+            if (moderator == null) return false;
+
+            try
+            {
+                var birdPhoto = new BirdPhoto
+                {
+                    BirdId = bird.Id,
+                    PhotoData = submission.PhotoData,
+                    PhotoContentType = submission.PhotoContentType,
+                    Caption = submission.Caption,
+                    DateAdded = DateTime.UtcNow
+                };
+                // If Bird has a Photos collection:
+                bird.Photos.Add(birdPhoto);
+                _birdRepository.AddOrUpdate(bird);
+
+                // 2) Mark the submission as approved
+                submission.Status = "Approved";
+                submission.ModeratorId = moderator.Id;
+                submission.ModeratedDate = DateTime.UtcNow;
+                submission.ModeratorNotes = notes;
+                _moderatedContentRepository.AddOrUpdate(submission);
+
+                // 3) Save changes
+                await _moderatedContentRepository.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        
     }
 }

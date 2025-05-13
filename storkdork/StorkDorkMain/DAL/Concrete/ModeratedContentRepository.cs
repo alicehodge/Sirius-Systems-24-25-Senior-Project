@@ -25,11 +25,35 @@ namespace StorkDorkMain.DAL.Concrete
 
         public async Task<ModeratedContent> GetContentWithDetailsAsync(int id)
         {
-            return await _context.ModeratedContent
+            // First try to get it as a RangeSubmission
+            ModeratedContent content = await _context.ModeratedContent
                 .Include(c => c.Submitter)
                 .Include(c => c.Moderator)
-                .OfType<RangeSubmission>().Include(rs => rs.Bird)
+                .OfType<RangeSubmission>()
+                .Include(rs => rs.Bird)
                 .FirstOrDefaultAsync(c => c.Id == id);
+
+            // If not found as RangeSubmission, try BirdPhotoSubmission
+            if (content == null)
+            {
+                content = await _context.ModeratedContent
+                    .Include(c => c.Submitter)
+                    .Include(c => c.Moderator)
+                    .OfType<BirdPhotoSubmission>()
+                    .Include(ps => ps.Bird)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+            }
+
+            // If still not found, return the base type
+            if (content == null)
+            {
+                content = await _context.ModeratedContent
+                    .Include(c => c.Submitter)
+                    .Include(c => c.Moderator)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+            }
+
+            return content;
         }
 
         public override ModeratedContent FindById(int id)

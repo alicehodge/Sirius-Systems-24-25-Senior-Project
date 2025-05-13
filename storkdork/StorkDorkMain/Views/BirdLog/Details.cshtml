@@ -37,22 +37,7 @@
 
                 <!-- Location -->
                 <p class="card-text fs-5">
-                    <strong>Location:</strong>
-                    @{
-                        var locationKey = Model.Latitude.HasValue && Model.Longitude.HasValue 
-                            ? $"{Model.Latitude:0.0000},{Model.Longitude:0.0000}"
-                            : null;
-                        
-                        var locationName = locationKey != null && ViewBag.PnwLocations.ContainsKey(locationKey)
-                            ? ViewBag.PnwLocations[locationKey]
-                            : "Unknown Location";
-                    }
-                    <strong>@locationName</strong>
-                    @if (locationKey != null)
-                    {
-                        <br>
-                        <small class="text-muted">Coordinates: @locationKey</small>
-                    }
+
                 </p>
 
                 <!-- Date -->

@@ -12,5 +12,6 @@ namespace StorkDorkMain.Services
         Task<IEnumerable<ModeratedContent>> GetContentByStatusAsync(string status);
         Task<IEnumerable<ModeratedContent>> GetModerationHistoryAsync();
         Task<bool> ApproveRangeSubmission(int id, ClaimsPrincipal moderatorUser, string notes);
+        Task<bool> ApprovePhotoSubmission(int id, ClaimsPrincipal moderatorUser, string notes);
     }
 }
