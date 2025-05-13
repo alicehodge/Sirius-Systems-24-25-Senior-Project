@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace StorkDork.Controllers
 {
@@ -38,7 +39,10 @@ namespace StorkDork.Controllers
                 return NotFound();
             }
 
-            var bird = _birdRepo.FindById(id.Value);
+            var bird = await _birdRepo.GetAll()
+                .Include(b => b.Photos)
+                .FirstOrDefaultAsync(b => b.Id == id.Value);
+
             if (bird == null)
             {
                 return NotFound();
@@ -134,6 +138,110 @@ namespace StorkDork.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Error in SubmitRange: {ex.Message}, Stack Trace: {ex.StackTrace}");
+                return RedirectToAction("Error", "Home");
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitPhoto(BirdPhotoSubmissionViewModel viewModel)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing photo submission for BirdId: {viewModel.BirdId}");
+
+                // Check authentication first
+                var submitter = await _sdUserRepository.GetSDUserByIdentity(User);
+                if (submitter == null)
+                {
+                    _logger.LogWarning("Unauthorized access attempt - no valid user found");
+                    return new UnauthorizedResult();
+                }
+
+                ModelState.Remove("PhotoData");
+                ModelState.Remove("PhotoContentType");
+
+                if (!ModelState.IsValid)
+                {
+                    // Return any errors to the view
+                    foreach (var state in ModelState)
+                    {
+                        foreach (var error in state.Value.Errors)
+                        {
+                            _logger.LogWarning($"ModelState error for {state.Key}: {error.ErrorMessage}");
+                        }
+                    }
+                    return await ReloadDetailsView(viewModel.BirdId, "Please check the form values.");
+                }
+
+                // Find the respective Bird
+                var existingBird = _birdRepo.FindById(viewModel.BirdId);
+                if (existingBird == null)
+                {
+                    return NotFound($"Bird with ID {viewModel.BirdId} not found");
+                }
+
+                // Ensure photo is provided
+                if (viewModel.Photo == null || viewModel.Photo.Length == 0)
+                {
+                    ModelState.AddModelError("Photo", "A photo is required");
+                    return await ReloadDetailsView(viewModel.BirdId, "Please upload a photo.");
+                }
+
+                // Convert the IFormFile (viewModel.Photo) into byte[] and content type
+                byte[] photoBytes;
+                string photoContentType;
+
+                if (viewModel.Photo.Length > 5 * 1024 * 1024) // limit size to 5MB
+                {
+                    ModelState.AddModelError("Photo", "File size exceeds 5MB limit");
+                    return await ReloadDetailsView(viewModel.BirdId, "File size exceeds 5MB limit");
+                }
+
+                if (!viewModel.Photo.ContentType.StartsWith("image/"))
+                {
+                    ModelState.AddModelError("Photo", "Only image files are allowed");
+                    return await ReloadDetailsView(viewModel.BirdId, "Invalid file type");
+                }
+
+                using var memoryStream = new MemoryStream();
+                await viewModel.Photo.CopyToAsync(memoryStream);
+                photoBytes = memoryStream.ToArray();
+                photoContentType = viewModel.Photo.ContentType;
+
+                // Create moderated content from view model
+                var submission = new BirdPhotoSubmission
+                {
+                    BirdId = viewModel.BirdId,
+                    Bird = _birdRepo.FindById(viewModel.BirdId),
+                    PhotoData = photoBytes,
+                    PhotoContentType = photoContentType,
+                    Caption = viewModel.Caption,
+                    ContentType = "BirdPhoto",
+                    Status = "Pending",
+                    SubmittedDate = DateTime.UtcNow,
+                    SubmitterId = submitter.Id
+                };
+
+                try
+                {
+                    _logger.LogInformation($"Saving photo submission with SubmitterId: {submitter.Id}");
+                    _moderatedContentRepository.AddOrUpdate(submission);
+                    await _moderatedContentRepository.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Your photo has been submitted for review. Thank you for contributing!";
+                    return RedirectToAction(nameof(Details), new { id = viewModel.BirdId });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error saving photo submission: {ex.Message}");
+                    return await ReloadDetailsView(viewModel.BirdId, "Unable to save your submission.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in SubmitPhoto: {ex.Message}, Stack Trace: {ex.StackTrace}");
                 return RedirectToAction("Error", "Home");
             }
         }

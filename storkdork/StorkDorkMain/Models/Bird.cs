@@ -44,8 +44,11 @@ public partial class Bird
     public virtual ICollection<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
 
     public virtual ICollection<Sighting> Sightings { get; set; } = new List<Sighting>();
+    
+    public virtual ICollection<BirdPhoto> Photos { get; set; } = new List<BirdPhoto>();
 
     // Navigation property for related birds
     [NotMapped]
     public List<Bird> RelatedBirds { get; set; } = new List<Bird>();
+
 }

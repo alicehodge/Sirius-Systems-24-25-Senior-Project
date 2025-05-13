@@ -1,61 +1,78 @@
-CREATE TABLE [Bird](
-	[ID] int PRIMARY KEY IDENTITY(1,1),
-	[ScientificName] [nvarchar](100),
-	[CommonName] [nvarchar](100),
-	[SpeciesCode] [nvarchar](10),
-	[Category] [nvarchar](10),
-	[Order] [nvarchar](25) NULL,
-	[FamilyCommonName] [nvarchar](50) NULL,
-	[FamilyScientificName] [nvarchar](50) NULL,
-	[ReportAs] [nvarchar](10) NULL,
-	[Range] [nvarchar](1000) NULL
+CREATE TABLE [Bird]
+(
+    [ID] int PRIMARY KEY IDENTITY(1,1),
+    [ScientificName] [nvarchar](100),
+    [CommonName] [nvarchar](100),
+    [SpeciesCode] [nvarchar](10),
+    [Category] [nvarchar](10),
+    [Order] [nvarchar](25) NULL,
+    [FamilyCommonName] [nvarchar](50) NULL,
+    [FamilyScientificName] [nvarchar](50) NULL,
+    [ReportAs] [nvarchar](10) NULL,
+    [Range] [nvarchar](1000) NULL
 );
 
-CREATE TABLE [SDUser] (
-  [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [AspNetIdentityID] nvarchar(450),
-  [FirstName] nvarchar(50),
-  [LastName] nvarchar(50),
-  [DisplayName] nvarchar(25),
-  [ProfileImagePath] nvarchar(100)
+CREATE TABLE [BirdPhoto]
+(
+    [ID] INT PRIMARY KEY IDENTITY(1,1),
+    [BirdID] INT NOT NULL,
+    [PhotoData] VARBINARY(MAX) NOT NULL,
+    [PhotoContentType] NVARCHAR(100) NOT NULL,
+    [Caption] NVARCHAR(255) NULL,
+    [DateAdded] DATETIME2 NOT NULL
 );
 
-CREATE TABLE [Sighting] (
-  [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [SDUserID] int,
-  [BirdID] int,
-  [Date] datetime2,
-  [Latitude] decimal(8,6),
-  [Longitude] decimal(9,6),
-  [Notes] nvarchar(3000),
-  [Country] nvarchar(100),
-  [Subdivision] nvarchar(100),
-  [PhotoData] VARBINARY(MAX) NULL,
-  [PhotoContentType] NVARCHAR(MAX) NULL
+CREATE TABLE [SDUser]
+(
+    [ID] int PRIMARY KEY IDENTITY(1, 1),
+    [AspNetIdentityID] nvarchar(450),
+    [FirstName] nvarchar(50),
+    [LastName] nvarchar(50),
+    [DisplayName] nvarchar(25),
+    [ProfileImagePath] nvarchar(100)
+);
+
+CREATE TABLE [Sighting]
+(
+    [ID] int PRIMARY KEY IDENTITY(1, 1),
+    [SDUserID] int,
+    [BirdID] int,
+    [Date] datetime2,
+    [Latitude] decimal(8,6),
+    [Longitude] decimal(9,6),
+    [Notes] nvarchar(3000),
+    [Country] nvarchar(100),
+    [Subdivision] nvarchar(100),
+    [PhotoData] VARBINARY(MAX) NULL,
+    [PhotoContentType] NVARCHAR(MAX) NULL
 
 );
 
-CREATE TABLE [Checklist] (
-  [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [ChecklistName] nvarchar(100),
-  [SDUserID] int
+CREATE TABLE [Checklist]
+(
+    [ID] int PRIMARY KEY IDENTITY(1, 1),
+    [ChecklistName] nvarchar(100),
+    [SDUserID] int
 );
 
-CREATE TABLE [ChecklistItem] (
-  [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [ChecklistID] int,
-  [BirdID] int,
-  [Sighted] bit
+CREATE TABLE [ChecklistItem]
+(
+    [ID] int PRIMARY KEY IDENTITY(1, 1),
+    [ChecklistID] int,
+    [BirdID] int,
+    [Sighted] bit
 );
 
-CREATE TABLE [Milestone] (
-  [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [SDUserID] int,
-  [SightingsMade] int,
-  [PhotosContributed] int
+CREATE TABLE [Milestone]
+(
+    [ID] int PRIMARY KEY IDENTITY(1, 1),
+    [SDUserID] int,
+    [SightingsMade] int,
+    [PhotosContributed] int
 );
 
-CREATE TABLE [ModeratedContent] (
+CREATE TABLE [ModeratedContent]
+(
     [ID] int PRIMARY KEY IDENTITY(1,1),
     [ContentType] nvarchar(50) NOT NULL,
     [ContentId] int NOT NULL,
@@ -65,18 +82,27 @@ CREATE TABLE [ModeratedContent] (
     [ModeratorId] int NULL,
     [ModeratedDate] datetime2 NULL,
     [ModeratorNotes] nvarchar(max) NULL,
+
+    -- Fields for RangeSubmission
     [BirdId] int NULL,
     [RangeDescription] nvarchar(2000) NULL,
-    [SubmissionNotes] nvarchar(500) NULL
+    [SubmissionNotes] nvarchar(500) NULL,
+
+    -- Fields for BirdPhotoSubmission
+    [PhotoData] VARBINARY(MAX) NULL,
+    [PhotoContentType] nvarchar(100) NULL,
+    [Caption] nvarchar(255) NULL
 );
 
-CREATE TABLE [UserSettings] (
-  [ID] int PRIMARY KEY IDENTITY(1, 1),
-  [SDUserID] int,
-  [AnonymousSightings] bit NOT NULL DEFAULT 0,
+CREATE TABLE [UserSettings]
+(
+    [ID] int PRIMARY KEY IDENTITY(1, 1),
+    [SDUserID] int,
+    [AnonymousSightings] bit NOT NULL DEFAULT 0,
 );
 
-CREATE TABLE [Notification] (
+CREATE TABLE [Notification]
+(
     [ID] int PRIMARY KEY IDENTITY(1,1),
     [UserId] int NOT NULL,
     [Message] nvarchar(500) NOT NULL,
@@ -94,7 +120,7 @@ ALTER TABLE [Sighting] ADD CONSTRAINT [FK_Sighting_Bird]
 
 ALTER TABLE [Checklist] ADD CONSTRAINT [FK_Checklist_SDUser] 
     FOREIGN KEY ([SDUserID]) REFERENCES [SDUser] ([ID]);
-    
+
 ALTER TABLE [ChecklistItem] ADD CONSTRAINT [FK_ChecklistItem_Checklist] 
     FOREIGN KEY ([ChecklistID]) REFERENCES [Checklist] ([ID]);
 
@@ -125,3 +151,5 @@ ALTER TABLE [Notification] ADD CONSTRAINT [FK_Notification_SDUser]
 ALTER TABLE [Notification] ADD CONSTRAINT [CK_Notification_Type]
     CHECK ([Type] IN ('Success', 'Warning', 'Info'));
 
+ALTER TABLE [BirdPhoto] ADD CONSTRAINT [FK_BirdPhoto_Bird] 
+    FOREIGN KEY ([BirdID]) REFERENCES [Bird] ([ID]);

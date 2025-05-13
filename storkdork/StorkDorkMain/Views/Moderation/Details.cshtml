@@ -89,9 +89,42 @@
                     <dt class="col-sm-2">Submission Notes:</dt>
                     <dd class="col-sm-10">@rangeSubmission.SubmissionNotes</dd>
                 </dl>
-                <div>
+            }
+            
+            @if (Model is BirdPhotoSubmission photoSubmission)
+            {
+                <hr />
+                <h4>Bird Photo Submission</h4>
+                <dl class="row">
+                    <dt class="col-sm-2">Bird:</dt>
+                    <dd class="col-sm-10">
+                        <a asp-controller="Bird" asp-action="Details" asp-route-id="@photoSubmission.BirdId"
+                            class="text-decoration-none">
+                            @(photoSubmission.Bird?.CommonName ?? $"Bird ID: {photoSubmission.BirdId}")
+                        </a>
+                    </dd>
+
+                    @if (!string.IsNullOrEmpty(photoSubmission.Caption))
+                    {
+                        <dt class="col-sm-2">Caption:</dt>
+                        <dd class="col-sm-10">@photoSubmission.Caption</dd>
+                    }
                     
-                </div>
+                    <dt class="col-sm-2">Submitted Photo:</dt>
+                    <dd class="col-sm-10">
+                        @if (photoSubmission.PhotoData != null && photoSubmission.PhotoContentType != null)
+                        {
+                            <div class="mb-3">
+                                <img src="data:@photoSubmission.PhotoContentType;base64,@Convert.ToBase64String(photoSubmission.PhotoData)" 
+                                     class="img-fluid rounded" style="max-height: 400px;" alt="Bird photo submission" />
+                            </div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No photo data available</span>
+                        }
+                    </dd>
+                </dl>
             }
 
             @if (Model.Status == "Pending")
