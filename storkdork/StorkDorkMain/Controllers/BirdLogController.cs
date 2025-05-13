@@ -15,8 +15,8 @@ using StorkDorkMain.DAL.Abstract;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using StorkDorkMain.DAL.Concrete;
 
-//commenting here because apparently
-namespace StorkDork.Controllers
+
+namespace StorkDorkMain.Controllers
 {
     
 
@@ -184,11 +184,7 @@ namespace StorkDork.Controllers
                 { "location-null", q => q.OrderBy(s => s.Latitude == null ? 0 : 1).ThenBy(s => s.Longitude == null ? 0 : 1) }
 
             };
-            
-
-
-
-           
+                     
             var sightings = await sightingsQuery.ToListAsync();
             return View(await sightingsQuery.ToListAsync());
 
@@ -215,8 +211,6 @@ namespace StorkDork.Controllers
                 return NotFound();
             }
 
-              // A predefined list of common PNW bird sighting locations with longitude and latitde coordinates
-              // pnw locations are being removed
 
             return View(sighting);
         }
@@ -250,7 +244,6 @@ namespace StorkDork.Controllers
 
                 ViewBag.SearchResults = birds; // Pass the search results to the view
                 ViewBag.SearchTerm = searchTerm; // Pass the search term to the view
-                //removed pnw locations. using map instead
             }
 
             var currentSdUser = await _sdUserRepository.GetSDUserByIdentity(User);
@@ -480,38 +473,39 @@ namespace StorkDork.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sighting, IFormFile photoFile, bool removePhoto = false)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SdUserId,BirdId,Date,Latitude,Longitude,Notes")] Sighting sightings, IFormFile photoFile, bool removePhoto = false)
         {
-            if (id != sighting.Id)
+            if (id != sightings.Id)
             {
                 return NotFound();
             }
-            
-            var selectedLocation = Request.Form["PnwLocation"];
 
-            if (sighting.BirdId == 0)
+            var currentUser = await _sdUserRepository.GetSDUserByIdentity(User);
+            if (sightings.SdUserId != currentUser?.Id)
             {
-                sighting.BirdId = null;
-
-            }
-            else if (sighting.BirdId == null)
-            {
-                ModelState.AddModelError("BirdId", "Please select a bird or enter 'N/A' if unknown");
+                return Forbid();
             }
 
             
+
+            if (sightings.BirdId == 0)
+            {
+                sightings.BirdId = null;
+
+            }
+            else if (sightings.BirdId == null)
+            {
+                ModelState.AddModelError("BirdId", "Please select a bird");
+            }
+
+            if ((sightings.Latitude.HasValue || sightings.Longitude.HasValue) &&
+                (!sightings.Latitude.HasValue || !sightings.Longitude.HasValue))
+            {
+                ModelState.AddModelError("", "Both coordinates must be provided");
+            }
+
             
-
-            if (selectedLocation == "0") // N/A was selected
-            {
-                sighting.Latitude = null;
-                sighting.Longitude = null;
-            }
-            else if (string.IsNullOrEmpty(selectedLocation))
-            {
-                ModelState.AddModelError("PnwLocation","Please select a location or select N/A");
-            }
-
+            
             
 
             if (ModelState.IsValid)
@@ -520,36 +514,36 @@ namespace StorkDork.Controllers
                 {
                     if (removePhoto)
                     {
-                        sighting.PhotoData = null;
-                        sighting.PhotoContentType = null;
+                        sightings.PhotoData = null;
+                        sightings.PhotoContentType = null;
                     }
                     else if (photoFile != null && photoFile.Length > 0)
                     {
                         if (photoFile.Length > 5 * 1024 * 1024) // 5MB
                         {
                             ModelState.AddModelError("photoFile", "File size exceeds 5MB limit");
-                            return View(sighting);
+                            return View(sightings);
                         }
 
                         if (!photoFile.ContentType.StartsWith("image/"))
                         {
                             ModelState.AddModelError("photoFile", "Only image files are allowed");
-                            return View(sighting);
+                            return View(sightings);
                         }
 
                         using var memoryStream = new MemoryStream();
                         await photoFile.CopyToAsync(memoryStream);
-                        sighting.PhotoData = memoryStream.ToArray();
-                        sighting.PhotoContentType = photoFile.ContentType;
+                        sightings.PhotoData = memoryStream.ToArray();
+                        sightings.PhotoContentType = photoFile.ContentType;
                     }
 
-                    _context.Update(sighting);
+                    _context.Update(sightings);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index), new { userId = sighting.SdUserId });
+                    return RedirectToAction(nameof(Index), new { userId = sightings.SdUserId });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SightingExists(sighting.Id))
+                    if (!SightingExists(sightings.Id))
                     {
                         return NotFound();
                     }
@@ -562,10 +556,10 @@ namespace StorkDork.Controllers
             }
 
 
-             if (sighting.BirdId.HasValue)
+             if (sightings.BirdId.HasValue)
             {
                 var selectedBird = await _context.Birds
-                    .FirstOrDefaultAsync(b => b.Id == sighting.BirdId);
+                    .FirstOrDefaultAsync(b => b.Id == sightings.BirdId);
 
                 ViewBag.SelectedBirdName = selectedBird?.CommonName;
                 ViewBag.SelectedBirdId = selectedBird?.Id;
@@ -576,7 +570,7 @@ namespace StorkDork.Controllers
                 ViewBag.SelectedBirdId = null;
             }
 
-            return View(sighting);
+            return View(sightings);
         }
 
         // GET: BirdLog/Delete/5
