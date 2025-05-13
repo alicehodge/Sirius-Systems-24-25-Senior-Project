@@ -109,7 +109,12 @@ namespace StorkDorkMain.Controllers
             }
 
             // Fetch all birds from the database to display in the form
-            var birds = _context.Birds.ToList();
+            var birds = _context.Birds
+            .Select(b => new SelectListItem {
+                Value = b.Id.ToString(),
+                Text  = b.CommonName
+            })
+            .ToList();
             ViewBag.Birds = new SelectList(birds, "Id", "CommonName"); // Pass birds to the view
 
             ViewBag.SelectedSdUserId = sdUser.Id;
