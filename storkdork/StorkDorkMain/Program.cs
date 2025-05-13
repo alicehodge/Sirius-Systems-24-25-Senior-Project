@@ -75,6 +75,7 @@ builder.Services.AddDbContext<StorkDorkDbContext>(options => options
 
 
 
+
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
 .AddEntityFrameworkStores<StorkDorkIdentityDbContext>()
 .AddDefaultTokenProviders();
