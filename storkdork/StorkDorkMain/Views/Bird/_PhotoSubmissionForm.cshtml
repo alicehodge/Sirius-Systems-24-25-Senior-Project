@@ -1,0 +1,34 @@
+@model StorkDorkMain.Models.BirdPhotoSubmissionViewModel
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+<form asp-controller="Bird" asp-action="SubmitPhoto" method="post" enctype="multipart/form-data">
+@Html.AntiForgeryToken()
+    <input type="hidden" asp-for="BirdId" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Caption" class="form-label">Caption (optional)</label>
+        <input asp-for="Caption" class="form-control" />
+        <span asp-validation-for="Caption" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label class="form-label">Upload Photo</label>
+        <input type="file" asp-for="Photo" class="form-control" accept="image/*" />
+        <span asp-validation-for="Photo" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Photo</button>
+    <button type="button" class="btn btn-secondary" data-bs-toggle="collapse" data-bs-target="#photoSubmissionForm">Cancel</button>
+</form>
+
+@section Scripts 
+{
+    <partial name="_ValidationScriptsPartial" />
+}

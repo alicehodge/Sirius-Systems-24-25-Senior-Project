@@ -11,6 +11,8 @@ ALTER TABLE [Sighting] DROP CONSTRAINT FK_Sighting_SDUser;
 
 ALTER TABLE [Milestone] DROP CONSTRAINT FK_Milestone_SDUser;
 
+ALTER TABLE [BirdPhoto] DROP CONSTRAINT [FK_BirdPhoto_Bird];
+
 -- Drop foreign keys for notifications
 ALTER TABLE [Notification] DROP CONSTRAINT [FK_Notification_SDUser];
 ALTER TABLE [Notification] DROP CONSTRAINT [CK_Notification_Type];
@@ -20,11 +22,6 @@ ALTER TABLE [ModeratedContent] DROP CONSTRAINT [FK_ModeratedContent_Bird];
 ALTER TABLE [ModeratedContent] DROP CONSTRAINT [FK_ModeratedContent_Submitter];
 ALTER TABLE [ModeratedContent] DROP CONSTRAINT [FK_ModeratedContent_Moderator];
 ALTER TABLE [ModeratedContent] DROP CONSTRAINT [CK_ModeratedContent_Status];
-
--- Drop the added columns
-ALTER TABLE [ModeratedContent] DROP COLUMN [BirdId];
-ALTER TABLE [ModeratedContent] DROP COLUMN [RangeDescription];
-ALTER TABLE [ModeratedContent] DROP COLUMN [SubmissionNotes];
 
 ALTER TABLE [UserSettings] DROP CONSTRAINT FK_UserSettings_SDUser;
 
@@ -36,6 +33,8 @@ DROP TABLE [Checklist];
 DROP TABLE [Sighting];
 
 DROP TABLE [SDUser];
+
+DROP TABLE [BirdPhoto];
 
 DROP TABLE [Bird];
 

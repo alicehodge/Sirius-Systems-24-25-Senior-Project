@@ -1,0 +1,79 @@
+/* Loading spinner */
+.loading-spinner {
+    animation: spin 1s linear infinite;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Location display */
+.location-display {
+    min-height: 40px;
+    position: relative;
+    transition: opacity 0.3s ease;
+    background-color: #fff8f0;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+.coordinates-container {
+    transition: opacity 0.3s ease;
+}
+
+.location-name {
+    display: none;
+    word-break: break-word;
+    color: #4a3f35;
+    font-size: 0.9rem;
+}
+
+/* Error states */
+.text-muted {
+    color: #6c757d !important;
+    font-style: italic;
+}
+
+/* Filter panel */
+#filterPanel {
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive table */
+.table-responsive {
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .table-responsive {
+        width: 100%;
+        margin-bottom: 1rem;
+        overflow-y: hidden;
+        -ms-overflow-style: -ms-autohiding-scrollbar;
+        border: 1px solid #e0d4c8;
+    }
+}
+
+#globalSearch {
+    padding-right: 40px;
+}
+
+#clearSearch {
+    transition: opacity 0.2s ease;
+}
+
+.rounded-pill {
+    border-radius: 50rem !important;
+}
