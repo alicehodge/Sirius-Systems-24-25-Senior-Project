@@ -8,7 +8,11 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
@@ -19,82 +23,124 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-color: #F2F8DB;
+  background-image: url("https://transparenttextures.com/patterns/nice-snow.png");
+
 }
 
-#map { height: 40lh; }
+nav {
+  background-color: #aabd8c;
+}
+
+.nav-link {
+  color: #fcf2e0;
+  font-size: 1.3rem;
+  text-shadow: -2px -2px 0 #241413, 2px -2px 0 #241413, -2px 2px 0 #241413,
+    2px 2px 0 #241413, -2px 0px 0 #241413, 2px 0px 0 #241413, 0px -2px 0 #241413,
+    0px 2px 0 #241413;
+}
+
+.nav-link:focus {
+  box-shadow: none !important;
+  outline: none;
+}
+
+.nav-link {
+  color: #fcf2e0 !important;
+  text-decoration: none;
+}
+
+.nav-link:hover,
+.nav-link:focus,
+.nav-link:active {
+  color: #fcf2e0 !important;
+  background-color: #f2f8db; /* optional, remove if not needed */
+  text-decoration: none;
+  outline: none;
+}
+
+#map {
+  height: 40lh;
+}
 
 /* Style the notification button and bell icon */
 #notificationsDropdown {
-    padding: 0.5rem 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .nav-item .bi-bell {
-    font-size: 1.2rem;
-    color: #212529;
-    position: relative;
+  font-size: 1.2rem;
+  color: #212529;
+  position: relative;
 }
 
 /* Position the badge relative to the bell icon */
 .notification-badge {
-    font-size: 0.75rem;
-    transform: translate(40%, -50%);
-    position: absolute;
-    padding: 0.25rem 0.5rem;
-    min-width: 1rem;
-    height: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  font-size: 0.75rem;
+  transform: translate(40%, -50%);
+  position: absolute;
+  padding: 0.25rem 0.5rem;
+  min-width: 1rem;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Remove Bootstrap's default positioning for this case */
 .position-absolute.top-0.start-100 {
-    top: 2px !important;
-    right: -25px !important;
-    left: auto !important;
+  top: 2px !important;
+  right: -25px !important;
+  left: auto !important;
 }
 
 .filter-buttons {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .filter-buttons .btn {
-    min-width: 80px;
+  min-width: 80px;
 }
 
 .filter-buttons .btn.active {
-    background-color: #0d6efd;
-    color: white;
+  background-color: #0d6efd;
+  color: white;
 }
 
 .notification-item {
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 /* Style for read/unread notifications */
 .dropdown-item:not(.fw-bold) {
-    opacity: 0.7;
-    background-color: #f8f9fa;
+  opacity: 0.7;
+  background-color: #f8f9fa;
 }
 
 .notification-item:not(.border-primary) {
-    opacity: 0.7;
-    background-color: #f8f9fa;
+  opacity: 0.7;
+  background-color: #f8f9fa;
 }
 
 /* Hover effects to improve visibility when interacting */
-.dropdown-item:hover, 
+.dropdown-item:hover,
 .notification-item:hover {
-    opacity: 1 !important;
-    transition: opacity 0.2s ease;
+  opacity: 1 !important;
+  transition: opacity 0.2s ease;
 }
 
 /* Keep unread notifications fully visible */
 .dropdown-item.fw-bold,
 .notification-item.border-primary {
-    opacity: 1;
-    background-color: white;
+  opacity: 1;
+  background-color: white;
+}
+
+
+h1 {
+  font-family: 'Darumadrop One', sans-serif; 
+  color: #381D2A;
 }

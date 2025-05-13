@@ -1,126 +1,119 @@
 @model StorkDorkMain.Models.Sighting
-
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Log a";
+    var prefillName = ViewBag.PrefilledBirdName as string ?? "";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/birdlog_create.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Darumadrop+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 }
 
-<h1>Edit</h1>
 
-<h4>Edit Bird Sighting</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit" id="sightingForm" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="SdUserId" />
-
-            <!-- Display Selected User (Read-Only) -->
-            <div class="form-group">
-                <label class="control-label">User</label>
-                <input type="text" class="form-control" value="@ViewBag.SelectedUserName" readonly />
-            </div>
-
-            <!-- Bird Species Searchable Input -->
-            <div class="form-group mb-4">
-                <label for="birdSearch" class="form-label">Bird Species</label>
-                <input type="text" id="birdSearch" class="form-control" placeholder="Search for a bird..." autocomplete="off" value="@ViewBag.SelectedBirdName" />
-                <div id="birdResults" class="mt-2" style="display: none;">
-                    <!-- Search results will appear here -->
+<div class="main-content-wrapper">
+    <div class="journal-card">
+        <div class="journal-header">Bird Journal Entry</div>
+        <div class="journal-body">
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <div class="frame">
+                    <div id="photoPreviewContainer">
+                        <img id="photoPreview" class="img-fluid" />
+                    </div>
+                    <div class="upload-placeholder">
+                        <label for="photoFile" class="btn btn-sm btn-secondary">
+                            <i class="bi bi-camera"></i> Upload
+                        </label>
+                        <input type="file" id="photoFile" name="photoFile" accept="image/*" hidden />
+                    </div>
                 </div>
-                <input type="hidden" asp-for="BirdId" id="BirdId" value="@ViewBag.SelectedBirdId" />
-                <span asp-validation-for="BirdId" id="birdError" class="text-danger"></span>
-            </div>
-
-            <!-- Location Dropdown -->
-            <div class="form-group">
-                <label for="PnwLocation">Select a Location</label>
-                <select id="PnwLocation" class="form-control" name="PnwLocation">
-                    <option value="">-- Select Location --</option>
-                    <option value="0">N/A</option>
-                    @foreach (var location in ViewBag.PnwLocations)
-                    {
-                        var isSelected = location.Value == ViewBag.SelectedLatLong;
-                        <option value="@location.Value" data-latlong="@location.Value" selected="@(isSelected ? "selected" : null)">@location.Text</option>
-                    }
-                </select>
-                <span id="locationError" class="text-danger"></span>
-            </div>
-            <p>SelectedLatLong: @ViewBag.SelectedLatLong</p>
-
-            <!-- Hidden inputs for Latitude and Longitude -->
-            <input type="hidden" asp-for="Latitude" id="LatitudeInput" />
-            <input type="hidden" asp-for="Longitude" id="LongitudeInput" />
-
-            <!-- Date Input -->
-            <div class="form-group">
-                <label asp-for="Date" class="control-label">Date</label>
-                <input asp-for="Date" class="form-control" type="date" />
-                <span asp-validation-for="Date" class="text-danger"></span>
-            </div>
-
-            <!-- Notes Input -->
-            <div class="form-group">
-                <label asp-for="Notes" class="control-label">Additional Notes</label>
-                <textarea asp-for="Notes" class="form-control" placeholder="Example: Saw a strange looking bird. Weather was sunny and calm."></textarea>
-                <span asp-validation-for="Notes" class="text-danger"></span>
-            </div>
-
-            <!-- Weather Conditions Suggestions -->
-            <div class="form-group">
-                <label class="control-label">Weather Conditions (Suggestions)</label>
-                <div class="border p-3 rounded bg-light">
-                    <strong>🌤️ Sky Conditions:</strong>
-                    <ul class="list-unstyled">
-                        <li>• Sunny</li>
-                        <li>• Partly Cloudy</li>
-                        <li>• Overcast</li>
-                    </ul>
-
-                    <strong>🌧️ Precipitation:</strong>
-                    <ul class="list-unstyled">
-                        <li>• Drizzle</li>
-                        <li>• Rain</li>
-                        <li>• Thunderstorm</li>
-                        <li>• Snow</li>
-                    </ul>
-
-                    <strong>💨 Wind Conditions:</strong>
-                    <ul class="list-unstyled">
-                        <li>• Calm</li>
-                        <li>• Windy</li>
-                    </ul>
+                <div class="labels">
+                    <div>Common: <span id="commonNameDisplay">-</span></div>
+                    <div>Latin: <span id="latinNameDisplay">-</span></div>
                 </div>
-                <small class="text-muted">These are suggestions for your notes. Feel free to include them!</small>
             </div>
 
-            <div class="form-group">
-                <label class="control-label">Current Photo</label>
-                @if (Model.PhotoData != null && Model.PhotoContentType != null)
-                {
-                    <div class="mb-3">
-                        <img id="photoPreview" src="data:@Model.PhotoContentType;base64,@Convert.ToBase64String(Model.PhotoData)" style="max-height: 200px" />
-                        <div class="form-check mt-2">
-                            <button type="button" id="removePhoto" class="btn btn-sm btn-danger mt-2">Remove Photo</button>
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <form asp-action="Create" method="post" id="sightingForm" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="BirdId" id="BirdId" />
+                    <input type="hidden" asp-for="Latitude" id="LatitudeInput" />
+                    <input type="hidden" asp-for="Longitude" id="LongitudeInput" />
+
+                    <!-- Species Search -->
+                    <div class="field-row">
+                        <label>Species</label>
+                        <div style="width: 70%; position: relative;">
+                            <input type="text" id="birdSearch" class="form-control" 
+                                   placeholder="Search species..." value="@prefillName" />
+                            <div id="birdResults"></div>
+                            <div id="birdError" class="text-danger small mt-1" style="display: none;"></div>
                         </div>
                     </div>
-                }
-                else
-                {
-                    <p class="text-muted">No photo uploaded</p>
-                }
-                
-                <label class="control-label">@(Model.PhotoData != null ? "Replace Photo" : "Upload Photo")</label>
-                <input type="file" id="photoFile" name="photoFile" accept="image/*" onchange="previewNewPhoto()" />
-                <small class="text-muted">Max 5MB (JPEG, PNG)</small>
+
+                    <!-- Date -->
+                    <div class="field-row">
+                        <label>Date</label>
+                        <input asp-for="Date" class="form-control" type="date" />
+                    </div>
+
+                    <!-- Location Search -->
+                    <div class="field-row">
+                        <label>Search Location</label>
+                        <div style="width: 70%; position: relative;">
+                            <input type="text" id="locationSearch" class="form-control" 
+                                placeholder="Search city, address, or landmark..." />
+                            <div id="locationSearchResults"></div>
+                            <!-- Add location display here -->
+                            <div id="locationDisplay" class="location-display mt-2" style="display: none;">
+                                <div class="d-flex justify-content-between small mb-2">
+                                    <span>Lat: <strong id="latDisplay"></strong></span>
+                                    <span>Lng: <strong id="lngDisplay"></strong></span>
+                                </div>
+                                <div class="small">📍 <span id="addressDisplay"></span></div>
+                                <button type="button" id="clearLocation" 
+                                        class="btn btn-sm btn-outline-danger w-100 mt-2">
+                                    Clear Location
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map -->
+                    <div class="field-row" style="align-items: flex-start;">
+                        <label>Location</label>
+                        <div style="width: 70%; height: 250px; position: relative;">
+                            <div id="map"></div>
+                            <div id="locationError" class="text-danger small mt-1" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Weather -->
+                    <div class="field-row">
+                        <label>Weather</label>
+                        <input type="text" class="form-control" 
+                               placeholder="Sunny, 72°F, Calm winds" />
+                    </div>
+
+                    <!-- Notes -->
+                    <textarea asp-for="Notes" 
+                        class="form-control notes-textarea h-100" 
+                        placeholder="Detailed observations..."
+                        rows="10"
+                        style="min-height: 300px;">
+                    </textarea>
+
+                    <!-- Submit -->
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">Save Entry</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
             </div>
-            <!-- Submit Button -->
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
-
 <div>
     <a asp-action="Index" class="btn btn-primary" asp-route-userId="@ViewBag.SelectedUserId">Back to List</a>
 </div>

@@ -1,0 +1,43 @@
+<a asp-controller="Home" asp-action="Index" class="text-decoration-none text-dark" class="btn btn-primary btn-sm">Go Back To Home Page</a>
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <section class="container" style="max-width: 1400px;">
+        <div class="row g-4 justify-content-center">
+            <!-- Card 1 -->
+            <div class="col-md-4">
+                <a asp-controller="BirdingTips" asp-action="Table_of_Contents" class="text-decoration-none text-dark">
+                    <div class="card h-100 shadow-lg" style="min-height: 400px;">
+                        <div class="placeholder-img bg-light display-5 p-4">Novice</div>
+                        <div class="card-body text-center p-4">
+                            <p class="card-text fs-5 mt-3">Start here if you're new to bird watching!</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="col-md-4">
+                <a asp-controller="BirdingTips" asp-action="Table_of_Contents_Intermediate" class="text-decoration-none text-dark">
+                    <div class="card h-100 shadow-lg" style="min-height: 400px;">
+                        <div class="placeholder-img bg-light display-5 p-4">Intermediate</div>
+                        <div class="card-body text-center p-4">
+                            <p class="card-text fs-5 mt-3">Take your skills to the next level</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="col-md-4">
+                <a asp-controller="BirdingTips" asp-action="Expert" class="text-decoration-none text-dark">
+                    <div class="card h-100 shadow-lg" style="min-height: 400px;">
+                        <div class="placeholder-img bg-light display-5 p-4">Expert</div>
+                        <div class="card-body text-center p-4">
+                            <p class="card-text fs-5 mt-3">Master advanced techniques</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+</div>

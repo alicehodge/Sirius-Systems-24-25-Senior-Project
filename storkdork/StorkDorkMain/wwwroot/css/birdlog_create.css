@@ -1,0 +1,202 @@
+
+
+.text-danger {
+    display: none;
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    position: relative;
+    z-index: 1001; /* Higher than map's z-index */
+    animation: fadeIn 0.3s ease-in-out;
+    scroll-margin-top: 100px; /* Account for fixed navbar */
+}
+
+/* Navbar fix */
+.navbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
+}
+
+/* Main content container */
+.main-content-wrapper {
+    margin-top: 80px;
+    padding: 20px;
+}
+
+/* Original journal card styles */
+:root {
+    --accent: #381D2A;
+    --panel-bg: #fff8f0;
+    --line-color: #e0d4c8;
+    --text-color: #4a3f35;
+    --label-bg: #ffd27f;
+}
+
+.journal-card {
+    background: var(--panel-bg);
+    border: 4px solid var(--accent);
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.journal-header {
+    background: var(--accent);
+    color: #F2F8Db;
+    padding: 0.75rem 1rem;
+    font-family: 'Darumadrop One', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1.25rem;
+    text-align: center;
+}
+
+.journal-body {
+    display: flex;
+    padding: 1.5rem;
+}
+
+.left-panel {
+    width: 45%;
+    border-right: 2px dashed var(--line-color);
+    padding-right: 1.5rem;
+}
+
+.frame {
+    background: #fff;
+    border: 2px solid var(--line-color);
+    border-radius: 0.5rem;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+#photoPreviewContainer {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#photoPreview {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.upload-placeholder {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+}
+
+.labels {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.labels div {
+    background: var(--label-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    flex: 1;
+    text-align: center;
+}
+
+.right-panel {
+    width: 55%;
+    padding-left: 1.5rem;
+}
+
+.field-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.field-row label {
+    font-weight: 600;
+    width: 25%;
+    margin: 0;
+}
+
+.field-row .form-control {
+    width: 70%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line-color);
+    border-radius: 0;
+    padding: 0.25rem 0.5rem;
+}
+
+#map {
+    height: 250px;
+    border-radius: 0.5rem;
+    border: 2px solid var(--line-color);
+    margin-top: 0.5rem;
+    background: #fff;
+    z-index: 1 !important;
+    position: relative;
+}
+
+.location-display {
+background: var(--label-bg);
+padding: 0.5rem;
+border-radius: 0.5rem;
+margin-top: 0.5rem;
+position: relative; /* Change from absolute */
+z-index: 1;
+border: 1px solid var(--line-color);
+}
+
+.notes textarea {
+    width: 100%;
+    height: 150px;
+    border: 2px solid var(--line-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    resize: vertical;
+    background: #fff;
+}
+
+.btn-primary {
+    background: var(--accent);
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: bold;
+}
+
+#birdResults, #locationSearchResults {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--panel-bg);
+    border: 2px solid var(--line-color);
+    border-radius: 0 0 0.5rem 0.5rem;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+}
+
+.bird-result, .location-result {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--line-color);
+}
+
+.bird-result:hover, .location-result:hover {
+    background-color: var(--label-bg);
+}
+
