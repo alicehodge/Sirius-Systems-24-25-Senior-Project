@@ -65,12 +65,26 @@ var connectionStringIdentity = conStrBuilderTwo.ConnectionString;
 
 builder.Services.AddDbContext<StorkDorkIdentityDbContext>(options => options
     .UseLazyLoadingProxies()
-    .UseSqlServer(connectionStringIdentity)
+    .UseSqlServer(connectionStringIdentity, options =>
+        {
+            options.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        }
+    )
 );
 
 builder.Services.AddDbContext<StorkDorkDbContext>(options => options
     .UseLazyLoadingProxies()
-    .UseSqlServer(connectionString)
+    .UseSqlServer(connectionString, options =>
+        {
+            options.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        }
+    )
 );
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)

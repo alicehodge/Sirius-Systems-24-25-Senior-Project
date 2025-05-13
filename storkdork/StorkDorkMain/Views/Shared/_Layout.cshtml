@@ -107,14 +107,20 @@
         <div class="row">
             <nav class="col-md-3 col-lg-2 d-md-block sidebar">
                 <div class="position-sticky pt-3">
+<<<<<<< HEAD
                     <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="display: flex; align-items: center; height: 80px;">
                         <img src="~/images/StorkDork-NoMascot.svg" alt="Stork Dork" style="height: 150px; width: auto;" />
+=======
+                    <a class="navbar-brand d-block" asp-area="" asp-controller="Home" asp-action="Index">
+                        <img src="~/images/storkdork-text-logo.png" alt="StorkDork Logo" style="height:100px;" />
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                     </a>
 
 
 
                     <ul class="nav flex-column">
                         <li class="nav-item">
+<<<<<<< HEAD
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-door-fill me-2"></i>Home
                             </a>
@@ -124,10 +130,20 @@
                             <li class="nav-item">
                             <a class="nav-link text-dark dropdown-toggle" data-bs-toggle="collapse" href="#birdLogMenu" role="button">
                                 <i class="bi bi-bookmark-fill me-2"></i>Bird Log
+=======
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="bi bi-house-door me-2"></i>Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#birdLogMenu" role="button">
+                                <i class="bi bi-journal me-2"></i>Bird Log
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                             </a>
                             <div class="collapse" id="birdLogMenu">
                                 <ul class="list-unstyled ms-4">
                                     <li>
+<<<<<<< HEAD
                                         <a class="nav-link text-dark" asp-controller="BirdLog" asp-action="Index">
                                             <i class="bi bi-eye-fill me-2"></i>View Logs
                                         </a>
@@ -135,6 +151,15 @@
                                     <li>
                                         <a class="nav-link text-dark" asp-controller="BirdLog" asp-action="Create">
                                             <i class="bi bi-plus-circle-fill me-2"></i>Create New Log
+=======
+                                        <a class="nav-link" asp-controller="BirdLog" asp-action="Index">
+                                            <i class="bi bi-eye me-2"></i>View Logs
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" asp-controller="BirdLog" asp-action="Create">
+                                            <i class="bi bi-plus-circle me-2"></i>Create New Log
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                                         </a>
                                     </li>
                                 </ul>
@@ -142,6 +167,7 @@
                         </li>
                         }
                         <li class="nav-item">
+<<<<<<< HEAD
                             <a class="nav-link text-dark" asp-controller="Leaflet" asp-action="Map">
                                 <i class="bi bi-map-fill me-2"></i>Map
                             </a>
@@ -149,12 +175,27 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Search" asp-action="Index">
                                 <i class="bi bi-binoculars-fill me-2"></i>Search Birds
+=======
+                            <a class="nav-link" asp-controller="Leaflet" asp-action="Map">
+                                <i class="bi bi-map me-2"></i>Map
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Search" asp-action="Index">
+                                <i class="bi bi-binoculars me-2"></i>Search Birds
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Checklists" asp-action="Index">
+                                <i class="bi bi-check2-square me-2"></i>Checklist
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                             </a>
                         </li>
 
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
+<<<<<<< HEAD
                                 <a class="nav-link text-dark" asp-controller="Checklists" asp-action="Index">
                                     <i class="bi bi-check-square-fill me-2"></i> Checklist
                                 </a>
@@ -166,16 +207,25 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Milestone" asp-action="Index">
                                     <i class="bi bi-flag-fill me-2"></i>Milestones
+=======
+                                <a class="nav-link" asp-controller="Milestone" asp-action="Index">
+                                    <i class="bi bi-flag me-2"></i>Milestones
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="UserContent" asp-action="MySubmissions">
+                                <a class="nav-link" asp-controller="UserContent" asp-action="MySubmissions">
                                     <i class="bi bi-upload me-2"></i>My Submissions
                                 </a>
                             </li>
                             <li class="nav-item">
+<<<<<<< HEAD
                                 <a class="nav-link text-dark" asp-controller="UserSettings" asp-action="Settings">
                                     <i class="bi bi-gear-fill me-2"></i>Settings
+=======
+                                <a class="nav-link" asp-controller="UserSettings" asp-action="Settings">
+                                    <i class="bi bi-gear me-2"></i>Settings
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                                 </a>
                             </li>
                         }
@@ -188,12 +238,18 @@
                         @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
                         {
                             <li class="nav-item">
+<<<<<<< HEAD
                                 <a class="nav-link text-dark dropdown-toggle" data-bs-toggle="collapse" href="#moderationMenu" role="button">
                                     <i class="bi bi-shield-check-fill me-2"></i>Moderation
+=======
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="collapse" href="#moderationMenu" role="button">
+                                    <i class="bi bi-shield-check me-2"></i>Moderation
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                                 </a>
                                 <div class="collapse" id="moderationMenu">
                                     <ul class="list-unstyled ms-4">
                                         <li>
+<<<<<<< HEAD
                                             <a class="nav-link text-dark" asp-controller="Moderation" asp-action="Index">
                                                 <i class="bi bi-hourglass-split-fill me-2"></i>Pending Queue
                                             </a>
@@ -201,6 +257,15 @@
                                         <li>
                                             <a class="nav-link text-dark" asp-controller="Moderation" asp-action="History">
                                                 <i class="bi bi-clock-history-fill me-2"></i>History
+=======
+                                            <a class="nav-link" asp-controller="Moderation" asp-action="Index">
+                                                <i class="bi bi-hourglass-split me-2"></i>Pending Queue
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="nav-link" asp-controller="Moderation" asp-action="History">
+                                                <i class="bi bi-clock-history me-2"></i>History
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                                             </a>
                                         </li>
                                     </ul>
@@ -213,6 +278,7 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
+<<<<<<< HEAD
                                 <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Location">
                                     <i class="bi bi-geo-alt-fill me-2"></i>Set Location
                                 </a>
@@ -220,6 +286,15 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index">
                                     <i class="bi bi-person-circle-fill me-2"></i>Profile
+=======
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Location">
+                                    <i class="bi bi-geo-alt me-2"></i>Set Location
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index">
+                                    <i class="bi bi-person-circle me-2"></i>Profile
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -227,8 +302,13 @@
                             </li>
                             <li class="nav-item">
                                 <form method="post" asp-area="Identity" asp-page="/Account/Logout">
+<<<<<<< HEAD
                                     <button type="submit" class="nav-link btn btn-link text-dark">
                                         <i class="bi bi-box-arrow-right-fill me-2"></i>Logout
+=======
+                                    <button type="submit" class="nav-link btn btn-link">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                                     </button>
                                 </form>
                             </li>
@@ -236,6 +316,7 @@
                         else
                         {
                             <li class="nav-item">
+<<<<<<< HEAD
                                 <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">
                                     <i class="bi bi-box-arrow-in-right-fill me-2"></i>Login
                                 </a>
@@ -243,6 +324,15 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">
                                     <i class="bi bi-person-plus-fill me-2"></i>Register
+=======
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
+                                    <i class="bi bi-person-plus me-2"></i>Register
+>>>>>>> 64ecbf6de31a68591058519831b357ad913eacb3
                                 </a>
                             </li>
                         }
