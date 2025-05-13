@@ -53,6 +53,14 @@ namespace StorkDorkMain.Controllers
                 
                 return View("Details", rangeSubmission);
             }
+            else if (content.ContentType == "BirdPhoto" && content is BirdPhotoSubmission photoSubmission)
+            {
+                if (photoSubmission.Bird == null)
+                {
+                    photoSubmission.Bird = _birdRepository.FindById(photoSubmission.BirdId);
+                }
+                return View("Details", photoSubmission);
+            }
             
             return View(content);
         }
@@ -73,6 +81,14 @@ namespace StorkDorkMain.Controllers
                 if (success)
                 {
                     TempData["SuccessMessage"] = "Range information has been approved successfully";
+                }
+            }
+            else if (content is BirdPhotoSubmission)
+            {
+                success = await _moderationService.ApprovePhotoSubmission(id, User, notes);
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Photo has been approved successfully";
                 }
             }
             else

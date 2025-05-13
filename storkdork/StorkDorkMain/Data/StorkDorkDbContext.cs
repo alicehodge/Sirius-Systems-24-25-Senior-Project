@@ -166,7 +166,8 @@ public class StorkDorkDbContext : DbContext
             // Configure discriminator for TPH inheritance
             entity.HasDiscriminator<string>("ContentType")
                 .HasValue<ModeratedContent>("Base")
-                .HasValue<RangeSubmission>("BirdRange");
+                .HasValue<RangeSubmission>("BirdRange")
+                .HasValue<BirdPhotoSubmission>("BirdPhoto");
             
             // Configure properties
             entity.Property(e => e.ContentType)
@@ -191,7 +192,28 @@ public class StorkDorkDbContext : DbContext
 
             entity.Property(e => e.ModeratedDate)
                 .IsRequired(false);
+
+            modelBuilder.Entity<RangeSubmission>()
+                .Property(r => r.BirdId)
+                .HasColumnName("BirdId");  // Map to the actual column name in DB
             
+            // Configure the property mappings for BirdPhotoSubmission
+            modelBuilder.Entity<BirdPhotoSubmission>()
+                .Property(p => p.BirdId)
+                .HasColumnName("BirdId");  // Map to the same column
+
+            modelBuilder.Entity<BirdPhotoSubmission>()
+                .Property(p => p.PhotoData)
+                .HasColumnName("PhotoData");
+
+            modelBuilder.Entity<BirdPhotoSubmission>()
+                .Property(p => p.PhotoContentType)
+                .HasColumnName("PhotoContentType");
+
+            modelBuilder.Entity<BirdPhotoSubmission>()
+                .Property(p => p.Caption)
+                .HasColumnName("Caption");
+
             // Navigation properties
             entity.HasOne(e => e.Submitter)
                 .WithMany()

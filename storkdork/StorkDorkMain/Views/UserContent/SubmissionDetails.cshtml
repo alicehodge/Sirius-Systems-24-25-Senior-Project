@@ -73,6 +73,36 @@
                         </a>
                     </dd>
                 }
+                
+                @if (Model is BirdPhotoSubmission photoSubmission)
+                {
+                    <dt class="col-sm-3">Bird</dt>
+                    <dd class="col-sm-9">
+                        <a asp-controller="Bird" asp-action="Details" 
+                           asp-route-id="@photoSubmission.BirdId">
+                            @(photoSubmission.Bird?.CommonName ?? $"Bird ID: {photoSubmission.BirdId}")
+                        </a>
+                    </dd>
+
+                    @if (!string.IsNullOrEmpty(photoSubmission.Caption))
+                    {
+                        <dt class="col-sm-3">Caption</dt>
+                        <dd class="col-sm-9">@photoSubmission.Caption</dd>
+                    }
+
+                    <dt class="col-sm-3">Submitted Photo</dt>
+                    <dd class="col-sm-9">
+                        @if (photoSubmission.PhotoData != null && photoSubmission.PhotoContentType != null)
+                        {
+                            <img src="data:@photoSubmission.PhotoContentType;base64,@Convert.ToBase64String(photoSubmission.PhotoData)" 
+                                 class="img-fluid rounded" style="max-height: 300px;" alt="Submitted bird photo" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">No photo data available</span>
+                        }
+                    </dd>
+                }
             </dl>
         </div>
     </div>
