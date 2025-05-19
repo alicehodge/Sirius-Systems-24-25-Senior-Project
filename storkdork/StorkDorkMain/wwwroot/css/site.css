@@ -22,11 +22,41 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
-  background-color: #F2F8DB;
-  background-image: url("https://transparenttextures.com/patterns/nice-snow.png");
+  background-color: #F2F8DB; /* main background */
 
+  background-image: 
+      repeating-linear-gradient(
+          45deg,
+          rgba(170, 189, 140, 0.15) 25%,   /* lighter, 15% opacity */
+          transparent 25%,
+          transparent 40%,
+          rgba(170, 189, 140, 0.15) 40%, 
+          rgba(170, 189, 140, 0.15)
+      ),
+      repeating-linear-gradient(
+          45deg,
+          rgba(170, 189, 140, 0.15) 25%, 
+          rgba(170, 189, 140, 0.15) 25%, 
+          rgba(242, 248, 219, 0.07) 75%,  /* even lighter overlay */
+          rgba(170, 189, 140, 0.15) 75%, 
+          rgba(170, 189, 140, 0.15)
+      );
+  background-position: 0 0, 10px 10px;
+  background-size: 20px 20px;
+  animation: moveBackground 20s linear infinite;
+  
+  
 }
+
+@keyframes moveBackground {
+    0% {
+        background-position: 0 0, 10px 10px;
+    }
+    100% {
+        background-position: 100px 100px, 110px 110px;
+    }
+}
+
 
 nav {
   background-color: #aabd8c;

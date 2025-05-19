@@ -10,14 +10,30 @@
 </h3>
 
 <!-- Search For Birds -->
-<div class="home-search-bar container my-4 d-flex justify-content-center">
-    <form id="homepageSearchForm" onsubmit="return redirectToSearchPage(event)" class="d-flex w-100" style="max-width: 600px;">
-        <div class="input-group w-100">
-            <input type="text" id="homepageSearchInput" class="form-control" placeholder="Enter bird name..." />
-            <button class="btn btn-primary" type="submit">Search</button>
+<div class="home-search-bar container my-4 d-flex justify-content-center" style="max-width: 600px;">
+    <form id="homepageSearchForm" onsubmit="return redirectToSearchPage(event)" class="d-flex w-100">
+        <div class="input-group rounded-pill shadow-sm w-100">
+            <input 
+                type="text" 
+                id="homepageSearchInput" 
+                class="form-control rounded-pill pe-5" 
+                placeholder="Enter bird name..." 
+            />
+            <button 
+                id="clearSearch" 
+                class="btn btn-link text-muted position-absolute" 
+                style="right: 60px; top: 50%; transform: translateY(-50%); display: none; z-index: 100;"
+                type="button"
+            >
+                <i class="bi bi-x-circle"></i>
+            </button>
+            <span class="input-group-text bg-transparent border-0 position-relative" style="right: 10px;">
+                <i class="bi bi-search"></i>
+            </span>
         </div>
     </form>
 </div>
+
 
 <hr class="container my-4" />
 
