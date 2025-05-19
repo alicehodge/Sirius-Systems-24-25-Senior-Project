@@ -12,6 +12,7 @@
         <form asp-action="Edit" id="editChecklistForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="SdUserId" />
             <input type="hidden" asp-for="SdUserId" value="@ViewBag.SelectedUserId" />
 
             <!-- Checklist Name -->
