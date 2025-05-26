@@ -21,6 +21,7 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <style>
+        /* Original sidebar styles preserved exactly */
         .sidebar .nav-link, .sidebar .navbar-brand {
             color: #f2fce0 !important;
             -webkit-text-stroke: 0.7px black; /* Single line for outline */
@@ -28,7 +29,6 @@
         .sidebar {
             background-color: #AABD8C;
             background-image: url("https://www.transparenttextures.com/patterns/elegant-grid.png");
-
         }
         .sidebar {
             font-family: 'Darumadrop One', sans-serif; 
@@ -36,7 +36,7 @@
             border-right: 1px solid #f2fce0;
             font-size: 20px;
         }
-            /* Hover effect for navigation links */
+        /* Hover effect for navigation links */
         .sidebar .nav-link:hover, .sidebar .navbar-brand:hover {
             color: #F3936D; /* Change text color on hover */
             background-color: rgba(255, 255, 255, 0.1); /* Subtle background change on hover */
@@ -50,16 +50,92 @@
         .content {
             padding: 1rem;
         }
-        /*
-        .top-navbar {
+
+        /* New YouTube-style header */
+        .main-header {
             background-color: #AABD8C;
+            background-image: url("https://www.transparenttextures.com/patterns/elegant-grid.png");
             height: 60px;
-            width: 100%;
             position: fixed;
             top: 0;
             left: 0;
+            right: 0;
             z-index: 1000;
-            background-image: url("https://www.transparenttextures.com/patterns/elegant-grid.png");
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 16px;
+        }
+
+        /* Header logo section */
+        .header-logo-section {
+            display: flex;
+            align-items: center;
+            min-width: 150px;
+        }
+
+        /* Perfectly centered search bar */
+        .header-search-section {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            min-width: 200px;
+            position: relative;
+        }
+
+        /* Search results dropdown */
+        .search-results-dropdown {
+            position: absolute;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .search-result-item:hover {
+            background-color: #f5f5f5;
+        }
+        .search-result-item:hover {
+        background-color: #f8f9fa;
+    }
+
+        /* Right section */
+        .header-user-section {
+            display: flex;
+            justify-content: flex-end;
+            min-width: 150px;
+            align-items: center;
+        }
+
+        /* Logo */
+        .header-logo img {
+            height: 40px;
+        }
+
+        /* Sidebar toggle button */
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: #f2fce0;
+            font-size: 1.5rem;
+            margin-right: 16px;
+            cursor: pointer;
         }
 
         .sidebar {
@@ -71,9 +147,29 @@
             margin-top: 60px;
             min-height: calc(100vh - 60px);
         }
-        */
 
-        
+        /* Mobile adjustments */
+        @@media (max-width: 991.98px) {
+            .sidebar {
+                position: fixed;
+                width: 280px;
+                left: -280px;
+                transition: all 0.3s;
+                z-index: 1000;
+            }
+            
+            .sidebar.show {
+                left: 0;
+            }
+            
+            .header-logo-section {
+                min-width: auto;
+            }
+            
+            .header-user-section {
+                min-width: auto;
+            }
+        }
     </style>
 </head>
 
@@ -84,36 +180,87 @@
             @TempData["SuccessMessage"]
         </div>
     }
-@* 
-<nav class="top-navbar">
-    <div class="container-fluid h-100">
-        <div class="row h-100 align-items-center">
-            <!-- Navbar content -->
-            <div class="col">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" 
-                   style="display: flex; align-items: center; height: 100%; padding-left: 1rem;">
-                    <img src="~/images/StorkDork-NoMascot.svg" 
-                         alt="Stork Dork" 
-                         style="height: 40px; width: auto; vertical-align: middle;">
-                </a>
+
+    <header class="main-header">
+        <div class="header-logo-section">
+            <button class="sidebar-toggle d-lg-none">
+                <i class="bi bi-list"></i>
+            </button>
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="display: flex; align-items: center; height: 80px;">
+                <img src="~/images/StorkDork-NoMascot.svg" alt="Stork Dork" style="height: 150px; width: auto;" />
+            </a>
+        </div>
+
+
+        <!-- Search For Birds -->
+        <div class="header-search-section">
+            <div class="search-container">
+                <form id="homepageSearchForm" class="d-flex w-100">
+                    <div class="input-group rounded-pill shadow-sm w-100">
+                        <input 
+                            type="text" 
+                            id="homepageSearchInput"
+                            name="searchTerm"
+                            class="form-control rounded-pill pe-5" 
+                            placeholder="Enter bird name..." 
+                            autocomplete="off"
+                        />
+                        <button 
+                            id="clearSearch" 
+                            class="btn btn-link text-muted position-absolute" 
+                            style="right: 60px; top: 50%; transform: translateY(-50%); display: none; z-index: 100;"
+                            type="button"
+                        >
+                            <i class="bi bi-x-circle"></i>
+                        </button>
+                        <button type="submit" class="input-group-text bg-transparent border-0 position-relative" style="right: 10px;">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                    <input type="hidden" name="searchType" value="name" />
+                </form>
+                <div id="searchResultsDropdown" class="search-results-dropdown"></div>
             </div>
         </div>
-    </div>
-</nav>
-*@
 
+        <!-- Right section -->
+        <div class="header-user-section">
+            @if (User.Identity.IsAuthenticated)
+            {
+                @await Component.InvokeAsync("NotificationsDropdown")
+                
+                <div class="dropdown ms-3">
+                    <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">Profile</a></li>
+                        <li><a class="dropdown-item" asp-controller="UserSettings" asp-action="Settings">Settings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" asp-area="Identity" asp-page="/Account/Logout">
+                                <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <a class="btn btn-outline-light me-2" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                <a class="btn btn-light" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            }
+        </div>
+    </header>
 
+    <!-- Original sidebar and content (completely preserved) -->
     <div class="container-fluid">
         <div class="row">
             <nav class="col-md-3 col-lg-2 d-md-block sidebar">
                 <div class="position-sticky pt-3">
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index" style="display: flex; align-items: center; height: 80px;">
-                        <img src="~/images/StorkDork-NoMascot.svg" alt="Stork Dork" style="height: 150px; width: auto;" />
-                    </a>
-
-
 
                     <ul class="nav flex-column">
+                        <!-- Your complete original sidebar content here -->
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-door-fill me-2"></i>Home
@@ -223,9 +370,6 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                @await Component.InvokeAsync("NotificationsDropdown")
-                            </li>
-                            <li class="nav-item">
                                 <form method="post" asp-area="Identity" asp-page="/Account/Logout">
                                     <button type="submit" class="nav-link btn btn-link text-dark">
                                         <i class="bi bi-box-arrow-right-fill me-2"></i>Logout
@@ -256,16 +400,34 @@
         </div>
     </div>
 
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/notifications.js" asp-append-version="true"></script>
+    
+    
+    
     @await RenderSectionAsync("Scripts", required: false)
 
     @section Scripts {
-        <script src="~/js/moderation.js"></script>
-    }
-</body>
+        <script src="~/js/moderation.js"> </script>
+        <script>
+        document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('homepageSearchInput');
+        const clear = document.getElementById('clearSearch');
+        input.addEventListener('input', () => {
+            clear.style.display = input.value.trim() ? 'block' : 'none';
+        });
+        clear.addEventListener('click', () => {
+            input.value = '';
+            clear.style.display = 'none';
+            input.focus();
+        });
+        });
+        </script>
 
+    }
+    
+}
+</body>
 </html>
