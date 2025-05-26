@@ -226,17 +226,23 @@
     }
 </style>
 
+
 @section Scripts {
     <script>
+        // Run this code when the whole page has loaded
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize Bootstrap modal
+            // Get the modal popup for checklist completion
             const completionModal = new bootstrap.Modal(document.getElementById('completionModal'));
+
+            // Variable to hold the current checklist info when completed
             let currentChecklist = null;
+
+            // Get the anti-forgery token needed for POST requests
             const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
-            // Modified function to remove Edit button
+            // Function to make a checklist card read-only (disable editing)
             const enableReadOnlyMode = (card) => {
-                // Remove Edit option from dropdown
+                // Remove the 'Edit' option from the dropdown menu
                 const dropdownMenu = card.querySelector('.dropdown-menu');
                 if (dropdownMenu) {
                     const editItem = dropdownMenu.querySelector('li:first-child');
@@ -245,20 +251,23 @@
                     }
                 }
 
-                // Disable checkboxes
+                // Disable all checkboxes in the card
                 card.querySelectorAll('.sighted-checkbox').forEach(checkbox => {
                     checkbox.disabled = true;
                 });
 
-                // Show completion message
+                // Show a message indicating checklist is complete
                 card.querySelector('.complete-message').style.display = 'block';
 
-                // Visual styling
+                // Add a CSS class to style the completed checklist
                 card.classList.add('completed-checklist');
+
+                // Change the cursor so it doesn't look clickable anymore
                 card.querySelector('.clickable-area').style.cursor = 'default';
             };
 
-            // Initial check for completed checklists
+            // On page load, check each checklist card:
+            // If all checkboxes are checked, make it read-only
             document.querySelectorAll('.checklist-card').forEach(card => {
                 const checkboxes = Array.from(card.querySelectorAll('.sighted-checkbox'));
                 if (checkboxes.every(checkbox => checkbox.checked)) {
@@ -266,30 +275,31 @@
                 }
             });
 
-            // Checkbox change handler
+            // Listen for any checkbox changes inside the page
             document.body.addEventListener('change', async (event) => {
                 const checkbox = event.target.closest('.sighted-checkbox');
-                if (!checkbox) return;
+                if (!checkbox) return;  // Ignore changes if not a checklist checkbox
 
                 const card = checkbox.closest('.checklist-card');
                 const checklistItemId = checkbox.dataset.checklistItemId;
-                
+
                 try {
-                    // Update server
+                    // Send update to server about the checkbox state (checked or unchecked)
                     const response = await fetch(`/Checklists/ToggleSighted/${checklistItemId}?sighted=${checkbox.checked}`, {
                         method: 'POST',
                         headers: { 'RequestVerificationToken': token }
                     });
 
                     if (!response.ok) throw new Error('Server error');
-                    
+
                     const data = await response.json();
+
                     if (data.success) {
-                        // Update UI
+                        // Update the text that shows how many birds are spotted
                         const spottedCount = card.querySelector('.spotted-count');
                         spottedCount.textContent = `${data.spotted} out of ${data.total} birds spotted`;
 
-                        // Check if all are checked
+                        // If all birds are spotted, save info and show the completion popup
                         if (data.spotted === data.total) {
                             currentChecklist = {
                                 card,
@@ -301,32 +311,32 @@
                         }
                     }
                 } catch (error) {
+                    // If error, log it and undo the checkbox change
                     console.error('Error:', error);
                     checkbox.checked = !checkbox.checked;
                 }
             });
 
-            // Confirm completion handler
+            // When the user confirms completion in the modal popup
             document.querySelector('.complete-confirm-btn').addEventListener('click', () => {
                 if (currentChecklist) {
+                    // Make the checklist read-only and close the popup
                     enableReadOnlyMode(currentChecklist.card);
                     completionModal.hide();
                     currentChecklist = null;
                 }
             });
 
-            // Cancel completion handler
+            // If the modal is closed without confirming completion
             document.getElementById('completionModal').addEventListener('hidden.bs.modal', () => {
                 if (currentChecklist) {
+                    // Undo the last checkbox change and update the count on UI and server
                     const { card, checklistItemId, spotted, total } = currentChecklist;
                     const checkbox = card.querySelector(`[data-checklist-item-id="${checklistItemId}"]`);
-                    
-                    // Revert UI
-                    checkbox.checked = false;
-                    card.querySelector('.spotted-count').textContent = 
-                        `${spotted - 1} out of ${total} birds spotted`;
 
-                    // Update server
+                    checkbox.checked = false;
+                    card.querySelector('.spotted-count').textContent = `${spotted - 1} out of ${total} birds spotted`;
+
                     fetch(`/Checklists/ToggleSighted/${checklistItemId}?sighted=false`, {
                         method: 'POST',
                         headers: { 'RequestVerificationToken': token }
@@ -336,7 +346,7 @@
                 }
             });
 
-            // Dropdown menu handling
+            // Add or remove a CSS class on the checklist card when dropdown menu opens or closes
             document.querySelectorAll('.dropdown').forEach(dropdown => {
                 dropdown.addEventListener('show.bs.dropdown', function () {
                     this.closest('.checklist-card').classList.add('dropdown-open');
@@ -347,7 +357,7 @@
                 });
             });
 
-            // Prevent menu toggle from collapsing card
+            // Prevent clicks inside dropdown menu from closing the dropdown
             document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 menu.addEventListener('click', (e) => e.stopPropagation());
             });

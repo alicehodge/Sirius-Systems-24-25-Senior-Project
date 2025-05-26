@@ -74,11 +74,14 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Array to keep track of birds selected by the user
             let selectedBirds = [];
+            // Maximum number of search results to show
             const maxResults = 14;
+            // Current search input value
             let currentQuery = '';
 
-            // Add error message element dynamically
+            // Create and add an error message box that shows when user adds a duplicate bird
             const errorToast = $(`
                 <div id="errorToast" style="position: fixed; bottom: 20px; right: 20px; 
                         padding: 15px 25px; background-color: #F39B6D; color: #381D2A; 
@@ -89,23 +92,33 @@
             `);
             $('body').append(errorToast);
 
+            // When user types in the bird search box
             $('#birdSearch').on('input', function () {
                 currentQuery = $(this).val();
+
+                // Only search if input has 2 or more characters
                 if (currentQuery.length >= 2) {
+                    // Get search results from the server
                     $.get('/Checklists/SearchBirds', { query: currentQuery }, function (data) {
+                        // Show only the first maxResults birds in the list
                         renderSearchResults(data.slice(0, maxResults));
                     });
                 } else {
+                    // Hide results if query is too short
                     $('#birdSearchResults').hide();
                 }
             });
 
+            // Display the search results in the dropdown
             function renderSearchResults(data) {
                 const birdSearchResults = $('#birdSearchResults').empty();
-                
+
+                // Show results only if there are matches and query is long enough
                 if (data.length > 0 && currentQuery.length >= 2) {
                     data.forEach(bird => {
+                        // Check if this bird is already selected
                         const isSelected = selectedBirds.some(b => b.id === bird.id);
+                        // Create a dropdown item for each bird
                         const birdItem = $(`
                             <div class="dropdown-item" 
                                 style="cursor: pointer; color: #381D2A; 
@@ -123,38 +136,43 @@
                             </div>
                         `);
 
+                        // If bird not already selected, set up button to add it on click
                         if (!isSelected) {
                             birdItem.find('.add-bird-btn').on('click', function (e) {
-                                e.stopPropagation();
+                                e.stopPropagation(); // Prevent dropdown closing
                                 addBirdToList(bird);
                             });
                         }
 
                         birdSearchResults.append(birdItem);
                     });
-                    birdSearchResults.show();
+                    birdSearchResults.show(); // Show the results dropdown
                 } else {
-                    birdSearchResults.hide();
+                    birdSearchResults.hide(); // Hide if no results
                 }
             }
 
+            // Add bird to the selected list if not already there
             function addBirdToList(bird) {
                 if (selectedBirds.some(b => b.id === bird.id)) {
-                    showErrorToast();
+                    showErrorToast(); // Show error if duplicate
                     return;
                 }
                 
+                // Add bird to the list
                 selectedBirds.push({
                     id: bird.id,
                     commonName: bird.commonName,
                     scientificName: bird.scientificName
                 });
-                refreshUI();
-                
-                // Keep the search results visible after adding
+
+                refreshUI(); // Update the UI with new list
+
+                // Keep showing search results after adding a bird
                 $('#birdSearch').trigger('input');
             }
 
+            // Show the duplicate error message briefly
             function showErrorToast() {
                 errorToast
                     .fadeIn(300)
@@ -162,14 +180,16 @@
                     .fadeOut(300);
             }
 
+            // Update the visible list and hidden inputs after changes
             function refreshUI() {
                 updateSelectedBirdsList();
                 updateHiddenInputs();
             }
 
+            // Show the selected birds in a list with a remove button
             function updateSelectedBirdsList() {
                 const selectedBirdsList = $('#selectedBirdsList').empty();
-                
+
                 selectedBirds.forEach(bird => {
                     const birdItem = $(`
                         <li class="list-group-item d-flex align-items-center justify-content-between"
@@ -186,10 +206,11 @@
                             </button>
                         </li>
                     `);
-                    
+
                     selectedBirdsList.append(birdItem);
                 });
 
+                // Remove bird when remove button is clicked
                 $('.remove-bird-btn').on('click', function () {
                     const birdId = $(this).data('bird-id');
                     selectedBirds = selectedBirds.filter(b => b.id !== birdId);
@@ -197,6 +218,7 @@
                 });
             }
 
+            // Create hidden inputs for form submission with selected bird IDs
             function updateHiddenInputs() {
                 $('#selectedBirdsContainer').empty();
                 selectedBirds.forEach(bird => {
@@ -206,7 +228,7 @@
                 });
             }
 
-            // Validate that at least one bird is selected on form submission
+            // Prevent form submission if no birds are selected
             $('#createChecklistForm').on('submit', function (e) {
                 if (selectedBirds.length === 0) {
                     e.preventDefault();
@@ -214,7 +236,7 @@
                 }
             });
 
-            // Hide the search results when clicking outside
+            // Hide search results dropdown if clicking outside search or results area
             $(document).on('click', function (event) {
                 if (!$(event.target).closest('#birdSearchResults, #birdSearch').length) {
                     $('#birdSearchResults').hide();
