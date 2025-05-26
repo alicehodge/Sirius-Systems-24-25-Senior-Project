@@ -65,7 +65,7 @@ nav {
   background-color: #aabd8c;
 }
 
-h1 {
+h1, .descriptive-text {
   font-family: 'Darumadrop One', sans-serif; 
   color: #381D2A;
 }
@@ -140,10 +140,18 @@ h1 {
   color: #A98295;
 }
 
-/* .storkdork-form-style {
-
-} */
-
+.storkdork-card {
+  background-color: #fff8f0;
+  height: auto;
+  width: auto;
+  border-radius: 25px;  
+  border-color: #381D2A;
+  border-width: 10px;
+  border-style: solid;
+  overflow: hidden;
+  margin-top: 25px;
+  box-shadow: -10px 10px 10px -3px #41333A;
+}
 
 .nav-item .bi-bell {
   font-size: 1.2rem;
