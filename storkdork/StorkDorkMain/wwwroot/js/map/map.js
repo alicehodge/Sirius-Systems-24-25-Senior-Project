@@ -149,7 +149,7 @@ async function makeSightingMarkers(data, userId = null) {
             // Store marker reference for later updates
             markers[sighting.sightingId] = marker;
 
-            const popupContent = `<b>${sighting.commonName || 'Unknown Bird'}</b><br>
+            const popupContent = `<a href="/Bird/Details/${sighting.birdId}"><b>${sighting.commonName || 'Unknown Bird'}</b></a><br>
                                   <em>${sighting.sciName || 'Unknown'}</em><br>
                                   <strong>Spotted by: ${sighting.birder}</strong><br>
                                   ${sighting.date ? new Date(sighting.date).toLocaleDateString() : "Unknown Date"}<br>
