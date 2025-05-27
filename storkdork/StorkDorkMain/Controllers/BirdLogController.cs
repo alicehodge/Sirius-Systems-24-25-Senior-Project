@@ -138,39 +138,43 @@ namespace StorkDorkMain.Controllers
 
             // Sorting options for the sightings
             var sortOptions = new Dictionary<string, Func<IQueryable<Sighting>, IQueryable<Sighting>>>
-            {
-                
-                // Sort by date (newest to oldest), nulls at the bottom
-                { "date-asc", q => q.OrderBy(s => s.Date == null).ThenByDescending(s => s.Date) },
+{
+            // Sort by date (newest to oldest), nulls at the bottom
+            { "date-asc", q => q.OrderBy(s => s.Date == null).ThenByDescending(s => s.Date) },
 
-                // Sort by date (oldest to newest), nulls at the bottom
-                { "date-desc", q => q.OrderBy(s => s.Date == null).ThenBy(s => s.Date) },
+            // Sort by date (oldest to newest), nulls at the bottom
+            { "date-desc", q => q.OrderBy(s => s.Date == null).ThenBy(s => s.Date) },
 
-                // Sort by null dates first, then by date (newest to oldest)
-                { "date-null", q => q.OrderBy(s => s.Date == null ? 0 : 1).ThenByDescending(s => s.Date) },
-                
-                // Sort by bird name (A-Z), nulls at the bottom
-                { "bird", q => q.OrderBy(s => s.Bird == null)
-                                .ThenBy(s => s.Bird != null ? s.Bird.CommonName : string.Empty) },
+            // Sort by null dates first, then by date (newest to oldest)
+            { "date-null", q => q.OrderBy(s => s.Date == null ? 0 : 1).ThenByDescending(s => s.Date) },
 
-                // Sort by bird name (Z-A), nulls at the bottom
-                { "bird-desc", q => q.OrderBy(s => s.Bird == null)
-                                .ThenByDescending(s => s.Bird != null ? s.Bird.CommonName : string.Empty) },
+            // Sort by bird name (A-Z), nulls at the bottom
+            { "bird", q => q.OrderBy(s => s.Bird == null)
+                            .ThenBy(s => s.Bird != null ? s.Bird.CommonName : "") },
 
-                // Sort by null bird names first, then by bird name (A-Z)
-                { "bird-null", q => q.OrderBy(s => s.Bird == null ? 0 : 1)
-                                    .ThenBy(s => s.Bird != null ? s.Bird.CommonName : string.Empty) },
+            // Sort by bird name (Z-A), nulls at the bottom
+            { "bird-desc", q => q.OrderBy(s => s.Bird == null)
+                                .ThenByDescending(s => s.Bird != null ? s.Bird.CommonName : "") },
 
-                // Sort by location (A-Z), nulls at the bottom
-                { "location", q => q.OrderBy(s => s.Latitude).ThenBy(s => s.Latitude) },
+            // Sort by null bird names first, then by bird name (A-Z)
+            { "bird-null", q => q.OrderBy(s => s.Bird == null ? 0 : 1)
+                                .ThenBy(s => s.Bird != null ? s.Bird.CommonName : "") },
 
-                // Sort by location (Z-A), nulls at the bottom
-                { "location-desc", q => q.OrderByDescending(s => s.Latitude).ThenByDescending(s => s.Longitude) },
+            // Sort by location (Latitude ASC, Longitude ASC), nulls at the bottom
+            { "location", q => q.OrderBy(s => s.Latitude == null)
+                                .ThenBy(s => s.Latitude)
+                                .ThenBy(s => s.Longitude) },
 
-                // Sort by null locations first, then by location (A-Z)
-                { "location-null", q => q.OrderBy(s => s.Latitude == null ? 0 : 1).ThenBy(s => s.Longitude == null ? 0 : 1) }
+            // Sort by location (Latitude DESC, Longitude DESC), nulls at the bottom
+            { "location-desc", q => q.OrderBy(s => s.Latitude == null)
+                                    .ThenByDescending(s => s.Latitude)
+                                    .ThenByDescending(s => s.Longitude) },
 
-            };
+            // Sort by null locations first, then by location (Latitude ASC, Longitude ASC)
+            { "location-null", q => q.OrderBy(s => s.Latitude == null ? 0 : 1)
+                                    .ThenBy(s => s.Latitude)
+                                    .ThenBy(s => s.Longitude) }
+        };
 
             var sightings = await sightingsQuery.ToListAsync();
             return View(await sightingsQuery.ToListAsync());
