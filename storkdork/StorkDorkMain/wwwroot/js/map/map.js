@@ -224,13 +224,92 @@ async function checkUserLoggedIn() {
     }
 }
 
-window.onload = async function() {
-    setupGeolocation();
+/**
+ * Creates a Leaflet control for linking to Nearby Sightings with the current map location
+ * @returns {L.Control} The configured Nearby Sightings control
+ */
+function createNearbySightingsControl() {
+    L.Control.NearbySightings = L.Control.extend({
+        onAdd: function(map) {
+            // Create the main container
+            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control nearby-sightings-control');
+            
+            // Apply styles to container
+            styleControlContainer(container);
+            
+            // Create and configure the link element
+            const link = createControlLink(container);
+            
+            // Set up link behavior with map
+            initializeNearbySightingsLink(link, map);
+            
+            // Prevent map clicks from propagating through the control
+            L.DomEvent.disableClickPropagation(container);
+            
+            return container;
+        }
+    });
 
+    return new L.Control.NearbySightings({ position: 'topright' });
+}
+
+/**
+ * Style the control container element
+ * @param {HTMLElement} container - The control container element
+ */
+function styleControlContainer(container) {
+    container.style.backgroundColor = 'white';
+    container.style.padding = '0';
+    container.style.borderRadius = '4px';
+    container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+    container.style.margin = '10px';
+}
+
+/**
+ * Create and style the link element within the control
+ * @param {HTMLElement} container - The parent container
+ * @returns {HTMLElement} The created link element
+ */
+function createControlLink(container) {
+    const link = L.DomUtil.create('a', 'btn btn-primary', container);
+    link.id = 'nearby-sightings-link';
+    link.style.whiteSpace = 'nowrap';
+    link.style.padding = '10px 16px';
+    link.style.fontWeight = '500';
+    link.style.width = '100%';
+    link.style.display = 'flex';
+    link.style.alignItems = 'center';
+    link.innerHTML = '<i class="bi bi-binoculars-fill"></i>⠀Nearby Bird Sightings';
+    return link;
+}
+
+/**
+ * Initialize the nearby sightings link with map location passing
+ * @param {HTMLElement} link - The link element
+ * @param {L.Map} map - The Leaflet map
+ */
+function initializeNearbySightingsLink(link, map) {
+    // Update href with current coordinates
+    function updateLink() {
+        const center = map.getCenter();
+        link.href = `/NearbySightings/FromLocation?lat=${center.lat.toFixed(6)}&lng=${center.lng.toFixed(6)}`;
+    }
+    
+    // Update link when map moves
+    map.on('moveend', updateLink);
+    
+    // Initialize link on creation
+    updateLink();
+}
+
+/**
+ * Load user sightings based on login status
+ */
+async function loadUserSightings() {
     const isLoggedIn = await checkUserLoggedIn();
 
     if (isLoggedIn) {
-        const user = await fetchUser(); // still get full info
+        const user = await fetchUser();
         if (user && typeof user.id === "number") {
             await fetchSightingsByUser(user);
             await fetchOtherSightings(user.id);
@@ -241,6 +320,17 @@ window.onload = async function() {
     } else {
         await fetchAllSightings();
     }
+}
 
+window.onload = async function() {
+    setupGeolocation();
+    
+    await loadUserSightings();
+    
+    // Add the layer control
     L.control.layers(null, overlayMaps).addTo(map);
+    
+    // Add the nearby sightings control
+    const nearbySightingsControl = createNearbySightingsControl();
+    nearbySightingsControl.addTo(map);
 }

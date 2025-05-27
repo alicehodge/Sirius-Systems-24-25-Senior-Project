@@ -18,7 +18,26 @@ namespace StorkDorkMain.Controllers
             _birdRepository = birdRepository;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(decimal lat, decimal lng)
+        {
+            // if lat and lng are provided, use them as defaults
+            if (lat != 0 && lng != 0)
+            {
+                var viewModel = new NearbySightingsViewModel
+                {
+                    Radius = 25, // Default radius in km
+                    DefaultLatitude = lat,
+                    DefaultLongitude = lng
+                };
+
+                return View(viewModel);
+            }
+            else
+            {
+                return DefaultView();
+            };
+        }
+        private IActionResult DefaultView()
         {
             // Default values
             var viewModel = new NearbySightingsViewModel
@@ -48,5 +67,7 @@ namespace StorkDorkMain.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
+
+        
     }
 }

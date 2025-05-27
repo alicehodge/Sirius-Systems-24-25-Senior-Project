@@ -177,6 +177,76 @@ namespace StorkDorkTests
             });
         }
 
+        [Test]
+        public async Task GetNearbySightings_ApiError_ReturnsEmptyList()
+        {
+            // Arrange
+            SetupMockHttpResponse("", HttpStatusCode.InternalServerError);
+
+            // Act
+            var sightings = await _eBirdService.GetNearbySightings(44.8485, -123.2340, 25);
+
+            // Assert
+            Assert.That(sightings, Is.Empty);
+        }
+
+        [Test]
+        public async Task GetNearbySightings_EmptyResponse_ReturnsEmptyList()
+        {
+            // Arrange
+            SetupMockHttpResponse("[]");
+
+            // Act
+            var sightings = await _eBirdService.GetNearbySightings(44.8485, -123.2340, 25);
+
+            // Assert
+            Assert.That(sightings, Is.Empty);
+        }
+
+        [Test]
+        public async Task GetNearbySightings_InvalidRadius_ReturnsEmptyList()
+        {
+            // Arrange
+            var lat = 44.8485;
+            var lng = -123.2340;
+
+            // Act with invalid radius
+            var sightings = await _eBirdService.GetNearbySightings(lat, lng, 0);
+
+            // Assert
+            Assert.That(sightings, Is.Empty);
+        }
+
+        [Test]
+        public async Task GetNearbySightings_ValidRadius_ReturnsSightings()
+        {
+            // Arrange
+            var lat = 44.8485;
+            var lng = -123.2340;
+            var radius = 25; // km
+            var jsonResponse = @"[
+                {
+                    ""speciesCode"": ""cangoo"",
+                    ""comName"": ""Canada Goose"",
+                    ""sciName"": ""Branta canadensis"",
+                    ""locName"": ""Test Location"",
+                    ""obsDt"": ""2024-03-06 10:00"",
+                    ""howMany"": 2,
+                    ""lat"": 44.8485,
+                    ""lng"": -123.2340
+                }
+            ]";
+
+            SetupMockHttpResponse(jsonResponse);
+
+            // Act
+            var sightings = await _eBirdService.GetNearbySightings(lat, lng, radius);
+
+            // Assert
+            Assert.That(sightings, Is.Not.Empty);
+            Assert.That(sightings.First().CommonName, Is.EqualTo("Canada Goose"));
+        }
+
         private void SetupMockHttpResponse(string content, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             _mockHttpHandler
