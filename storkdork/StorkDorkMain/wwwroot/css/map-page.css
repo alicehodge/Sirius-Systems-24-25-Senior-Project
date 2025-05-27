@@ -5,16 +5,16 @@ html, body {
 }
 
 .map-page {
-    height: 100vh;
+    height: 96vh;
     margin: 0;
     padding: 0;
 }
 
 .map-page #map {
-    height: 98%;
+    height: 100%;
     width: 100%;
 }
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip  {
-    background-color: #E9E3B4 !important;
+    background-color: #F2F8DB !important;
 }

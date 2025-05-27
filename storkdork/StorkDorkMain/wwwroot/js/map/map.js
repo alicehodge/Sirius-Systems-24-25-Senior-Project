@@ -1,8 +1,10 @@
+// Written by Christian Raymon
+
 // module.exports = {fetchUser, fetchSightingsByUser, makeSightingMarkers};
 
 // Code for Map div
 // Create map centered using the given default location
-const map = L.map('map').setView([44.8485, -123.2340], 14);
+let map = L.map('map').setView([44.8485, -123.2340], 14);
 
 const allSightingsGroup = L.layerGroup().addTo(map);
 const usersSightingsGroup = L.layerGroup().addTo(map);
@@ -24,6 +26,27 @@ var storkDorkIcon = L.icon({
     iconUrl: '../images/map/StorkMarkerIcon.png',
     iconSize: [64, 64]
 })
+
+
+/* geolocation courtesy of Alice Hodge */
+// document.addEventListener('DOMContentLoaded', function() {
+//     setupGeolocation();
+// });
+
+function setupGeolocation() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                map.setView([position.coords.latitude, position.coords.longitude], 13);
+            },
+            function(error) {
+                console.error("Geolocation error:", error.message);
+            }
+        );
+    }
+}
+
+/* --------------------------------- */
 
 async function fetchAllSightings() {
     let url = `/api/map/GetSightings`;
@@ -165,7 +188,7 @@ async function updateSightingLocation(sightingId, country, subdivision) {
         subdivision: subdivision || "Unknown"
     };
 
-    console.log("Sending payload:", payload);
+    // console.log("Sending payload:", payload);
 
     try {
         const response = await fetch("/api/sighting/UpdateLocation", {
@@ -175,13 +198,13 @@ async function updateSightingLocation(sightingId, country, subdivision) {
         });
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Failed to update location: ${response.status} - ${errorText}`);
+            // const errorText = await response.text();
+            // throw new Error(`Failed to update location: ${response.status} - ${errorText}`);
         }
 
-        console.log(`Successfully updated location for sighting ${sightingId}`);
+        // console.log(`Successfully updated location for sighting ${sightingId}`);
     } catch (error) {
-        console.error("Error updating sighting location:", error);
+        // console.error("Error updating sighting location:", error);
     }
 }
 
@@ -202,6 +225,8 @@ async function checkUserLoggedIn() {
 }
 
 window.onload = async function() {
+    setupGeolocation();
+
     const isLoggedIn = await checkUserLoggedIn();
 
     if (isLoggedIn) {
