@@ -118,6 +118,65 @@ namespace StorkDorkTests
             Assert.That(sightings, Is.Empty);
         }
 
+        [Test]
+        public async Task GetNearbySightings_ReturnsUniqueSightings()
+        {
+            // Arrange
+            var jsonResponse = @"[
+                {
+                    ""speciesCode"": ""cangoo"",
+                    ""comName"": ""Canada Goose"",
+                    ""sciName"": ""Branta canadensis"",
+                    ""locName"": ""Location A"",
+                    ""obsDt"": ""2024-05-20 10:00"",
+                    ""howMany"": 2,
+                    ""lat"": 44.8485,
+                    ""lng"": -123.2340
+                },
+                {
+                    ""speciesCode"": ""cangoo"",
+                    ""comName"": ""Canada Goose"",
+                    ""sciName"": ""Branta canadensis"",
+                    ""locName"": ""Location B"",
+                    ""obsDt"": ""2024-05-25 10:00"",
+                    ""howMany"": 5,
+                    ""lat"": 44.9485,
+                    ""lng"": -123.3340
+                },
+                {
+                    ""speciesCode"": ""amecro"",
+                    ""comName"": ""American Crow"",
+                    ""sciName"": ""Corvus brachyrhynchos"",
+                    ""locName"": ""Location C"",
+                    ""obsDt"": ""2024-05-24 10:00"",
+                    ""howMany"": 1,
+                    ""lat"": 44.7485,
+                    ""lng"": -123.1340
+                }
+            ]";
+
+            SetupMockHttpResponse(jsonResponse);
+
+            // Act
+            var sightings = await _eBirdService.GetNearbySightings(44.8485, -123.2340, 25);
+
+            // Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(sightings.Count(), Is.EqualTo(2)); // Two unique species
+                
+                // Check that for Canada Goose, we get the more recent sighting (Location B)
+                var canadaGoose = sightings.FirstOrDefault(s => s.SpeciesCode == "cangoo");
+                Assert.That(canadaGoose, Is.Not.Null);
+                Assert.That(canadaGoose.LocationName, Is.EqualTo("Location B"));
+                Assert.That(canadaGoose.Count, Is.EqualTo(5));
+                
+                var crow = sightings.FirstOrDefault(s => s.SpeciesCode == "amecro");
+                Assert.That(crow, Is.Not.Null);
+                Assert.That(crow.CommonName, Is.EqualTo("American Crow"));
+            });
+        }
+
         private void SetupMockHttpResponse(string content, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             _mockHttpHandler
